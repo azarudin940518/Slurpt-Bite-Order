@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>POS Slurp & Bite</title>
+    <title>Slurp & Bite POS Pro</title>
     <style>
-        :root { --p: #2d5a27; --a: #d35400; --bg: #f4f7f4; }
+        :root { --p: #2d5a27; --a: #d35400; --bg: #f4f7f4; --red: #e74c3c; }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body { margin: 0; font-family: -apple-system, sans-serif; background: var(--bg); height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
         
@@ -13,13 +13,15 @@
 
         /* BUILDER SECTION */
         .builder { background: #fff3e0; padding: 10px; border-bottom: 2px solid var(--a); flex-shrink: 0; z-index: 10; }
-        #set-list { font-weight: bold; font-size: 13px; margin-bottom: 8px; color: #333; min-height: 18px; line-height: 1.4; }
+        .set-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; }
+        #set-list { font-weight: bold; font-size: 13px; color: #333; line-height: 1.4; flex: 1; }
+        .btn-reset { background: var(--red); color: white; border: none; padding: 4px 8px; border-radius: 4px; font-size: 10px; margin-left: 5px; }
         .input { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 8px; margin-bottom: 8px; font-size: 14px; -webkit-appearance: none; }
         .btn-add { width: 100%; background: var(--a); color: white; border: none; padding: 12px; border-radius: 8px; font-weight: bold; font-size: 14px; }
 
         /* MENU SECTION */
-        .menu-wrap { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 10px; padding-bottom: 150px; }
-        .cat-row { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 12px; -webkit-overflow-scrolling: touch; }
+        .menu-wrap { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 10px; padding-bottom: 180px; }
+        .cat-row { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 12px; }
         .cat-row::-webkit-scrollbar { display: none; }
         .c-btn { padding: 8px 15px; background: white; border: 1px solid #ddd; border-radius: 20px; white-space: nowrap; font-weight: bold; font-size: 12px; }
         .c-btn.active { background: var(--p); color: white; border-color: var(--p); }
@@ -27,15 +29,22 @@
         .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
         .card { background: white; padding: 8px; border-radius: 10px; border: 1px solid #eee; text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
         .card img { width: 100%; height: 85px; object-fit: cover; border-radius: 6px; background: #eee; }
-        .card h4 { font-size: 12px; margin: 6px 0; height: 30px; overflow: hidden; display: flex; align-items: center; justify-content: center; line-height: 1.2; }
+        .card h4 { font-size: 12px; margin: 6px 0; height: 30px; overflow: hidden; display: flex; align-items: center; justify-content: center; }
         .card p { font-weight: bold; color: var(--p); margin: 0; font-size: 14px; }
 
-        /* FOOTER / CART */
+        /* FOOTER / CART AREA */
         .footer { position: fixed; bottom: 0; width: 100%; background: white; border-top: 2px solid var(--p); padding: 12px; z-index: 1000; padding-bottom: env(safe-area-inset-bottom); }
-        .cart-info { font-size: 11px; color: #666; margin-bottom: 8px; max-height: 40px; overflow-y: auto; }
+        .cart-preview { max-height: 80px; overflow-y: auto; font-size: 11px; color: #444; margin-bottom: 10px; border-bottom: 1px solid #eee; padding-bottom: 5px; }
+        .cart-row-item { display: flex; justify-content: space-between; margin-bottom: 4px; align-items: center; }
+        .btn-del { color: var(--red); font-weight: bold; padding: 2px 5px; border: none; background: none; }
+        
+        .calc-row { display: flex; gap: 10px; margin-bottom: 10px; }
+        .calc-row input { flex: 1; padding: 8px; border: 1px solid #ddd; border-radius: 5px; font-size: 14px; }
+        .baki-box { font-size: 12px; font-weight: bold; color: var(--red); align-self: center; }
+
         .row { display: flex; justify-content: space-between; align-items: center; }
         .total { font-size: 18px; font-weight: bold; color: var(--p); }
-        .btn-pay { background: var(--p); color: white; border: none; padding: 12px 20px; border-radius: 8px; font-weight: bold; }
+        .btn-pay { background: var(--p); color: white; border: none; padding: 12px 25px; border-radius: 8px; font-weight: bold; }
     </style>
 </head>
 <body>
@@ -43,9 +52,12 @@
 <header>SLURP & BITE TAMAN ROSA</header>
 
 <div class="builder">
-    <div id="set-list">Pilih menu untuk bina set...</div>
-    <input type="text" id="remark" class="input" placeholder="Nota (cth: Tak nak pedas / Bungkus)">
-    <button class="btn-add" id="add-btn" onclick="simpanKeTroli()" disabled>+ TAMBAH SET KE TROLI</button>
+    <div class="set-header">
+        <div id="set-list">Sila pilih menu...</div>
+        <button class="btn-reset" onclick="resetSet()">RESET</button>
+    </div>
+    <input type="text" id="remark" class="input" placeholder="Nota Set (cth: Tak nak pedas)">
+    <button class="btn-add" id="add-btn" onclick="simpanKeTroli()" disabled>+ MASUK TROLI</button>
 </div>
 
 <div class="menu-wrap">
@@ -59,17 +71,23 @@
 </div>
 
 <div class="footer">
-    <div id="cart-info" class="cart-info">Troli Kosong</div>
+    <div id="cart-preview" class="cart-preview">Troli Kosong</div>
+    
+    <div class="calc-row">
+        <input type="text" id="cust-name" placeholder="Nama Pelanggan">
+        <input type="number" id="cash-in" placeholder="Tunai RM" oninput="kiraBaki()">
+        <div class="baki-box">Baki: RM <span id="baki-total">0.00</span></div>
+    </div>
+
     <div class="row">
         <div class="total">Total: RM <span id="g-total">0.00</span></div>
-        <button class="btn-pay" onclick="buatBayaran()">BAYAR</button>
+        <button class="btn-pay" onclick="buatBayaran()">BAYAR & WA</button>
     </div>
 </div>
 
 <script>
     const WA_NO = "60133002678";
     const items = [
-        // MAKANAN
         { c: 'Makanan', n: 'Oden Original', p: 0.00, i: 'https://i.postimg.cc/jCxvWrQT/oden.jpg' },
         { c: 'Makanan', n: 'Dry Pan Mee', p: 4.00, i: 'https://i.postimg.cc/Wt58gfXL/pan-mee.jpg' },
         { c: 'Makanan', n: 'Indo Mee', p: 3.00, i: 'https://i.postimg.cc/dkBBWWFr/indo-mee.jpg' },
@@ -77,14 +95,12 @@
         { c: 'Makanan', n: 'Mee Korean Spicy', p: 4.00, i: 'https://i.postimg.cc/RJZT2cV4/mee-sedap-spicy.jpg' },
         { c: 'Makanan', n: 'Nissin Korean', p: 5.00, i: 'https://i.postimg.cc/xqfgkSyS/nissin.jpg' },
         { c: 'Makanan', n: 'Wow Spageti', p: 3.00, i: 'https://i.postimg.cc/gnrDDqTQ/wow.jpg' },
-        // MINUMAN
         { c: 'Minuman', n: 'Chocolate Ice', p: 3.00, i: 'https://i.postimg.cc/bdyLGj0M/chocolate.png' },
         { c: 'Minuman', n: 'Green Tea Ice', p: 3.00, i: 'https://i.postimg.cc/Lh9vqMBF/green-tea.png' },
         { c: 'Minuman', n: 'Thai Tea Ice', p: 3.00, i: 'https://i.postimg.cc/pp7B15NX/thai-tea.png' },
         { c: 'Minuman', n: 'White Coffee', p: 5.00, i: 'https://i.postimg.cc/876b8kD1/white-coffee.png' },
         { c: 'Minuman', n: 'Aiskrim Float', p: 2.50, i: 'https://i.postimg.cc/f3Y5dzry/float.jpg' },
         { c: 'Minuman', n: 'Air Seringgit', p: 1.00, i: 'https://i.postimg.cc/t7BkWm24/singgit.jpg' },
-        // ADD ON
         { c: 'Add On', n: 'Enoki', p: 1.00, i: 'https://i.postimg.cc/DW15GvMw/enoki.webp' },
         { c: 'Add On', n: 'Fucuk Ikan', p: 1.00, i: 'https://i.postimg.cc/S2qd7BBY/fucuk-ikan.jpg' },
         { c: 'Add On', n: 'Sosej', p: 1.00, i: 'https://i.postimg.cc/BtmpHwMJ/sosej.jpg' },
@@ -110,12 +126,22 @@
             card.className = 'card';
             card.onclick = () => {
                 currentSet.push(item);
-                document.getElementById('set-list').innerText = currentSet.map(x => x.n).join(' + ');
-                document.getElementById('add-btn').disabled = false;
+                updateSetDisplay();
             };
             card.innerHTML = `<img src="${item.i}" loading="lazy"><h4>${item.n}</h4><p>RM ${item.p.toFixed(2)}</p>`;
             grid.appendChild(card);
         });
+    }
+
+    function updateSetDisplay() {
+        document.getElementById('set-list').innerText = currentSet.length ? currentSet.map(x => x.n).join(' + ') : 'Sila pilih menu...';
+        document.getElementById('add-btn').disabled = currentSet.length === 0;
+    }
+
+    function resetSet() {
+        currentSet = [];
+        document.getElementById('remark').value = '';
+        updateSetDisplay();
     }
 
     function filterCat(cat, btn) {
@@ -125,36 +151,52 @@
     }
 
     function simpanKeTroli() {
-        const totalHargaSet = currentSet.reduce((a, b) => a + b.p, 0);
-        cart.push({
-            desc: currentSet.map(x => x.n).join(' + '),
-            note: document.getElementById('remark').value,
-            price: totalHargaSet
-        });
-        currentSet = [];
-        document.getElementById('remark').value = '';
-        document.getElementById('set-list').innerText = 'Set berjaya ditambah!';
-        document.getElementById('add-btn').disabled = true;
+        const price = currentSet.reduce((a, b) => a + b.p, 0);
+        cart.push({ desc: currentSet.map(x => x.n).join(' + '), note: document.getElementById('remark').value, price: price });
+        resetSet();
         updateCartDisplay();
     }
 
     function updateCartDisplay() {
+        const preview = document.getElementById('cart-preview');
+        if (cart.length === 0) {
+            preview.innerText = 'Troli Kosong';
+        } else {
+            preview.innerHTML = cart.map((c, i) => `
+                <div class="cart-row-item">
+                    <span>${i+1}. ${c.desc.substring(0,30)}.. (RM ${c.price.toFixed(2)})</span>
+                    <button class="btn-del" onclick="padamCart(${i})">X</button>
+                </div>`).join('');
+        }
         const total = cart.reduce((a, b) => a + b.price, 0);
         document.getElementById('g-total').innerText = total.toFixed(2);
-        document.getElementById('cart-info').innerHTML = cart.map((c, i) => `Set ${i+1}: ${c.desc}`).join('<br>');
+        kiraBaki();
+    }
+
+    function padamCart(idx) {
+        cart.splice(idx, 1);
+        updateCartDisplay();
+    }
+
+    function kiraBaki() {
+        const total = parseFloat(document.getElementById('g-total').innerText);
+        const tunai = parseFloat(document.getElementById('cash-in').value) || 0;
+        const baki = tunai - total;
+        document.getElementById('baki-total').innerText = baki > 0 ? baki.toFixed(2) : '0.00';
     }
 
     function buatBayaran() {
-        if (cart.length === 0) return alert("Pilih menu dahulu!");
-        const nama = prompt("Nama Pelanggan:");
-        if (!nama) return;
+        const nama = document.getElementById('cust-name').value;
+        if (!cart.length || !nama) return alert("Sila isi Nama & Troli!");
 
         let msg = `*SLURP & BITE TAMAN ROSA*\nPelanggan: ${nama}\n---\n`;
         cart.forEach((t, i) => {
-            msg += `*${i+1}.* ${t.desc}\n${t.note ? 'Nota: '+t.note+'\n' : ''}RM ${t.price.toFixed(2)}\n\n`;
+            msg += `*Set ${i+1}:* ${t.desc}\n${t.note ? 'Nota: '+t.note+'\n' : ''}RM ${t.price.toFixed(2)}\n\n`;
         });
-        const total = cart.reduce((a, b) => a + b.price, 0);
-        msg += `---\n*TOTAL: RM ${total.toFixed(2)}*`;
+        const total = document.getElementById('g-total').innerText;
+        const tunai = document.getElementById('cash-in').value || '0';
+        const baki = document.getElementById('baki-total').innerText;
+        msg += `---\n*TOTAL: RM ${total}*\nTUNAI: RM ${parseFloat(tunai).toFixed(2)}\nBAKI: RM ${baki}`;
         
         window.location.href = `https://wa.me/${WA_NO}?text=${encodeURIComponent(msg)}`;
     }
