@@ -3,83 +3,163 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Slurp & Bite POS</title>
+    <title>POS Slurp & Bite</title>
     <style>
         :root { --p: #2d5a27; --a: #d35400; --bg: #f4f7f4; }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        body { margin: 0; font-family: -apple-system, sans-serif; background: var(--bg); }
-        header { background: var(--p); color: white; padding: 15px; text-align: center; font-weight: bold; position: sticky; top: 0; z-index: 1000; }
-        .builder { background: #fff3e0; padding: 15px; border-bottom: 2px solid var(--a); position: sticky; top: 48px; z-index: 999; }
-        #set-list { font-weight: bold; font-size: 14px; margin-bottom: 10px; color: #d35400; min-height: 20px; }
-        .input { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 8px; margin-bottom: 10px; font-size: 16px; }
-        .btn-add { width: 100%; background: var(--a); color: white; border: none; padding: 15px; border-radius: 8px; font-weight: bold; }
-        .menu-wrap { padding: 10px; padding-bottom: 120px; }
-        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-        .card { background: white; padding: 8px; border-radius: 12px; border: 1px solid #eee; text-align: center; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
-        .card img { width: 100%; height: 90px; object-fit: cover; border-radius: 8px; background: #eee; }
-        .footer { position: fixed; bottom: 0; width: 100%; background: white; border-top: 2px solid var(--p); padding: 15px; z-index: 1000; }
-        .btn-pay { background: var(--p); color: white; border: none; padding: 12px 25px; border-radius: 8px; font-weight: bold; width: 100%; }
+        body { margin: 0; font-family: -apple-system, sans-serif; background: var(--bg); height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+        
+        header { background: var(--p); color: white; padding: 12px; text-align: center; font-weight: bold; flex-shrink: 0; }
+
+        /* BUILDER SECTION */
+        .builder { background: #fff3e0; padding: 10px; border-bottom: 2px solid var(--a); flex-shrink: 0; z-index: 10; }
+        #set-list { font-weight: bold; font-size: 13px; margin-bottom: 8px; color: #333; min-height: 18px; line-height: 1.4; }
+        .input { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 8px; margin-bottom: 8px; font-size: 14px; -webkit-appearance: none; }
+        .btn-add { width: 100%; background: var(--a); color: white; border: none; padding: 12px; border-radius: 8px; font-weight: bold; font-size: 14px; }
+
+        /* MENU SECTION */
+        .menu-wrap { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 10px; padding-bottom: 150px; }
+        .cat-row { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 12px; -webkit-overflow-scrolling: touch; }
+        .cat-row::-webkit-scrollbar { display: none; }
+        .c-btn { padding: 8px 15px; background: white; border: 1px solid #ddd; border-radius: 20px; white-space: nowrap; font-weight: bold; font-size: 12px; }
+        .c-btn.active { background: var(--p); color: white; border-color: var(--p); }
+
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .card { background: white; padding: 8px; border-radius: 10px; border: 1px solid #eee; text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+        .card img { width: 100%; height: 85px; object-fit: cover; border-radius: 6px; background: #eee; }
+        .card h4 { font-size: 12px; margin: 6px 0; height: 30px; overflow: hidden; display: flex; align-items: center; justify-content: center; line-height: 1.2; }
+        .card p { font-weight: bold; color: var(--p); margin: 0; font-size: 14px; }
+
+        /* FOOTER / CART */
+        .footer { position: fixed; bottom: 0; width: 100%; background: white; border-top: 2px solid var(--p); padding: 12px; z-index: 1000; padding-bottom: env(safe-area-inset-bottom); }
+        .cart-info { font-size: 11px; color: #666; margin-bottom: 8px; max-height: 40px; overflow-y: auto; }
+        .row { display: flex; justify-content: space-between; align-items: center; }
+        .total { font-size: 18px; font-weight: bold; color: var(--p); }
+        .btn-pay { background: var(--p); color: white; border: none; padding: 12px 20px; border-radius: 8px; font-weight: bold; }
     </style>
 </head>
 <body>
+
 <header>SLURP & BITE TAMAN ROSA</header>
+
 <div class="builder">
-    <div id="set-list">Pilih menu...</div>
-    <input type="text" id="remark" class="input" placeholder="Nota (cth: Tak nak pedas)">
-    <button class="btn-add" id="add-btn" onclick="simpanKeTroli()" disabled>TAMBAH SET KE TROLI</button>
+    <div id="set-list">Pilih menu untuk bina set...</div>
+    <input type="text" id="remark" class="input" placeholder="Nota (cth: Tak nak pedas / Bungkus)">
+    <button class="btn-add" id="add-btn" onclick="simpanKeTroli()" disabled>+ TAMBAH SET KE TROLI</button>
 </div>
-<div class="menu-wrap"><div class="grid" id="menu-grid"></div></div>
+
+<div class="menu-wrap">
+    <div class="cat-row">
+        <button class="c-btn active" onclick="filterCat('Semua', this)">Semua</button>
+        <button class="c-btn" onclick="filterCat('Makanan', this)">Makanan</button>
+        <button class="c-btn" onclick="filterCat('Add On', this)">Add On</button>
+        <button class="c-btn" onclick="filterCat('Minuman', this)">Minuman</button>
+    </div>
+    <div class="grid" id="menu-grid"></div>
+</div>
+
 <div class="footer">
-    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-        <b style="color:var(--p)">Total: RM <span id="g-total">0.00</span></b>
-        <button class="btn-pay" style="width:auto" onclick="buatBayaran()">BAYAR</button>
+    <div id="cart-info" class="cart-info">Troli Kosong</div>
+    <div class="row">
+        <div class="total">Total: RM <span id="g-total">0.00</span></div>
+        <button class="btn-pay" onclick="buatBayaran()">BAYAR</button>
     </div>
 </div>
+
 <script>
+    const WA_NO = "60133002678";
     const items = [
-        { n: 'Oden Original', p: 0.00, i: 'https://i.postimg.cc/jCxvWrQT/oden.jpg' },
-        { n: 'Dry Pan Mee', p: 4.00, i: 'https://i.postimg.cc/Wt58gfXL/pan-mee.jpg' },
-        { n: 'Indo Mee', p: 3.00, i: 'https://i.postimg.cc/dkBBWWFr/indo-mee.jpg' },
-        { n: 'Mee Korean Cheese', p: 4.00, i: 'https://i.postimg.cc/5Q2mDwNJ/mee-sedap-cheese.jpg' },
-        { n: 'Mee Korean Spicy', p: 4.00, i: 'https://i.postimg.cc/RJZT2cV4/mee-sedap-spicy.jpg' },
-        { n: 'Chocolate Ice', p: 3.00, i: 'https://i.postimg.cc/bdyLGj0M/chocolate.png' },
-        { n: 'Enoki', p: 1.00, i: 'https://i.postimg.cc/DW15GvMw/enoki.webp' },
-        { n: 'Fucuk Ikan', p: 1.00, i: 'https://i.postimg.cc/S2qd7BBY/fucuk-ikan.jpg' },
-        { n: 'Sosej', p: 1.00, i: 'https://i.postimg.cc/BtmpHwMJ/sosej.jpg' }
+        // MAKANAN
+        { c: 'Makanan', n: 'Oden Original', p: 0.00, i: 'https://i.postimg.cc/jCxvWrQT/oden.jpg' },
+        { c: 'Makanan', n: 'Dry Pan Mee', p: 4.00, i: 'https://i.postimg.cc/Wt58gfXL/pan-mee.jpg' },
+        { c: 'Makanan', n: 'Indo Mee', p: 3.00, i: 'https://i.postimg.cc/dkBBWWFr/indo-mee.jpg' },
+        { c: 'Makanan', n: 'Mee Korean Cheese', p: 4.00, i: 'https://i.postimg.cc/5Q2mDwNJ/mee-sedap-cheese.jpg' },
+        { c: 'Makanan', n: 'Mee Korean Spicy', p: 4.00, i: 'https://i.postimg.cc/RJZT2cV4/mee-sedap-spicy.jpg' },
+        { c: 'Makanan', n: 'Nissin Korean', p: 5.00, i: 'https://i.postimg.cc/xqfgkSyS/nissin.jpg' },
+        { c: 'Makanan', n: 'Wow Spageti', p: 3.00, i: 'https://i.postimg.cc/gnrDDqTQ/wow.jpg' },
+        // MINUMAN
+        { c: 'Minuman', n: 'Chocolate Ice', p: 3.00, i: 'https://i.postimg.cc/bdyLGj0M/chocolate.png' },
+        { c: 'Minuman', n: 'Green Tea Ice', p: 3.00, i: 'https://i.postimg.cc/Lh9vqMBF/green-tea.png' },
+        { c: 'Minuman', n: 'Thai Tea Ice', p: 3.00, i: 'https://i.postimg.cc/pp7B15NX/thai-tea.png' },
+        { c: 'Minuman', n: 'White Coffee', p: 5.00, i: 'https://i.postimg.cc/876b8kD1/white-coffee.png' },
+        { c: 'Minuman', n: 'Aiskrim Float', p: 2.50, i: 'https://i.postimg.cc/f3Y5dzry/float.jpg' },
+        { c: 'Minuman', n: 'Air Seringgit', p: 1.00, i: 'https://i.postimg.cc/t7BkWm24/singgit.jpg' },
+        // ADD ON
+        { c: 'Add On', n: 'Enoki', p: 1.00, i: 'https://i.postimg.cc/DW15GvMw/enoki.webp' },
+        { c: 'Add On', n: 'Fucuk Ikan', p: 1.00, i: 'https://i.postimg.cc/S2qd7BBY/fucuk-ikan.jpg' },
+        { c: 'Add On', n: 'Sosej', p: 1.00, i: 'https://i.postimg.cc/BtmpHwMJ/sosej.jpg' },
+        { c: 'Add On', n: 'Telur', p: 1.00, i: 'https://i.postimg.cc/9zLbZNJD/telur.jpg' },
+        { c: 'Add On', n: 'Ketam', p: 1.00, i: 'https://i.postimg.cc/YG33XX7Q/ketam.jpg' },
+        { c: 'Add On', n: 'Sotong', p: 1.00, i: 'https://i.postimg.cc/yWLjcrv3/sotong.jpg' },
+        { c: 'Add On', n: 'Salmon Ball', p: 1.00, i: 'https://i.postimg.cc/vD0hfS3s/salmon.jpg' },
+        { c: 'Add On', n: 'Lobster Ball', p: 1.00, i: 'https://i.postimg.cc/vgzzPPyX/lobster.jpg' },
+        { c: 'Add On', n: 'Maggi', p: 1.00, i: 'https://i.postimg.cc/gXDDMMpM/maggi.jpg' },
+        { c: 'Add On', n: 'Ikan', p: 1.00, i: 'https://i.postimg.cc/LYRDBccJ/ikan.jpg' },
+        { c: 'Add On', n: 'Udang', p: 1.00, i: 'https://i.postimg.cc/9rzpptn4/udang.jpg' },
+        { c: 'Add On', n: 'Filament Stick', p: 1.00, i: 'https://i.postimg.cc/XZ9x5jzv/filament.jpg' }
     ];
-    let currentSet = [], cart = [];
-    function renderItems() {
+
+    let currentSet = [];
+    let cart = [];
+
+    function renderMenu(filter = 'Semua') {
         const grid = document.getElementById('menu-grid');
-        grid.innerHTML = items.map((item, idx) => `
-            <div class="card" onclick="pilih(${idx})">
-                <img src="${item.i}">
-                <h4 style="font-size:12px; margin:8px 0;">${item.n}</h4>
-                <p style="font-weight:bold; color:var(--p); margin:0;">RM ${item.p.toFixed(2)}</p>
-            </div>`).join('');
+        grid.innerHTML = '';
+        items.filter(i => filter === 'Semua' || i.c === filter).forEach(item => {
+            const card = document.createElement('div');
+            card.className = 'card';
+            card.onclick = () => {
+                currentSet.push(item);
+                document.getElementById('set-list').innerText = currentSet.map(x => x.n).join(' + ');
+                document.getElementById('add-btn').disabled = false;
+            };
+            card.innerHTML = `<img src="${item.i}" loading="lazy"><h4>${item.n}</h4><p>RM ${item.p.toFixed(2)}</p>`;
+            grid.appendChild(card);
+        });
     }
-    function pilih(idx) {
-        currentSet.push(items[idx]);
-        document.getElementById('set-list').innerText = currentSet.map(x => x.n).join(' + ');
-        document.getElementById('add-btn').disabled = false;
+
+    function filterCat(cat, btn) {
+        document.querySelectorAll('.c-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        renderMenu(cat);
     }
+
     function simpanKeTroli() {
-        const price = currentSet.reduce((a, b) => a + b.p, 0);
-        cart.push({ desc: currentSet.map(x => x.n).join(', '), note: document.getElementById('remark').value, price: price });
-        currentSet = []; document.getElementById('remark').value = '';
-        document.getElementById('set-list').innerText = 'Set ditambah!';
+        const totalHargaSet = currentSet.reduce((a, b) => a + b.p, 0);
+        cart.push({
+            desc: currentSet.map(x => x.n).join(' + '),
+            note: document.getElementById('remark').value,
+            price: totalHargaSet
+        });
+        currentSet = [];
+        document.getElementById('remark').value = '';
+        document.getElementById('set-list').innerText = 'Set berjaya ditambah!';
         document.getElementById('add-btn').disabled = true;
-        document.getElementById('g-total').innerText = cart.reduce((a, b) => a + b.price, 0).toFixed(2);
+        updateCartDisplay();
     }
+
+    function updateCartDisplay() {
+        const total = cart.reduce((a, b) => a + b.price, 0);
+        document.getElementById('g-total').innerText = total.toFixed(2);
+        document.getElementById('cart-info').innerHTML = cart.map((c, i) => `Set ${i+1}: ${c.desc}`).join('<br>');
+    }
+
     function buatBayaran() {
-        if (!cart.length) return alert("Pilih menu!");
+        if (cart.length === 0) return alert("Pilih menu dahulu!");
         const nama = prompt("Nama Pelanggan:");
         if (!nama) return;
-        let msg = `*ORDER Slurp & Bite*\nPelanggan: ${nama}\n---\n`;
-        cart.forEach((t, i) => msg += `${i+1}. ${t.desc}\nNota: ${t.note}\nRM ${t.price.toFixed(2)}\n\n`);
-        msg += `---\n*TOTAL: RM ${document.getElementById('g-total').innerText}*`;
-        window.location.href = `https://wa.me/60133002678?text=${encodeURIComponent(msg)}`;
+
+        let msg = `*SLURP & BITE TAMAN ROSA*\nPelanggan: ${nama}\n---\n`;
+        cart.forEach((t, i) => {
+            msg += `*${i+1}.* ${t.desc}\n${t.note ? 'Nota: '+t.note+'\n' : ''}RM ${t.price.toFixed(2)}\n\n`;
+        });
+        const total = cart.reduce((a, b) => a + b.price, 0);
+        msg += `---\n*TOTAL: RM ${total.toFixed(2)}*`;
+        
+        window.location.href = `https://wa.me/${WA_NO}?text=${encodeURIComponent(msg)}`;
     }
-    window.onload = renderItems;
+
+    window.onload = () => renderMenu();
 </script>
 </body>
 </html>
