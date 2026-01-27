@@ -3,244 +3,83 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Slurp & Bite POS - Full Menu & Auto Set</title>
+    <title>Slurp & Bite POS</title>
     <style>
-        :root { --primary: #2d5a27; --whatsapp: #25D366; --danger: #e74c3c; --bg: #f4f7f4; --accent: #d35400; }
+        :root { --p: #2d5a27; --a: #d35400; --bg: #f4f7f4; }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        
-        body { 
-            margin: 0; 
-            font-family: -apple-system, system-ui, sans-serif; 
-            background: var(--bg); 
-            height: 100vh; 
-            display: flex; 
-            flex-direction: column; 
-            overflow: hidden; 
-        }
-        
-        nav { background: var(--primary); color: white; text-align: center; padding: 12px; font-weight: bold; font-size: 1.1rem; }
-
-        .set-builder { background: #fff3e0; padding: 12px; border-bottom: 2px solid var(--accent); box-shadow: 0 2px 5px rgba(0,0,0,0.1); z-index: 110; flex-shrink: 0; }
-        .set-title { font-size: 11px; font-weight: bold; color: var(--accent); margin-bottom: 5px; display: flex; justify-content: space-between; }
-        .current-set-items { font-size: 14px; color: #333; font-weight: 600; min-height: 20px; margin-bottom: 8px; line-height: 1.4; }
-        .remark-box { width: 100%; padding: 10px; border: 1px solid #fab1a0; border-radius: 8px; font-size: 14px; margin-bottom: 10px; outline: none; -webkit-appearance: none; }
-        .btn-add-set { width: 100%; background: var(--accent); color: white; border: none; padding: 12px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 14px; }
-        .btn-add-set:disabled { background: #ccc; }
-
-        .menu-area { flex: 1; overflow-y: scroll; -webkit-overflow-scrolling: touch; padding-bottom: 150px; }
-        .header-tools { padding: 10px; background: white; position: sticky; top: 0; z-index: 100; border-bottom: 1px solid #ddd; }
-        .category-bar { display: flex; gap: 8px; overflow-x: auto; padding: 5px 0; -webkit-overflow-scrolling: touch; }
-        .category-bar::-webkit-scrollbar { display: none; }
-        .cat-btn { padding: 8px 18px; border-radius: 20px; border: 1px solid #ddd; background: white; font-size: 13px; white-space: nowrap; font-weight: 600; }
-        .cat-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
-
-        .menu-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 10px; }
-        .product-card { background: white; border-radius: 12px; padding: 10px; text-align: center; border: 1px solid #eee; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
-        .product-card img { width: 100%; height: 95px; object-fit: cover; border-radius: 8px; background: #f0f0f0; }
-        .product-card h4 { margin: 8px 0 4px; font-size: 0.85rem; height: 34px; overflow: hidden; display: flex; align-items: center; justify-content: center; line-height: 1.2; }
-        .product-card p { margin: 0; color: var(--primary); font-weight: bold; font-size: 1rem; }
-
-        .cart-section { background: white; border-top: 2px solid var(--primary); position: fixed; bottom: 0; width: 100%; z-index: 1000; box-shadow: 0 -3px 15px rgba(0,0,0,0.15); }
-        .cart-toggle-btn { background: #f0f0f0; text-align: center; padding: 8px; font-size: 11px; font-weight: bold; color: #555; }
-        .cart-content { max-height: 0; overflow: hidden; transition: 0.3s ease-out; }
-        .cart-content.open { max-height: 400px; overflow-y: auto; padding: 15px; -webkit-overflow-scrolling: touch; }
-        
-        .cart-item { border-bottom: 1px solid #f0f0f0; padding: 10px 0; }
-        .item-details { font-size: 12px; color: #666; background: #fdf2e9; padding: 8px; border-radius: 6px; margin-top: 6px; border-left: 3px solid var(--accent); }
-        .item-remark { font-size: 11px; color: var(--danger); font-weight: bold; margin-top: 4px; display: block; }
-
-        .input-box { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; margin-bottom: 10px; font-size: 16px; -webkit-appearance: none; }
-        .cart-summary { padding: 12px 15px; background: white; border-top: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; padding-bottom: env(safe-area-inset-bottom); }
-        .total-price { font-size: 1.2rem; font-weight: bold; color: var(--primary); }
-        .btn-checkout { background: var(--primary); color: white; border: none; padding: 12px 25px; border-radius: 8px; font-weight: bold; }
-
-        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 2000; justify-content: center; align-items: center; padding: 20px; }
-        .modal-content { background: white; padding: 20px; border-radius: 15px; width: 100%; max-width: 380px; }
-        
-        @media (min-width: 768px) { .menu-grid { grid-template-columns: repeat(4, 1fr); } }
+        body { margin: 0; font-family: -apple-system, sans-serif; background: var(--bg); }
+        header { background: var(--p); color: white; padding: 15px; text-align: center; font-weight: bold; position: sticky; top: 0; z-index: 1000; }
+        .builder { background: #fff3e0; padding: 15px; border-bottom: 2px solid var(--a); position: sticky; top: 48px; z-index: 999; }
+        #set-list { font-weight: bold; font-size: 14px; margin-bottom: 10px; color: #d35400; min-height: 20px; }
+        .input { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 8px; margin-bottom: 10px; font-size: 16px; }
+        .btn-add { width: 100%; background: var(--a); color: white; border: none; padding: 15px; border-radius: 8px; font-weight: bold; }
+        .menu-wrap { padding: 10px; padding-bottom: 120px; }
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .card { background: white; padding: 8px; border-radius: 12px; border: 1px solid #eee; text-align: center; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        .card img { width: 100%; height: 90px; object-fit: cover; border-radius: 8px; background: #eee; }
+        .footer { position: fixed; bottom: 0; width: 100%; background: white; border-top: 2px solid var(--p); padding: 15px; z-index: 1000; }
+        .btn-pay { background: var(--p); color: white; border: none; padding: 12px 25px; border-radius: 8px; font-weight: bold; width: 100%; }
     </style>
 </head>
 <body>
-
-<nav>SLURP & BITE Taman Rosa</nav>
-
-<div class="set-builder" id="set-builder">
-    <div class="set-title"><span>BINA PESANAN (AUTO SET)</span> <span onclick="resetSet()" style="color:var(--danger)">Reset</span></div>
-    <div class="current-set-items" id="current-set-display">Sila pilih menu di bawah...</div>
-    <input type="text" id="set-remark" class="remark-box" placeholder="Tambah nota (cth: Tak nak pedas / Bungkus)">
-    <button class="btn-add-set" id="btn-confirm-set" onclick="confirmSetToCart()" disabled>+ MASUKKAN DALAM TROLI</button>
+<header>SLURP & BITE TAMAN ROSA</header>
+<div class="builder">
+    <div id="set-list">Pilih menu...</div>
+    <input type="text" id="remark" class="input" placeholder="Nota (cth: Tak nak pedas)">
+    <button class="btn-add" id="add-btn" onclick="simpanKeTroli()" disabled>TAMBAH SET KE TROLI</button>
 </div>
-
-<div class="menu-area">
-    <div class="header-tools">
-        <div class="category-bar">
-            <button class="cat-btn active" onclick="filterMenu('Semua')">Semua</button>
-            <button class="cat-btn" onclick="filterMenu('Makanan')">Makanan</button>
-            <button class="cat-btn" onclick="filterMenu('Add On')">Add On</button>
-            <button class="cat-btn" onclick="filterMenu('Minuman')">Minuman</button>
-        </div>
-    </div>
-    <div class="menu-grid" id="menu-grid"></div>
-</div>
-
-<div class="cart-section">
-    <div class="cart-toggle-btn" onclick="toggleCart()">▲ SEMAK SEMUA SET DALAM TROLI ▲</div>
-    <div id="cart-content" class="cart-content">
-        <div id="cart-list"><center style="padding:20px; color:#999;">Troli Kosong</center></div>
-        <div style="margin-top:10px;">
-            <input type="text" id="cust-name" class="input-box" placeholder="Nama Pelanggan *">
-            <input type="number" id="cash-in" class="input-box" placeholder="Tunai RM *" oninput="calcChange()">
-            <div style="text-align: right; font-size: 13px; margin-bottom: 10px;">Baki: <span id="change-display" style="font-weight:bold; color:var(--danger);">RM 0.00</span></div>
-        </div>
-    </div>
-    <div class="cart-summary">
-        <div class="total-price">Total: RM <span id="grand-total">0.00</span></div>
-        <button class="btn-checkout" onclick="checkout()">BAYAR</button>
+<div class="menu-wrap"><div class="grid" id="menu-grid"></div></div>
+<div class="footer">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+        <b style="color:var(--p)">Total: RM <span id="g-total">0.00</span></b>
+        <button class="btn-pay" style="width:auto" onclick="buatBayaran()">BAYAR</button>
     </div>
 </div>
-
-<div id="modal" class="modal">
-    <div class="modal-content">
-        <pre id="resit-area" style="font-family: monospace; font-size: 12px; white-space: pre-wrap; background: #f8f8f8; padding: 12px; border: 1px solid #ddd; max-height: 300px; overflow-y: auto;"></pre>
-        <button id="wa-btn" style="background:var(--whatsapp); color:white; width:100%; padding:15px; border:none; border-radius:10px; font-weight:bold; font-size:1rem; margin-top:15px;">HANTAR WHATSAPP</button>
-        <button onclick="closeModal()" style="width:100%; background:none; border:none; margin-top:15px; color:#666;">Tutup & Reset</button>
-    </div>
-</div>
-
 <script>
-    const PHONE = "60133002678";
-    const products = [
-        // MAKANAN
-        { id: 1, cat: 'Makanan', name: 'Oden Original', price: 0.00, img: 'https://i.postimg.cc/jCxvWrQT/oden.jpg' },
-        { id: 2, cat: 'Makanan', name: 'Dry Pan Mee', price: 4.00, img: 'https://i.postimg.cc/Wt58gfXL/pan-mee.jpg' },
-        { id: 3, cat: 'Makanan', name: 'Indo Mee', price: 3.00, img: 'https://i.postimg.cc/dkBBWWFr/indo-mee.jpg' },
-        { id: 4, cat: 'Makanan', name: 'Mee Sedap Korean Cheese', price: 4.00, img: 'https://i.postimg.cc/5Q2mDwNJ/mee-sedap-cheese.jpg' },
-        { id: 5, cat: 'Makanan', name: 'Mee Sedap Korean Spicy', price: 4.00, img: 'https://i.postimg.cc/RJZT2cV4/mee-sedap-spicy.jpg' },
-        { id: 6, cat: 'Makanan', name: 'Nissin Korean Mee', price: 5.00, img: 'https://i.postimg.cc/xqfgkSyS/nissin.jpg' },
-        { id: 7, cat: 'Makanan', name: 'Wow Spageti', price: 3.00, img: 'https://i.postimg.cc/gnrDDqTQ/wow.jpg' },
-        // MINUMAN
-        { id: 8, cat: 'Minuman', name: 'Chocolate Ice', price: 3.00, img: 'https://i.postimg.cc/bdyLGj0M/chocolate.png' },
-        { id: 9, cat: 'Minuman', name: 'Green Tea Ice', price: 3.00, img: 'https://i.postimg.cc/Lh9vqMBF/green-tea.png' },
-        { id: 10, cat: 'Minuman', name: 'Thai Tea Ice', price: 3.00, img: 'https://i.postimg.cc/pp7B15NX/thai-tea.png' },
-        { id: 11, cat: 'Minuman', name: 'White Coffee Caramel', price: 5.00, img: 'https://i.postimg.cc/876b8kD1/white-coffee.png' },
-        { id: 12, cat: 'Minuman', name: 'Aiskrim Float', price: 2.50, img: 'https://i.postimg.cc/f3Y5dzry/float.jpg' },
-        { id: 13, cat: 'Minuman', name: 'Air Seringgit', price: 1.00, img: 'https://i.postimg.cc/t7BkWm24/singgit.jpg' },
-        // ADD ON
-        { id: 14, cat: 'Add On', name: 'Enoki', price: 1.00, img: 'https://i.postimg.cc/DW15GvMw/enoki.webp' },
-        { id: 15, cat: 'Add On', name: 'Filament Stick', price: 1.00, img: 'https://i.postimg.cc/XZ9x5jzv/filament.jpg' },
-        { id: 16, cat: 'Add On', name: 'Fucuk Ikan', price: 1.00, img: 'https://i.postimg.cc/S2qd7BBY/fucuk-ikan.jpg' },
-        { id: 17, cat: 'Add On', name: 'Ikan', price: 1.00, img: 'https://i.postimg.cc/LYRDBccJ/ikan.jpg' },
-        { id: 18, cat: 'Add On', name: 'Ketam', price: 1.00, img: 'https://i.postimg.cc/YG33XX7Q/ketam.jpg' },
-        { id: 19, cat: 'Add On', name: 'Lobster', price: 1.00, img: 'https://i.postimg.cc/vgzzPPyX/lobster.jpg' },
-        { id: 20, cat: 'Add On', name: 'Maggi', price: 1.00, img: 'https://i.postimg.cc/gXDDMMpM/maggi.jpg' },
-        { id: 21, cat: 'Add On', name: 'Salmon', price: 1.00, img: 'https://i.postimg.cc/vD0hfS3s/salmon.jpg' },
-        { id: 22, cat: 'Add On', name: 'Sosej', price: 1.00, img: 'https://i.postimg.cc/BtmpHwMJ/sosej.jpg' },
-        { id: 23, cat: 'Add On', name: 'Sotong', price: 1.00, img: 'https://i.postimg.cc/yWLjcrv3/sotong.jpg' },
-        { id: 24, cat: 'Add On', name: 'Telur', price: 1.00, img: 'https://i.postimg.cc/9zLbZNJD/telur.jpg' },
-        { id: 25, cat: 'Add On', name: 'Udang', price: 1.00, img: 'https://i.postimg.cc/9rzpptn4/udang.jpg' }
+    const items = [
+        { n: 'Oden Original', p: 0.00, i: 'https://i.postimg.cc/jCxvWrQT/oden.jpg' },
+        { n: 'Dry Pan Mee', p: 4.00, i: 'https://i.postimg.cc/Wt58gfXL/pan-mee.jpg' },
+        { n: 'Indo Mee', p: 3.00, i: 'https://i.postimg.cc/dkBBWWFr/indo-mee.jpg' },
+        { n: 'Mee Korean Cheese', p: 4.00, i: 'https://i.postimg.cc/5Q2mDwNJ/mee-sedap-cheese.jpg' },
+        { n: 'Mee Korean Spicy', p: 4.00, i: 'https://i.postimg.cc/RJZT2cV4/mee-sedap-spicy.jpg' },
+        { n: 'Chocolate Ice', p: 3.00, i: 'https://i.postimg.cc/bdyLGj0M/chocolate.png' },
+        { n: 'Enoki', p: 1.00, i: 'https://i.postimg.cc/DW15GvMw/enoki.webp' },
+        { n: 'Fucuk Ikan', p: 1.00, i: 'https://i.postimg.cc/S2qd7BBY/fucuk-ikan.jpg' },
+        { n: 'Sosej', p: 1.00, i: 'https://i.postimg.cc/BtmpHwMJ/sosej.jpg' }
     ];
-
-    let currentSet = [];
-    let cart = [];
-    let currentCat = "Semua";
-
-    function filterMenu(cat) {
-        currentCat = cat;
-        document.querySelectorAll('.cat-btn').forEach(b => b.classList.toggle('active', b.innerText === cat));
-        renderMenu();
-    }
-
-    function renderMenu() {
+    let currentSet = [], cart = [];
+    function renderItems() {
         const grid = document.getElementById('menu-grid');
-        const filtered = products.filter(p => currentCat === 'Semua' || p.cat === currentCat);
-        grid.innerHTML = filtered.map(p => `
-            <div class="product-card" onclick="addToSet(${p.id})">
-                <img src="${p.img}" loading="lazy">
-                <h4>${p.name}</h4>
-                <p>RM ${p.price.toFixed(2)}</p>
-            </div>
-        `).join('');
+        grid.innerHTML = items.map((item, idx) => `
+            <div class="card" onclick="pilih(${idx})">
+                <img src="${item.i}">
+                <h4 style="font-size:12px; margin:8px 0;">${item.n}</h4>
+                <p style="font-weight:bold; color:var(--p); margin:0;">RM ${item.p.toFixed(2)}</p>
+            </div>`).join('');
     }
-
-    function addToSet(id) {
-        const p = products.find(x => x.id === id);
-        currentSet.push(p);
-        updateSetDisplay();
+    function pilih(idx) {
+        currentSet.push(items[idx]);
+        document.getElementById('set-list').innerText = currentSet.map(x => x.n).join(' + ');
+        document.getElementById('add-btn').disabled = false;
     }
-
-    function updateSetDisplay() {
-        const display = document.getElementById('current-set-display');
-        const btn = document.getElementById('btn-confirm-set');
-        display.innerText = currentSet.length ? currentSet.map(i => i.name).join(' + ') : "Sila pilih menu di bawah...";
-        btn.disabled = currentSet.length === 0;
+    function simpanKeTroli() {
+        const price = currentSet.reduce((a, b) => a + b.p, 0);
+        cart.push({ desc: currentSet.map(x => x.n).join(', '), note: document.getElementById('remark').value, price: price });
+        currentSet = []; document.getElementById('remark').value = '';
+        document.getElementById('set-list').innerText = 'Set ditambah!';
+        document.getElementById('add-btn').disabled = true;
+        document.getElementById('g-total').innerText = cart.reduce((a, b) => a + b.price, 0).toFixed(2);
     }
-
-    function resetSet() {
-        currentSet = [];
-        document.getElementById('set-remark').value = "";
-        updateSetDisplay();
+    function buatBayaran() {
+        if (!cart.length) return alert("Pilih menu!");
+        const nama = prompt("Nama Pelanggan:");
+        if (!nama) return;
+        let msg = `*ORDER Slurp & Bite*\nPelanggan: ${nama}\n---\n`;
+        cart.forEach((t, i) => msg += `${i+1}. ${t.desc}\nNota: ${t.note}\nRM ${t.price.toFixed(2)}\n\n`);
+        msg += `---\n*TOTAL: RM ${document.getElementById('g-total').innerText}*`;
+        window.location.href = `https://wa.me/60133002678?text=${encodeURIComponent(msg)}`;
     }
-
-    function confirmSetToCart() {
-        const setPrice = currentSet.reduce((sum, item) => sum + item.price, 0);
-        cart.push({
-            name: currentSet[0].name + " Set",
-            details: currentSet.map(i => i.name).join(', '),
-            remark: document.getElementById('set-remark').value,
-            price: setPrice
-        });
-        resetSet();
-        renderCart();
-    }
-
-    function renderCart() {
-        const list = document.getElementById('cart-list');
-        let total = 0;
-        if(!cart.length) {
-            list.innerHTML = '<center style="padding:20px; color:#999;">Troli Kosong</center>';
-        } else {
-            list.innerHTML = cart.map((item, idx) => {
-                total += item.price;
-                return `
-                <div class="cart-item">
-                    <div style="display:flex; justify-content:space-between; font-weight:bold;">
-                        <span>Set #${idx+1}</span>
-                        <span>RM ${item.price.toFixed(2)} <button onclick="removeFromCart(${idx})" style="color:red; border:none; background:none; font-weight:bold;">X</button></span>
-                    </div>
-                    <div class="item-details">${item.details} ${item.remark ? `<br><span class="item-remark">📝 NOTA: ${item.remark}</span>` : ''}</div>
-                </div>`;
-            }).join('');
-        }
-        document.getElementById('grand-total').innerText = total.toFixed(2);
-    }
-
-    function removeFromCart(idx) { cart.splice(idx, 1); renderCart(); }
-    function calcChange() {
-        const total = parseFloat(document.getElementById('grand-total').innerText);
-        const cash = parseFloat(document.getElementById('cash-in').value) || 0;
-        document.getElementById('change-display').innerText = `RM ${(cash - total >= 0 ? cash - total : 0).toFixed(2)}`;
-    }
-    function toggleCart() { document.getElementById('cart-content').classList.toggle('open'); }
-
-    function checkout() {
-        const total = document.getElementById('grand-total').innerText;
-        const name = document.getElementById('cust-name').value;
-        if(!name || !cart.length) return alert("Sila isi Nama & pilih menu!");
-        
-        let msg = `*SLURP & BITE*\nPelanggan: ${name}\n---\n`;
-        cart.forEach((c, i) => {
-            msg += `*${i+1}. ${c.name}*\n- ${c.details}\n${c.remark ? `  _Nota: ${c.remark}_\n` : ''}  Harga: RM ${c.price.toFixed(2)}\n\n`;
-        });
-        msg += `---\n*TOTAL: RM ${total}*`;
-        
-        document.getElementById('resit-area').innerText = msg.replace(/\*/g, '');
-        document.getElementById('wa-btn').onclick = () => window.open(`https://wa.me/${PHONE}?text=${encodeURIComponent(msg)}`);
-        document.getElementById('modal').style.display = 'flex';
-    }
-
-    function closeModal() { document.getElementById('modal').style.display = 'none'; cart = []; renderCart(); document.getElementById('cust-name').value = ""; document.getElementById('cash-in').value = ""; }
-
-    window.onload = renderMenu;
+    window.onload = renderItems;
 </script>
 </body>
 </html>
