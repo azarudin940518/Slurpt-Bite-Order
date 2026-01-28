@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Slurp & Bite POS - Direct Send</title>
+    <title>Slurp & Bite POS - Add On Plus Edition</title>
     <style>
         :root { --primary: #2d5a27; --whatsapp: #25D366; --danger: #e74c3c; --bg: #f4f7f4; --accent: #d35400; }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -170,7 +170,9 @@
     function addToSet(id) {
         playMenuClickSound();
         const p = products.find(x => x.id === id);
-        currentSet.push({...p, uniqueId: Date.now() + Math.random()});
+        // Tambah (+) jika kategori adalah Add On
+        const displayName = p.cat === 'Add On' ? `+ ${p.name}` : p.name;
+        currentSet.push({...p, displayName: displayName, uniqueId: Date.now() + Math.random()});
         updateSetDisplay();
     }
 
@@ -187,7 +189,7 @@
         } else {
             display.innerHTML = currentSet.map(i => `
                 <span class="set-item-tag">
-                    ${i.name} <span class="btn-del-mini" onclick="removeFromSet(${i.uniqueId})">❌</span>
+                    ${i.displayName} <span class="btn-del-mini" onclick="removeFromSet(${i.uniqueId})">❌</span>
                 </span>
             `).join('');
         }
@@ -202,9 +204,10 @@
 
     function confirmSetToCart() {
         const setPrice = currentSet.reduce((sum, item) => sum + item.price, 0);
+        // Menggunakan displayName untuk rekod dalam troli
         cart.push({
             name: currentSet[0].name + " Set",
-            details: currentSet.map(i => i.name).join(', '),
+            details: currentSet.map(i => i.displayName).join(', '),
             remark: document.getElementById('set-remark').value,
             price: setPrice
         });
@@ -262,17 +265,14 @@
             return;
         }
         
-        // Bina Teks Mesej
         let msg = `*SLURP & BITE*\nPelanggan: ${nameInput.value}\n---\n`;
         cart.forEach((c, i) => {
             msg += `*${i+1}. ${c.name}*\n- ${c.details}\n${c.remark ? `  _Nota: ${c.remark}_\n` : ''}  Harga: RM ${c.price.toFixed(2)}\n\n`;
         });
         msg += `---\n*TOTAL: RM ${total}*\nTUNAI: RM ${parseFloat(cashInput.value).toFixed(2)}\nBAKI: ${bakiDisplay}`;
         
-        // TERUS BUKA WHATSAPP (Tanpa Modal Popup)
         window.open(`https://wa.me/${PHONE}?text=${encodeURIComponent(msg)}`);
 
-        // Automatik Reset Lepas Hantar
         setTimeout(() => {
             cart = [];
             renderCart();
