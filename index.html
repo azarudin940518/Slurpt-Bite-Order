@@ -145,17 +145,22 @@
     let cart = [];
     let currentCat = "Semua";
 
-    function playBeep() {
-        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        const oscillator = audioCtx.createOscillator();
-        const gainNode = audioCtx.createGain();
-        oscillator.connect(gainNode);
-        gainNode.connect(audioCtx.destination);
-        oscillator.type = 'square';
-        oscillator.frequency.setValueAtTime(600, audioCtx.currentTime);
-        gainNode.gain.setValueAtTime(0.1, audioCtx.currentTime);
-        oscillator.start();
-        oscillator.stop(audioCtx.currentTime + 0.15);
+    // Fungsi Bunyi Lembut (Sine Wave)
+    function playSoftBeep() {
+        try {
+            const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            const oscillator = audioCtx.createOscillator();
+            const gainNode = audioCtx.createGain();
+            oscillator.connect(gainNode);
+            gainNode.connect(audioCtx.destination);
+            oscillator.type = 'sine'; // Sine lebih lembut dari Square
+            oscillator.frequency.setValueAtTime(400, audioCtx.currentTime); 
+            gainNode.gain.setValueAtTime(0, audioCtx.currentTime);
+            gainNode.gain.linearRampToValueAtTime(0.1, audioCtx.currentTime + 0.05);
+            gainNode.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.2);
+            oscillator.start();
+            oscillator.stop(audioCtx.currentTime + 0.25);
+        } catch(e) {}
     }
 
     function filterMenu(cat) {
@@ -260,24 +265,28 @@
         const bakiDisplay = document.getElementById('change-display').innerText;
 
         if(!cart.length) {
-            playBeep();
-            alert("Troli kosong! Sila bina set dahulu.");
+            playSoftBeep();
+            setTimeout(() => { alert("Troli kosong! Sila bina set dahulu."); }, 100);
             return;
         }
 
         if(!nameInput.value) {
             if(!document.getElementById('cart-content').classList.contains('open')) toggleCart();
-            playBeep();
-            alert("Sila isi Nama Pelanggan!");
-            nameInput.focus();
+            playSoftBeep();
+            setTimeout(() => { 
+                alert("Sila isi Nama Pelanggan!"); 
+                nameInput.focus();
+            }, 100);
             return;
         }
 
         if(!cashInput.value) {
             if(!document.getElementById('cart-content').classList.contains('open')) toggleCart();
-            playBeep();
-            alert("Sila masukkan jumlah Tunai!");
-            cashInput.focus();
+            playSoftBeep();
+            setTimeout(() => { 
+                alert("Sila masukkan jumlah Tunai!"); 
+                cashInput.focus();
+            }, 100);
             return;
         }
         
