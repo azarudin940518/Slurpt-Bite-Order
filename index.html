@@ -23,6 +23,11 @@
         .set-builder { background: #fff3e0; padding: 12px; border-bottom: 2px solid var(--accent); box-shadow: 0 2px 5px rgba(0,0,0,0.1); z-index: 110; flex-shrink: 0; }
         .set-title { font-size: 11px; font-weight: bold; color: var(--accent); margin-bottom: 5px; display: flex; justify-content: space-between; }
         .current-set-items { font-size: 14px; color: #333; font-weight: 600; min-height: 20px; margin-bottom: 8px; line-height: 1.4; }
+        
+        /* Ciri Tulisan Padam pada Binaan Set */
+        .set-item-tag { background: white; padding: 2px 8px; border-radius: 4px; border: 1px solid #ddd; margin-right: 5px; display: inline-block; margin-bottom: 4px; font-size: 13px; }
+        .btn-del-mini { color: var(--danger); font-weight: bold; margin-left: 5px; padding: 0 4px; }
+
         .remark-box { width: 100%; padding: 10px; border: 1px solid #fab1a0; border-radius: 8px; font-size: 14px; margin-bottom: 10px; outline: none; -webkit-appearance: none; }
         .btn-add-set { width: 100%; background: var(--accent); color: white; border: none; padding: 12px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 14px; }
         .btn-add-set:disabled { background: #ccc; }
@@ -95,7 +100,7 @@
     </div>
     <div class="cart-summary">
         <div class="total-price">Total: RM <span id="grand-total">0.00</span></div>
-        <button class="btn-checkout" onclick="checkout()">BAYAR</button>
+        <button class="btn-checkout" onclick="checkout()">HANTAR</button>
     </div>
 </div>
 
@@ -144,6 +149,20 @@
     let cart = [];
     let currentCat = "Semua";
 
+    // Fungsi Bunyi Amaran
+    function playWarningSound() {
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        const oscillator = audioCtx.createOscillator();
+        const gainNode = audioCtx.createGain();
+        oscillator.connect(gainNode);
+        gainNode.connect(audioCtx.destination);
+        oscillator.type = 'sine';
+        oscillator.frequency.setValueAtTime(440, audioCtx.currentTime);
+        gainNode.gain.setValueAtTime(0.1, audioCtx.currentTime);
+        oscillator.start();
+        oscillator.stop(audioCtx.currentTime + 0.2);
+    }
+
     function filterMenu(cat) {
         currentCat = cat;
         document.querySelectorAll('.cat-btn').forEach(b => b.classList.toggle('active', b.innerText === cat));
@@ -164,14 +183,30 @@
 
     function addToSet(id) {
         const p = products.find(x => x.id === id);
-        currentSet.push(p);
+        // Tambah ID unik untuk memudahkan pemadaman dalam set builder
+        currentSet.push({...p, uniqueId: Date.now() + Math.random()});
+        updateSetDisplay();
+    }
+
+    // Ciri Padam pada Menu Set (Builder)
+    function removeFromSet(uId) {
+        currentSet = currentSet.filter(item => item.uniqueId !== uId);
         updateSetDisplay();
     }
 
     function updateSetDisplay() {
         const display = document.getElementById('current-set-display');
         const btn = document.getElementById('btn-confirm-set');
-        display.innerText = currentSet.length ? currentSet.map(i => i.name).join(' + ') : "Sila pilih menu di bawah...";
+        
+        if (currentSet.length === 0) {
+            display.innerText = "Sila pilih menu di bawah...";
+        } else {
+            display.innerHTML = currentSet.map(i => `
+                <span class="set-item-tag">
+                    ${i.name} <span class="btn-del-mini" onclick="removeFromSet(${i.uniqueId})">❌</span>
+                </span>
+            `).join('');
+        }
         btn.disabled = currentSet.length === 0;
     }
 
@@ -224,21 +259,56 @@
 
     function checkout() {
         const total = document.getElementById('grand-total').innerText;
-        const name = document.getElementById('cust-name').value;
-        if(!name || !cart.length) return alert("Sila isi Nama & pilih menu!");
+        const nameInput = document.getElementById('cust-name');
+        const cashInput = document.getElementById('cash-in');
+        const cartContent = document.getElementById('cart-content');
+
+        // Semak Troli
+        if(!cart.length) {
+            playWarningSound();
+            alert("Sila pilih menu dahulu!");
+            return;
+        }
+
+        // Semak Nama (Auto Focus)
+        if(!nameInput.value) {
+            playWarningSound();
+            if(!cartContent.classList.contains('open')) toggleCart();
+            alert("Sila isi Nama Pelanggan!");
+            nameInput.focus();
+            return;
+        }
+
+        // Semak Tunai (Auto Focus)
+        if(!cashInput.value) {
+            playWarningSound();
+            if(!cartContent.classList.contains('open')) toggleCart();
+            alert("Sila isi jumlah Tunai RM!");
+            cashInput.focus();
+            return;
+        }
         
-        let msg = `*SLURP & BITE*\nPelanggan: ${name}\n---\n`;
+        let msg = `*SLURP & BITE*\nPelanggan: ${nameInput.value}\n---\n`;
         cart.forEach((c, i) => {
             msg += `*${i+1}. ${c.name}*\n- ${c.details}\n${c.remark ? `  _Nota: ${c.remark}_\n` : ''}  Harga: RM ${c.price.toFixed(2)}\n\n`;
         });
-        msg += `---\n*TOTAL: RM ${total}*`;
+        
+        const baki = document.getElementById('change-display').innerText;
+        msg += `---\n*TOTAL: RM ${total}*\nTUNAI: RM ${parseFloat(cashInput.value).toFixed(2)}\nBAKI: ${baki}`;
         
         document.getElementById('resit-area').innerText = msg.replace(/\*/g, '');
         document.getElementById('wa-btn').onclick = () => window.open(`https://wa.me/${PHONE}?text=${encodeURIComponent(msg)}`);
         document.getElementById('modal').style.display = 'flex';
     }
 
-    function closeModal() { document.getElementById('modal').style.display = 'none'; cart = []; renderCart(); document.getElementById('cust-name').value = ""; document.getElementById('cash-in').value = ""; }
+    function closeModal() { 
+        document.getElementById('modal').style.display = 'none'; 
+        cart = []; 
+        renderCart(); 
+        document.getElementById('cust-name').value = ""; 
+        document.getElementById('cash-in').value = ""; 
+        document.getElementById('change-display').innerText = "RM 0.00";
+    }
 
     window.onload = renderMenu;
 </script>
