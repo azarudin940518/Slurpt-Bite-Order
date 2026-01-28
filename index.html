@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Slurp & Bite POS - Full Menu & Auto Set</title>
+    <title>Slurp & Bite POS - Pro Edition</title>
     <style>
         :root { --primary: #2d5a27; --whatsapp: #25D366; --danger: #e74c3c; --bg: #f4f7f4; --accent: #d35400; }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -24,7 +24,6 @@
         .set-title { font-size: 11px; font-weight: bold; color: var(--accent); margin-bottom: 5px; display: flex; justify-content: space-between; }
         .current-set-items { font-size: 14px; color: #333; font-weight: 600; min-height: 20px; margin-bottom: 8px; line-height: 1.4; }
         
-        /* Ciri Tulisan Padam pada Binaan Set */
         .set-item-tag { background: white; padding: 2px 8px; border-radius: 4px; border: 1px solid #ddd; margin-right: 5px; display: inline-block; margin-bottom: 4px; font-size: 13px; }
         .btn-del-mini { color: var(--danger); font-weight: bold; margin-left: 5px; padding: 0 4px; }
 
@@ -115,7 +114,6 @@
 <script>
     const PHONE = "60133002678";
     const products = [
-        // MAKANAN
         { id: 1, cat: 'Makanan', name: 'Oden Original', price: 0.00, img: 'https://i.postimg.cc/jCxvWrQT/oden.jpg' },
         { id: 2, cat: 'Makanan', name: 'Dry Pan Mee', price: 4.00, img: 'https://i.postimg.cc/Wt58gfXL/pan-mee.jpg' },
         { id: 3, cat: 'Makanan', name: 'Indo Mee', price: 3.00, img: 'https://i.postimg.cc/dkBBWWFr/indo-mee.jpg' },
@@ -123,14 +121,12 @@
         { id: 5, cat: 'Makanan', name: 'Mee Sedap Korean Spicy', price: 4.00, img: 'https://i.postimg.cc/RJZT2cV4/mee-sedap-spicy.jpg' },
         { id: 6, cat: 'Makanan', name: 'Nissin Korean Mee', price: 5.00, img: 'https://i.postimg.cc/xqfgkSyS/nissin.jpg' },
         { id: 7, cat: 'Makanan', name: 'Wow Spageti', price: 3.00, img: 'https://i.postimg.cc/gnrDDqTQ/wow.jpg' },
-        // MINUMAN
         { id: 8, cat: 'Minuman', name: 'Chocolate Ice', price: 3.00, img: 'https://i.postimg.cc/bdyLGj0M/chocolate.png' },
         { id: 9, cat: 'Minuman', name: 'Green Tea Ice', price: 3.00, img: 'https://i.postimg.cc/Lh9vqMBF/green-tea.png' },
         { id: 10, cat: 'Minuman', name: 'Thai Tea Ice', price: 3.00, img: 'https://i.postimg.cc/pp7B15NX/thai-tea.png' },
         { id: 11, cat: 'Minuman', name: 'White Coffee Caramel', price: 5.00, img: 'https://i.postimg.cc/876b8kD1/white-coffee.png' },
         { id: 12, cat: 'Minuman', name: 'Aiskrim Float', price: 2.50, img: 'https://i.postimg.cc/f3Y5dzry/float.jpg' },
         { id: 13, cat: 'Minuman', name: 'Air Seringgit', price: 1.00, img: 'https://i.postimg.cc/t7BkWm24/singgit.jpg' },
-        // ADD ON
         { id: 14, cat: 'Add On', name: 'Enoki', price: 1.00, img: 'https://i.postimg.cc/DW15GvMw/enoki.webp' },
         { id: 15, cat: 'Add On', name: 'Filament Stick', price: 1.00, img: 'https://i.postimg.cc/XZ9x5jzv/filament.jpg' },
         { id: 16, cat: 'Add On', name: 'Fucuk Ikan', price: 1.00, img: 'https://i.postimg.cc/S2qd7BBY/fucuk-ikan.jpg' },
@@ -149,18 +145,17 @@
     let cart = [];
     let currentCat = "Semua";
 
-    // Fungsi Bunyi Amaran
-    function playWarningSound() {
+    function playBeep() {
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         const oscillator = audioCtx.createOscillator();
         const gainNode = audioCtx.createGain();
         oscillator.connect(gainNode);
         gainNode.connect(audioCtx.destination);
-        oscillator.type = 'sine';
-        oscillator.frequency.setValueAtTime(440, audioCtx.currentTime);
+        oscillator.type = 'square';
+        oscillator.frequency.setValueAtTime(600, audioCtx.currentTime);
         gainNode.gain.setValueAtTime(0.1, audioCtx.currentTime);
         oscillator.start();
-        oscillator.stop(audioCtx.currentTime + 0.2);
+        oscillator.stop(audioCtx.currentTime + 0.15);
     }
 
     function filterMenu(cat) {
@@ -183,12 +178,10 @@
 
     function addToSet(id) {
         const p = products.find(x => x.id === id);
-        // Tambah ID unik untuk memudahkan pemadaman dalam set builder
         currentSet.push({...p, uniqueId: Date.now() + Math.random()});
         updateSetDisplay();
     }
 
-    // Ciri Padam pada Menu Set (Builder)
     function removeFromSet(uId) {
         currentSet = currentSet.filter(item => item.uniqueId !== uId);
         updateSetDisplay();
@@ -197,7 +190,6 @@
     function updateSetDisplay() {
         const display = document.getElementById('current-set-display');
         const btn = document.getElementById('btn-confirm-set');
-        
         if (currentSet.length === 0) {
             display.innerText = "Sila pilih menu di bawah...";
         } else {
@@ -247,43 +239,44 @@
             }).join('');
         }
         document.getElementById('grand-total').innerText = total.toFixed(2);
+        calcChange();
     }
 
     function removeFromCart(idx) { cart.splice(idx, 1); renderCart(); }
+    
     function calcChange() {
         const total = parseFloat(document.getElementById('grand-total').innerText);
         const cash = parseFloat(document.getElementById('cash-in').value) || 0;
-        document.getElementById('change-display').innerText = `RM ${(cash - total >= 0 ? cash - total : 0).toFixed(2)}`;
+        const baki = cash - total;
+        document.getElementById('change-display').innerText = `RM ${(baki >= 0 ? baki : 0).toFixed(2)}`;
     }
+
     function toggleCart() { document.getElementById('cart-content').classList.toggle('open'); }
 
     function checkout() {
         const total = document.getElementById('grand-total').innerText;
         const nameInput = document.getElementById('cust-name');
         const cashInput = document.getElementById('cash-in');
-        const cartContent = document.getElementById('cart-content');
+        const bakiDisplay = document.getElementById('change-display').innerText;
 
-        // Semak Troli
         if(!cart.length) {
-            playWarningSound();
-            alert("Sila pilih menu dahulu!");
+            playBeep();
+            alert("Troli kosong! Sila bina set dahulu.");
             return;
         }
 
-        // Semak Nama (Auto Focus)
         if(!nameInput.value) {
-            playWarningSound();
-            if(!cartContent.classList.contains('open')) toggleCart();
+            if(!document.getElementById('cart-content').classList.contains('open')) toggleCart();
+            playBeep();
             alert("Sila isi Nama Pelanggan!");
             nameInput.focus();
             return;
         }
 
-        // Semak Tunai (Auto Focus)
         if(!cashInput.value) {
-            playWarningSound();
-            if(!cartContent.classList.contains('open')) toggleCart();
-            alert("Sila isi jumlah Tunai RM!");
+            if(!document.getElementById('cart-content').classList.contains('open')) toggleCart();
+            playBeep();
+            alert("Sila masukkan jumlah Tunai!");
             cashInput.focus();
             return;
         }
@@ -293,8 +286,7 @@
             msg += `*${i+1}. ${c.name}*\n- ${c.details}\n${c.remark ? `  _Nota: ${c.remark}_\n` : ''}  Harga: RM ${c.price.toFixed(2)}\n\n`;
         });
         
-        const baki = document.getElementById('change-display').innerText;
-        msg += `---\n*TOTAL: RM ${total}*\nTUNAI: RM ${parseFloat(cashInput.value).toFixed(2)}\nBAKI: ${baki}`;
+        msg += `---\n*TOTAL: RM ${total}*\nTUNAI: RM ${parseFloat(cashInput.value).toFixed(2)}\nBAKI: ${bakiDisplay}`;
         
         document.getElementById('resit-area').innerText = msg.replace(/\*/g, '');
         document.getElementById('wa-btn').onclick = () => window.open(`https://wa.me/${PHONE}?text=${encodeURIComponent(msg)}`);
