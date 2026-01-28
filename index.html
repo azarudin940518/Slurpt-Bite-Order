@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Slurp & Bite POS - Updated Edition</title>
+    <title>Slurp & Bite POS - HD Edition</title>
     <style>
         :root { --primary: #2d5a27; --whatsapp: #25D366; --danger: #e74c3c; --bg: #f4f7f4; --accent: #d35400; }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -40,7 +40,14 @@
 
         .menu-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 10px; }
         .product-card { background: white; border-radius: 12px; padding: 10px; text-align: center; border: 1px solid #eee; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
-        .product-card img { width: 100%; height: 95px; object-fit: cover; border-radius: 8px; background: #f0f0f0; }
+        .product-card img { 
+            width: 100%; 
+            height: 95px; 
+            object-fit: cover; 
+            border-radius: 8px; 
+            background: #f0f0f0; 
+            image-rendering: -webkit-optimize-contrast; /* Tambah ketajaman imej */
+        }
         .product-card h4 { margin: 8px 0 4px; font-size: 0.85rem; height: 34px; overflow: hidden; display: flex; align-items: center; justify-content: center; line-height: 1.2; }
         .product-card p { margin: 0; color: var(--primary); font-weight: bold; font-size: 1rem; }
 
