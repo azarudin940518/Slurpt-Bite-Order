@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Slurp & Bite POS - Add On Plus Edition</title>
+    <title>Slurp & Bite POS - Updated Edition</title>
     <style>
         :root { --primary: #2d5a27; --whatsapp: #25D366; --danger: #e74c3c; --bg: #f4f7f4; --accent: #d35400; }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -108,21 +108,21 @@
         { id: 5, cat: 'Makanan', name: 'Mee Sedap Korean Spicy', price: 4.00, img: 'https://i.postimg.cc/RJZT2cV4/mee-sedap-spicy.jpg' },
         { id: 6, cat: 'Makanan', name: 'Nissin Korean Mee', price: 5.00, img: 'https://i.postimg.cc/xqfgkSyS/nissin.jpg' },
         { id: 7, cat: 'Makanan', name: 'Wow Spageti', price: 3.00, img: 'https://i.postimg.cc/gnrDDqTQ/wow.jpg' },
-        { id: 8, cat: 'Minuman', name: 'Chocolate Ice', price: 3.00, img: 'https://i.postimg.cc/bdyLGj0M/chocolate.png' },
-        { id: 9, cat: 'Minuman', name: 'Green Tea Ice', price: 3.00, img: 'https://i.postimg.cc/Lh9vqMBF/green-tea.png' },
-        { id: 10, cat: 'Minuman', name: 'Thai Tea Ice', price: 3.00, img: 'https://i.postimg.cc/pp7B15NX/thai-tea.png' },
-        { id: 11, cat: 'Minuman', name: 'White Coffee Caramel', price: 5.00, img: 'https://i.postimg.cc/876b8kD1/white-coffee.png' },
+        { id: 8, cat: 'Minuman', name: 'Chocolate Ice', price: 3.00, img: 'https://i.postimg.cc/jSsPqdxQ/coklat.png' },
+        { id: 9, cat: 'Minuman', name: 'Green Tea Ice', price: 3.00, img: 'https://i.postimg.cc/nMMxTDKy/greentea.png' },
+        { id: 10, cat: 'Minuman', name: 'Thai Tea Ice', price: 3.00, img: 'https://i.postimg.cc/t77bDxt0/thaitea.png' },
+        { id: 11, cat: 'Minuman', name: 'White Coffee Caramel', price: 5.00, img: 'https://i.postimg.cc/RqqmGH1j/whitecoffee.png' },
         { id: 12, cat: 'Minuman', name: 'Aiskrim Float', price: 2.50, img: 'https://i.postimg.cc/f3Y5dzry/float.jpg' },
         { id: 13, cat: 'Minuman', name: 'Air Seringgit', price: 1.00, img: 'https://i.postimg.cc/t7BkWm24/singgit.jpg' },
-        { id: 14, cat: 'Add On', name: 'Enoki', price: 1.00, img: 'https://i.postimg.cc/DW15GvMw/enoki.webp' },
-        { id: 15, cat: 'Add On', name: 'Filament Stick', price: 1.00, img: 'https://i.postimg.cc/XZ9x5jzv/filament.jpg' },
+        { id: 14, cat: 'Add On', name: 'Enoki', price: 0.50, img: 'https://i.postimg.cc/DW15GvMw/enoki.webp' },
+        { id: 15, cat: 'Add On', name: 'Filament Stick', price: 0.50, img: 'https://i.postimg.cc/XZ9x5jzv/filament.jpg' },
         { id: 16, cat: 'Add On', name: 'Fucuk Ikan', price: 1.00, img: 'https://i.postimg.cc/S2qd7BBY/fucuk-ikan.jpg' },
-        { id: 17, cat: 'Add On', name: 'Ikan', price: 1.00, img: 'https://i.postimg.cc/LYRDBccJ/ikan.jpg' },
+        { id: 17, cat: 'Add On', name: 'Ikan', price: 0.50, img: 'https://i.postimg.cc/LYRDBccJ/ikan.jpg' },
         { id: 18, cat: 'Add On', name: 'Ketam', price: 1.00, img: 'https://i.postimg.cc/YG33XX7Q/ketam.jpg' },
         { id: 19, cat: 'Add On', name: 'Lobster', price: 1.00, img: 'https://i.postimg.cc/vgzzPPyX/lobster.jpg' },
         { id: 20, cat: 'Add On', name: 'Maggi', price: 1.00, img: 'https://i.postimg.cc/gXDDMMpM/maggi.jpg' },
         { id: 21, cat: 'Add On', name: 'Salmon', price: 1.00, img: 'https://i.postimg.cc/vD0hfS3s/salmon.jpg' },
-        { id: 22, cat: 'Add On', name: 'Sosej', price: 1.00, img: 'https://i.postimg.cc/BtmpHwMJ/sosej.jpg' },
+        { id: 22, cat: 'Add On', name: 'Sosej', price: 0.50, img: 'https://i.postimg.cc/BtmpHwMJ/sosej.jpg' },
         { id: 23, cat: 'Add On', name: 'Sotong', price: 1.00, img: 'https://i.postimg.cc/yWLjcrv3/sotong.jpg' },
         { id: 24, cat: 'Add On', name: 'Telur', price: 1.00, img: 'https://i.postimg.cc/9zLbZNJD/telur.jpg' },
         { id: 25, cat: 'Add On', name: 'Udang', price: 1.00, img: 'https://i.postimg.cc/9rzpptn4/udang.jpg' }
@@ -170,7 +170,6 @@
     function addToSet(id) {
         playMenuClickSound();
         const p = products.find(x => x.id === id);
-        // Tambah (+) jika kategori adalah Add On
         const displayName = p.cat === 'Add On' ? `+ ${p.name}` : p.name;
         currentSet.push({...p, displayName: displayName, uniqueId: Date.now() + Math.random()});
         updateSetDisplay();
@@ -204,7 +203,6 @@
 
     function confirmSetToCart() {
         const setPrice = currentSet.reduce((sum, item) => sum + item.price, 0);
-        // Menggunakan displayName untuk rekod dalam troli
         cart.push({
             name: currentSet[0].name + " Set",
             details: currentSet.map(i => i.displayName).join(', '),
