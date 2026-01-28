@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Slurp & Bite POS - Pro Edition</title>
+    <title>Slurp & Bite POS - Direct Send</title>
     <style>
         :root { --primary: #2d5a27; --whatsapp: #25D366; --danger: #e74c3c; --bg: #f4f7f4; --accent: #d35400; }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -57,11 +57,6 @@
         .cart-summary { padding: 12px 15px; background: white; border-top: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; padding-bottom: env(safe-area-inset-bottom); }
         .total-price { font-size: 1.2rem; font-weight: bold; color: var(--primary); }
         .btn-checkout { background: var(--primary); color: white; border: none; padding: 12px 25px; border-radius: 8px; font-weight: bold; }
-
-        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 2000; justify-content: center; align-items: center; padding: 20px; }
-        .modal-content { background: white; padding: 20px; border-radius: 15px; width: 100%; max-width: 380px; }
-        
-        @media (min-width: 768px) { .menu-grid { grid-template-columns: repeat(4, 1fr); } }
     </style>
 </head>
 <body>
@@ -103,14 +98,6 @@
     </div>
 </div>
 
-<div id="modal" class="modal">
-    <div class="modal-content">
-        <pre id="resit-area" style="font-family: monospace; font-size: 12px; white-space: pre-wrap; background: #f8f8f8; padding: 12px; border: 1px solid #ddd; max-height: 300px; overflow-y: auto;"></pre>
-        <button id="wa-btn" style="background:var(--whatsapp); color:white; width:100%; padding:15px; border:none; border-radius:10px; font-weight:bold; font-size:1rem; margin-top:15px;">HANTAR WHATSAPP</button>
-        <button onclick="closeModal()" style="width:100%; background:none; border:none; margin-top:15px; color:#666;">Tutup & Reset</button>
-    </div>
-</div>
-
 <script>
     const PHONE = "60133002678";
     const products = [
@@ -145,7 +132,6 @@
     let cart = [];
     let currentCat = "Semua";
 
-    // Fungsi Bunyi Klik Menu yang Lembut
     function playMenuClickSound() {
         try {
             const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -182,7 +168,7 @@
     }
 
     function addToSet(id) {
-        playMenuClickSound(); // Main bunyi bila menu ditekan
+        playMenuClickSound();
         const p = products.find(x => x.id === id);
         currentSet.push({...p, uniqueId: Date.now() + Math.random()});
         updateSetDisplay();
@@ -266,43 +252,36 @@
         const bakiDisplay = document.getElementById('change-display').innerText;
 
         if(!cart.length) {
-            alert("Troli kosong! Sila bina set dahulu.");
+            alert("Troli kosong!");
             return;
         }
 
-        if(!nameInput.value) {
+        if(!nameInput.value || !cashInput.value) {
             if(!document.getElementById('cart-content').classList.contains('open')) toggleCart();
-            alert("Sila isi Nama Pelanggan!"); 
-            nameInput.focus();
-            return;
-        }
-
-        if(!cashInput.value) {
-            if(!document.getElementById('cart-content').classList.contains('open')) toggleCart();
-            alert("Sila masukkan jumlah Tunai!"); 
-            cashInput.focus();
+            alert("Sila isi Nama & Tunai!"); 
             return;
         }
         
+        // Bina Teks Mesej
         let msg = `*SLURP & BITE*\nPelanggan: ${nameInput.value}\n---\n`;
         cart.forEach((c, i) => {
             msg += `*${i+1}. ${c.name}*\n- ${c.details}\n${c.remark ? `  _Nota: ${c.remark}_\n` : ''}  Harga: RM ${c.price.toFixed(2)}\n\n`;
         });
-        
         msg += `---\n*TOTAL: RM ${total}*\nTUNAI: RM ${parseFloat(cashInput.value).toFixed(2)}\nBAKI: ${bakiDisplay}`;
         
-        document.getElementById('resit-area').innerText = msg.replace(/\*/g, '');
-        document.getElementById('wa-btn').onclick = () => window.open(`https://wa.me/${PHONE}?text=${encodeURIComponent(msg)}`);
-        document.getElementById('modal').style.display = 'flex';
-    }
+        // TERUS BUKA WHATSAPP (Tanpa Modal Popup)
+        window.open(`https://wa.me/${PHONE}?text=${encodeURIComponent(msg)}`);
 
-    function closeModal() { 
-        document.getElementById('modal').style.display = 'none'; 
-        cart = []; 
-        renderCart(); 
-        document.getElementById('cust-name').value = ""; 
-        document.getElementById('cash-in').value = ""; 
-        document.getElementById('change-display').innerText = "RM 0.00";
+        // Automatik Reset Lepas Hantar
+        setTimeout(() => {
+            cart = [];
+            renderCart();
+            document.getElementById('cust-name').value = "";
+            document.getElementById('cash-in').value = "";
+            document.getElementById('change-display').innerText = "RM 0.00";
+            if(document.getElementById('cart-content').classList.contains('open')) toggleCart();
+            alert("Pesanan telah dihantar ke WhatsApp!");
+        }, 1000);
     }
 
     window.onload = renderMenu;
