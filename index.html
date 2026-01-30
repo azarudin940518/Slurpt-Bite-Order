@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Slurp & Bite POS - Multi-Device</title>
+    <title>Slurp & Bite POS - Loyalty Pro</title>
     <style>
         :root { --primary: #2d5a27; --whatsapp: #25D366; --danger: #e74c3c; --bg: #f4f7f4; --accent: #d35400; --online: #0061ff; --gold: #f1c40f; }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; margin: 0; padding: 0; }
@@ -42,7 +42,7 @@
         .btn-add-set { width: 100%; background: var(--accent); color: white; border: none; padding: 12px; border-radius: 8px; font-weight: bold; cursor: pointer; }
         .btn-add-set:disabled { background: #ccc; }
 
-        .menu-area { flex: 1; overflow-y: auto; padding-bottom: 80px; }
+        .menu-area { flex: 1; overflow-y: auto; padding-bottom: 20px; scroll-behavior: smooth; }
         .header-tools { background: white; position: sticky; top: 0; z-index: 100; padding: 10px; border-bottom: 1px solid #eee; }
         .category-bar { display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; padding-bottom: 5px; }
         .cat-btn { padding: 8px 15px; border-radius: 20px; border: 1px solid #ddd; background: white; font-size: 12px; white-space: nowrap; font-weight: bold; }
@@ -52,22 +52,15 @@
         .product-card { background: white; border-radius: 12px; padding: 8px; text-align: center; border: 1px solid #eee; }
         .product-card img { width: 100%; height: 90px; object-fit: cover; border-radius: 8px; margin-bottom: 5px; }
 
-        /* Bawah Skrin - Sentiasa Nampak */
-        .cart-section { 
-            background: white; 
-            border-top: 2px solid var(--primary); 
-            flex-shrink: 0;
-            z-index: 1000;
-        }
+        .cart-section { background: white; border-top: 2px solid var(--primary); flex-shrink: 0; z-index: 1000; }
         .cart-toggle-btn { background: #eee; text-align: center; padding: 6px; font-size: 10px; font-weight: bold; cursor: pointer; }
         .cart-content { max-height: 0; overflow: hidden; transition: 0.3s; }
         .cart-content.open { max-height: 250px; overflow-y: auto; padding: 10px; }
-        .cart-item { border-bottom: 1px solid #eee; padding: 8px 0; font-size: 13px; display: flex; justify-content: space-between; }
+        .cart-item { border-bottom: 1px solid #eee; padding: 8px 0; font-size: 13px; display: flex; justify-content: space-between; align-items: center; }
 
         .cart-summary { padding: 12px; display: flex; justify-content: space-between; align-items: center; background: white; }
         .total-price { font-size: 1.1rem; font-weight: bold; color: var(--primary); }
 
-        /* Modals */
         .modal-overlay { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index: 3000; align-items:center; justify-content:center; }
         .modal-box { background:white; width: 90%; max-width: 400px; border-radius: 15px; padding: 20px; max-height: 85vh; overflow-y: auto; }
         .input-box { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; margin-bottom: 10px; font-size: 16px; }
@@ -107,7 +100,7 @@
         <button class="btn-add-set" id="btn-confirm-set" onclick="confirmSetToCart()" disabled>+ MASUK TROLI</button>
     </div>
 
-    <div class="menu-area">
+    <div class="menu-area" id="menu-area-scroll">
         <div class="header-tools">
             <div class="category-bar">
                 <button class="cat-btn active" onclick="filterMenu('Semua', this)">Semua</button>
@@ -117,9 +110,10 @@
             </div>
         </div>
         <div class="menu-grid" id="menu-grid"></div>
+        <div id="scroll-anchor"></div>
     </div>
 
-    <div class="cart-section">
+    <div class="cart-section" id="checkout-section">
         <div class="cart-toggle-btn" onclick="toggleCart()">LIHAT SENARAI TROLI</div>
         <div id="cart-content" class="cart-content">
             <div id="cart-list" style="padding:10px"></div>
@@ -157,9 +151,9 @@
             <p style="color:var(--danger); font-weight:bold">Baki: RM <span id="change-display">0.00</span></p>
             <button class="payment-btn" style="background:var(--primary); color:white" onclick="handlePayment('cash')">SAHKAN & WHATSAPP</button>
         </div>
-        <button class="payment-btn" style="background:var(--online); color:white" onclick="handlePayment('online')">🌐 BAYAR ONLINE (ToyyibPay)</button>
+        <button class="payment-btn" style="background:var(--online); color:white" onclick="handlePayment('online')">🌐 BAYAR ONLINE</button>
         <button class="payment-btn" style="background:#eee" onclick="showCash()">💵 BAYAR TUNAI</button>
-        <p onclick="closePaymentModal()" style="color:red; cursor:pointer; margin-top:15px; font-size:14px">Batal / Kembali</p>
+        <p onclick="closePaymentModal()" style="color:red; cursor:pointer; margin-top:15px; font-size:14px">Batal</p>
     </div>
 </div>
 
@@ -339,15 +333,25 @@
         document.getElementById('btn-confirm-set').disabled = !currentSet.length;
     }
     function resetSet() { currentSet = []; document.getElementById('set-remark').value = ""; updateSet(); }
+    
     function confirmSetToCart() {
         cart.push({ n: currentSet[0].name + (currentSet.length > 1 ? " Set" : ""), p: currentSet.reduce((s,i)=>s+i.price,0), r: document.getElementById('set-remark').value });
         localStorage.setItem('temp_cart', JSON.stringify(cart));
-        resetSet(); renderCart(); 
-        if(!document.getElementById('cart-content').classList.contains('open')) toggleCart();
+        resetSet(); 
+        renderCart(); 
+        
+        // AUTO-OPEN CART
+        document.getElementById('cart-content').classList.add('open');
+        
+        // AUTO-SCROLL TO BOTTOM
+        setTimeout(() => {
+            document.getElementById('scroll-anchor').scrollIntoView({ behavior: 'smooth' });
+        }, 300);
     }
+
     function renderCart() {
         let t = cart.reduce((s,i)=>s+i.p,0);
-        document.getElementById('cart-list').innerHTML = cart.map((i, idx) => `<div class="cart-item"><span>${i.n}</span> <span>RM ${i.p.toFixed(2)} <span onclick="deleteCartItem(${idx})" style="color:red; margin-left:10px">×</span></span></div>`).join('') || "Troli Kosong";
+        document.getElementById('cart-list').innerHTML = cart.map((i, idx) => `<div class="cart-item"><span>${i.n}</span> <span>RM ${i.p.toFixed(2)} <span onclick="deleteCartItem(${idx})" style="color:red; margin-left:10px; font-weight:bold">×</span></span></div>`).join('') || "Troli Kosong";
         document.getElementById('grand-total').innerText = t.toFixed(2);
     }
     function deleteCartItem(idx) { cart.splice(idx, 1); localStorage.setItem('temp_cart', JSON.stringify(cart)); renderCart(); }
