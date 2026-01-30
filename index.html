@@ -16,13 +16,12 @@
             display: flex; 
             flex-direction: column; 
             overflow: hidden; 
-            align-items: center; /* Untuk paparan Laptop */
+            align-items: center; 
         }
 
-        /* Container utama untuk Laptop supaya tak terlalu lebar */
         .main-container {
             width: 100%;
-            max-width: 500px; /* Saiz ideal untuk UI mobile di laptop */
+            max-width: 500px; 
             height: 100vh;
             background: white;
             display: flex;
@@ -151,8 +150,11 @@
 <script>
     const PHONE = "60133002678";
     const TOYYIB_LINK = "https://toyyibpay.com/Slurp-Bite-Order";
-    let adminCounter = 0;
     
+    let currentSet = []; 
+    let cart = JSON.parse(localStorage.getItem('temp_cart')) || []; 
+    let currentCat = "Semua";
+
     const products = [
         { id: 1, cat: 'Makanan', name: 'Oden Original', price: 0.00, img: 'https://i.postimg.cc/KcLWHG11/oden.jpg' },
         { id: 2, cat: 'Makanan', name: 'Dry Pan Mee', price: 4.00, img: 'https://i.postimg.cc/Qx3zL27t/pan_mee.jpg' },
@@ -181,38 +183,11 @@
         { id: 25, cat: 'Add On', name: 'Udang', price: 1.00, img: 'https://i.postimg.cc/9rzpptn4/udang.jpg' }
     ];
 
-    let currentSet = []; 
-    let cart = []; 
-    let currentCat = "Semua";
-
     function saveVisitor() {
         const name = document.getElementById('visitor-name-input').value.trim();
         if(!name) { alert("Sila taip nama!"); return; }
         sessionStorage.setItem('c_name', name);
-        let list = JSON.parse(localStorage.getItem('v_data')) || [];
-        list.push({ n: name, t: new Date().toLocaleString('ms-MY') });
-        localStorage.setItem('v_data', JSON.stringify(list));
         document.getElementById('welcomeModal').style.display = 'none';
-        updateV();
-    }
-
-    function adminClick() {
-        adminCounter++;
-        if(adminCounter >= 5) {
-            adminCounter = 0;
-            const list = JSON.parse(localStorage.getItem('v_data')) || [];
-            document.getElementById('admin-list').innerHTML = list.map(v => `• ${v.n} (${v.t})<br>`).join('') || 'Tiada data.';
-            document.getElementById('adminModal').style.display = 'flex';
-        }
-    }
-
-    function updateV() { document.getElementById('visitor-stat').innerText = "Pelawat hari ini: " + (JSON.parse(localStorage.getItem('v_data'))?.length || 0); }
-
-    function filterMenu(cat, btn) { 
-        currentCat = cat; 
-        document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        renderMenu(); 
     }
 
     function renderMenu() {
@@ -239,120 +214,103 @@
 
     function updateSet() {
         const d = document.getElementById('current-set-display');
-        d.innerHTML = currentSet.length ? currentSet.map(i => `<span class="set-item-tag">${i.name} <span class="btn-del-mini" onclick="event.stopPropagation(); removeFromSet(${i.uid})">❌</span></span>`).join('') : "Sila pilih menu...";
+        d.innerHTML = currentSet.length ? currentSet.map(i => `<span class="set-item-tag">${i.name} <span onclick="event.stopPropagation(); removeFromSet(${i.uid})">❌</span></span>`).join('') : "Sila pilih menu...";
         document.getElementById('btn-confirm-set').disabled = !currentSet.length;
     }
 
-    function resetSet() { 
-        currentSet = []; 
-        document.getElementById('set-remark').value = "";
-        updateSet(); 
-    }
-
     function confirmSetToCart() {
-        if(currentSet.length === 0) return;
         const total = currentSet.reduce((s, i) => s + i.price, 0);
-        const remark = document.getElementById('set-remark').value;
-        cart.push({ 
-            n: currentSet[0].name + (currentSet.length > 1 ? " + Set" : ""), 
-            d: currentSet.map(i => i.name).join(', '), 
-            p: total, 
-            r: remark 
-        });
-        resetSet(); 
-        renderCart();
+        cart.push({ n: currentSet[0].name + " Set", d: currentSet.map(i => i.name).join(', '), p: total, r: document.getElementById('set-remark').value });
+        localStorage.setItem('temp_cart', JSON.stringify(cart));
+        currentSet = []; updateSet(); document.getElementById('set-remark').value = ""; renderCart();
         if(!document.getElementById('cart-content').classList.contains('open')) toggleCart();
-    }
-
-    function removeFromCart(idx) {
-        cart.splice(idx, 1);
-        renderCart();
     }
 
     function renderCart() {
         let t = 0;
-        const list = document.getElementById('cart-list');
-        if(cart.length === 0) {
-            list.innerHTML = `<center style="padding:20px; color:#999;">Troli Kosong</center>`;
-        } else {
-            list.innerHTML = cart.map((i, idx) => { 
-                t += i.p; 
-                return `
-                <div class="cart-item">
-                    <span class="btn-remove-cart" onclick="removeFromCart(${idx})">Buang</span>
-                    <b>${i.n} (RM ${i.p.toFixed(2)})</b>
-                    <div class="item-details">${i.d}${i.r ? '<br><i>Nota: '+i.r+'</i>' : ''}</div>
-                </div>`; 
-            }).join('');
-        }
+        document.getElementById('cart-list').innerHTML = cart.map((i, idx) => { 
+            t += i.p; 
+            return `<div class="cart-item"><b>${i.n} (RM ${i.p.toFixed(2)})</b><div class="item-details">${i.d}${i.r ? '<br>Note: '+i.r : ''}</div></div>`; 
+        }).join('') || "Troli Kosong";
         document.getElementById('grand-total').innerText = t.toFixed(2);
     }
 
     function toggleCart() { document.getElementById('cart-content').classList.toggle('open'); }
 
     function openPaymentModal() {
-        if(cart.length === 0) { alert("Troli kosong!"); return; }
         document.getElementById('modal-total-display').innerText = "RM " + document.getElementById('grand-total').innerText;
         document.getElementById('paymentModal').style.display = 'flex';
     }
 
-    function closePaymentModal() { 
-        document.getElementById('paymentModal').style.display = 'none'; 
-        document.getElementById('cash-option-area').style.display = 'none';
-    }
-
+    function closePaymentModal() { document.getElementById('paymentModal').style.display = 'none'; }
     function showCash() { document.getElementById('cash-option-area').style.display = 'block'; }
-
-    function calcChange() {
-        const t = parseFloat(document.getElementById('grand-total').innerText);
-        const c = parseFloat(document.getElementById('cash-amount').value) || 0;
-        const change = c - t;
-        document.getElementById('change-display').innerText = "RM " + (change < 0 ? "0.00" : change.toFixed(2));
-    }
 
     function handlePayment(type) {
         const total = document.getElementById('grand-total').innerText;
+        if(type === 'online') {
+            const amountInSen = Math.round(parseFloat(total) * 100);
+            const toyyibUrl = `${TOYYIB_LINK}?billAmount=${amountInSen}&billExternalReferenceNo=SB-${Date.now()}`;
+            // Simpan data cart sebelum ke ToyyibPay
+            localStorage.setItem('temp_cart', JSON.stringify(cart));
+            window.location.href = toyyibUrl;
+        } else {
+            sendWhatsAppOrder('TUNAI');
+        }
+    }
+
+    function sendWhatsAppOrder(paymentType) {
+        const total = document.getElementById('grand-total').innerText;
         const name = sessionStorage.getItem('c_name') || "Pelanggan";
+        const status = new URLSearchParams(window.location.search).get('status');
         
-        // BINA MESEJ WHATSAPP YANG LENGKAP
         let msg = `*PESANAN BARU - SLURP & BITE*\n`;
         msg += `--------------------------\n`;
         msg += `*Nama:* ${name}\n`;
-        msg += `*Bayaran:* ${type === 'online' ? 'Online Transfer' : 'Tunai di Kedai'}\n`;
+        msg += `*Bayaran:* ${paymentType}\n`;
+        if(status === 'success') msg += `*Status:* ✅ BERJAYA (ToyyibPay)\n`;
         msg += `*Jumlah:* RM ${total}\n`;
         msg += `--------------------------\n`;
         
         cart.forEach((item, index) => {
             msg += `${index + 1}. *${item.n}* (RM ${item.p.toFixed(2)})\n`;
             msg += `   _Isi: ${item.d}_\n`;
-            if(item.r) msg += `   _Nota: ${item.r}_\n`;
-            msg += `\n`;
+            if(item.r) msg += `   _Nota: ${item.r}_\n\n`;
         });
         
         msg += `--------------------------\n`;
-        msg += `Sila sahkan pesanan saya. Terima kasih!`;
+        msg += `Sila semak resit jika bayaran online.`;
 
-        if(type === 'online') {
-            const amountInSen = Math.round(parseFloat(total) * 100);
-            const toyyibUrl = `${TOYYIB_LINK}?billAmount=${amountInSen}&billExternalReferenceNo=SB-${Date.now()}`;
-            window.open(toyyibUrl, '_blank');
-        }
-
-        setTimeout(() => {
-            window.open(`https://wa.me/${PHONE}?text=${encodeURIComponent(msg)}`);
-            cart = []; 
-            renderCart(); 
-            closePaymentModal();
-        }, 500);
+        window.open(`https://wa.me/${PHONE}?text=${encodeURIComponent(msg)}`);
+        
+        // Clear cart selepas hantar
+        cart = [];
+        localStorage.removeItem('temp_cart');
+        renderCart();
+        window.history.replaceState({}, document.title, window.location.pathname); // Buang ?status=success dari URL
     }
 
-    window.onload = () => { 
-        renderMenu(); 
-        updateV(); 
+    // AUTO-RUN APABILA KEMBALI DARI TOYYIBPAY
+    window.onload = () => {
+        renderMenu();
+        renderCart();
+        
+        const params = new URLSearchParams(window.location.search);
+        if(params.get('status') === 'success') {
+            alert("Bayaran Berjaya! Menghantar pesanan ke WhatsApp...");
+            sendWhatsAppOrder('ONLINE (ToyyibPay)');
+        }
+
         if(sessionStorage.getItem('c_name')) {
             document.getElementById('welcomeModal').style.display = 'none';
         }
     };
+
+    function filterMenu(cat, btn) {
+        currentCat = cat;
+        document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        renderMenu();
+    }
 </script>
 </body>
 </html>
