@@ -7,70 +7,38 @@
     <style>
         :root { --primary: #2d5a27; --whatsapp: #25D366; --danger: #e74c3c; --bg: #f4f7f4; --accent: #d35400; --online: #0061ff; }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        
-        body { 
-            margin: 0; 
-            font-family: -apple-system, system-ui, sans-serif; 
-            background: var(--bg); 
-            height: 100vh; 
-            display: flex; 
-            flex-direction: column; 
-            overflow: hidden; 
-            align-items: center; 
-        }
-
-        .main-container {
-            width: 100%;
-            max-width: 500px; 
-            height: 100vh;
-            background: white;
-            display: flex;
-            flex-direction: column;
-            position: relative;
-            box-shadow: 0 0 20px rgba(0,0,0,0.1);
-        }
-
-        nav { background: var(--primary); color: white; text-align: center; padding: 12px 12px 5px 12px; font-weight: bold; font-size: 1.1rem; cursor: pointer; flex-shrink: 0; }
+        body { margin: 0; font-family: -apple-system, system-ui, sans-serif; background: var(--bg); height: 100vh; display: flex; flex-direction: column; overflow: hidden; align-items: center; }
+        .main-container { width: 100%; max-width: 500px; height: 100vh; background: white; display: flex; flex-direction: column; position: relative; box-shadow: 0 0 20px rgba(0,0,0,0.1); }
+        nav { background: var(--primary); color: white; text-align: center; padding: 12px 12px 5px 12px; font-weight: bold; font-size: 1.1rem; flex-shrink: 0; }
         .visitor-counter { color: #c8e6c9; font-size: 10px; font-weight: normal; margin-top: 2px; padding-bottom: 5px; }
-        
-        .set-builder { background: #fff3e0; padding: 12px; border-bottom: 2px solid var(--accent); box-shadow: 0 2px 5px rgba(0,0,0,0.1); z-index: 110; flex-shrink: 0; }
+        .set-builder { background: #fff3e0; padding: 12px; border-bottom: 2px solid var(--accent); z-index: 110; flex-shrink: 0; }
         .set-title { font-size: 11px; font-weight: bold; color: var(--accent); margin-bottom: 5px; display: flex; justify-content: space-between; }
         .current-set-items { font-size: 14px; color: #333; font-weight: 600; min-height: 20px; margin-bottom: 8px; line-height: 1.4; }
         .set-item-tag { background: white; padding: 2px 8px; border-radius: 4px; border: 1px solid #ddd; margin-right: 5px; display: inline-block; margin-bottom: 4px; font-size: 13px; }
-        
         .remark-box { width: 100%; padding: 10px; border: 1px solid #fab1a0; border-radius: 8px; font-size: 14px; margin-bottom: 10px; outline: none; }
         .btn-add-set { width: 100%; background: var(--accent); color: white; border: none; padding: 12px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 14px; }
         .btn-add-set:disabled { background: #ccc; }
-
         .menu-area { flex: 1; overflow-y: auto; padding-bottom: 120px; background: #fff; }
         .header-tools { padding: 10px; background: white; position: sticky; top: 0; z-index: 100; border-bottom: 1px solid #ddd; }
         .category-bar { display: flex; gap: 8px; overflow-x: auto; padding: 5px 0; scrollbar-width: none; }
-        .category-bar::-webkit-scrollbar { display: none; }
-        
         .cat-btn { padding: 8px 18px; border-radius: 20px; border: 1px solid #ddd; background: white; font-size: 13px; white-space: nowrap; font-weight: 600; cursor: pointer; }
         .cat-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
-
         .menu-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 10px; }
-        .product-card { background: white; border-radius: 12px; padding: 10px; text-align: center; border: 1px solid #eee; box-shadow: 0 2px 4px rgba(0,0,0,0.05); cursor: pointer; }
-        .product-card img { width: 100%; height: 95px; object-fit: cover; border-radius: 8px; background: #f0f0f0; }
-        .product-card h4 { margin: 8px 0 4px; font-size: 0.85rem; height: 34px; overflow: hidden; display: flex; align-items: center; justify-content: center; line-height: 1.2; }
-        .product-card p { margin: 0; color: var(--primary); font-weight: bold; font-size: 1rem; }
-
+        .product-card { background: white; border-radius: 12px; padding: 10px; text-align: center; border: 1px solid #eee; cursor: pointer; }
+        .product-card img { width: 100%; height: 85px; object-fit: cover; border-radius: 8px; }
+        .product-card h4 { margin: 8px 0 4px; font-size: 0.8rem; height: 32px; overflow: hidden; line-height: 1.2; }
+        .product-card p { margin: 0; color: var(--primary); font-weight: bold; }
         .cart-section { background: white; border-top: 2px solid var(--primary); position: absolute; bottom: 0; width: 100%; z-index: 1000; }
         .cart-toggle-btn { background: #f0f0f0; text-align: center; padding: 8px; font-size: 11px; font-weight: bold; color: #555; cursor: pointer; }
-        .cart-content { max-height: 0; overflow: hidden; transition: 0.3s ease-out; background: white; }
+        .cart-content { max-height: 0; overflow: hidden; transition: 0.3s; background: white; }
         .cart-content.open { max-height: 300px; overflow-y: auto; padding: 15px; }
-        .cart-item { border-bottom: 1px solid #f0f0f0; padding: 10px 0; }
-        .item-details { font-size: 12px; color: #666; background: #fdf2e9; padding: 8px; border-radius: 6px; margin-top: 6px; border-left: 3px solid var(--accent); }
-
-        .cart-summary { padding: 12px 15px; background: white; border-top: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; }
-        .total-price { font-size: 1.2rem; font-weight: bold; color: var(--primary); }
-        .btn-checkout { background: var(--primary); color: white; border: none; padding: 12px 25px; border-radius: 8px; font-weight: bold; cursor: pointer; }
-
+        .cart-item { border-bottom: 1px solid #f0f0f0; padding: 8px 0; }
+        .cart-summary { padding: 12px 15px; display: flex; justify-content: space-between; align-items: center; }
+        .total-price { font-size: 1.1rem; font-weight: bold; color: var(--primary); }
         .modal-overlay { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index: 3000; align-items:center; justify-content:center; }
         .modal-box { background:white; width: 90%; max-width: 400px; border-radius: 15px; padding: 25px; text-align:center; }
         .input-box { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; margin-bottom: 10px; font-size: 16px; }
-        .payment-btn { width: 100%; padding: 15px; border: none; border-radius: 10px; margin: 8px 0; font-weight: bold; font-size: 16px; cursor: pointer; }
+        .payment-btn { width: 100%; padding: 15px; border: none; border-radius: 10px; margin: 8px 0; font-weight: bold; cursor: pointer; }
     </style>
 </head>
 <body>
@@ -85,7 +53,7 @@
         </div>
     </div>
 
-    <nav onclick="adminClick()">
+    <nav>
         SLURP & BITE Taman Rosa
         <div class="visitor-counter" id="visitor-stat">Pelawat hari ini: 0</div>
     </nav>
@@ -116,7 +84,7 @@
         </div>
         <div class="cart-summary">
             <div class="total-price">Total: RM <span id="grand-total">0.00</span></div>
-            <button class="btn-checkout" onclick="openPaymentModal()">CHECKOUT</button>
+            <button class="btn-add-set" style="width:auto; padding:10px 20px" onclick="openPaymentModal()">CHECKOUT</button>
         </div>
     </div>
 </div>
@@ -126,15 +94,15 @@
         <h3>Pilih Pembayaran</h3>
         <p>Jumlah: <strong id="modal-total-display">RM 0.00</strong></p>
         
-        <div id="cash-option-area" style="display:none; background:#f0f0f0; padding:15px; border-radius:10px; margin-bottom:10px;">
-            <input type="number" id="cash-amount" class="input-box" placeholder="Tunai Diterima RM" oninput="calcChange()">
-            <div style="font-size:14px; color:var(--danger); font-weight:bold;">Baki Pelanggan: <span id="change-display">RM 0.00</span></div>
-            <button class="payment-btn" style="background:var(--primary); color:white; margin-top:10px;" onclick="handlePayment('cash')">SAHKAN & WASAP</button>
+        <div id="cash-option-area" style="display:none; background:#f9f9f9; padding:15px; border-radius:10px; margin-bottom:10px; border: 1px solid #ddd;">
+            <input type="number" id="cash-amount" class="input-box" placeholder="Duit Pelanggan (RM)" oninput="calcChange()">
+            <div style="font-size:16px; color:var(--danger); font-weight:bold; margin: 10px 0;">Baki: <span id="change-display">RM 0.00</span></div>
+            <button class="payment-btn" style="background:var(--primary); color:white" onclick="handlePayment('cash')">SAHKAN & WASAP</button>
         </div>
 
         <button class="payment-btn" style="background:var(--online); color:white" onclick="handlePayment('online')">🌐 BAYAR ONLINE (AUTO)</button>
         <button class="payment-btn" style="background:#eee" onclick="showCash()">💵 TUNAI DI KEDAI</button>
-        <p onclick="closePaymentModal()" style="color:red; cursor:pointer; margin-top:10px;">Batal</p>
+        <p onclick="closePaymentModal()" style="color:red; cursor:pointer; margin-top:15px;">Batal</p>
     </div>
 </div>
 
@@ -198,10 +166,7 @@
         updateSet();
     }
 
-    function removeFromSet(uid) { 
-        currentSet = currentSet.filter(i => i.uid !== uid); 
-        updateSet(); 
-    }
+    function removeFromSet(uid) { currentSet = currentSet.filter(i => i.uid !== uid); updateSet(); }
 
     function updateSet() {
         const d = document.getElementById('current-set-display');
@@ -209,63 +174,59 @@
         document.getElementById('btn-confirm-set').disabled = !currentSet.length;
     }
 
+    function resetSet() { currentSet = []; document.getElementById('set-remark').value = ""; updateSet(); }
+
     function confirmSetToCart() {
         const total = currentSet.reduce((s, i) => s + i.price, 0);
         cart.push({ n: currentSet[0].name + (currentSet.length > 1 ? " Set" : ""), d: currentSet.map(i => i.name).join(', '), p: total, r: document.getElementById('set-remark').value });
         localStorage.setItem('temp_cart', JSON.stringify(cart));
-        currentSet = []; updateSet(); document.getElementById('set-remark').value = ""; renderCart();
+        resetSet(); renderCart();
         if(!document.getElementById('cart-content').classList.contains('open')) toggleCart();
     }
 
     function renderCart() {
         let t = 0;
-        document.getElementById('cart-list').innerHTML = cart.map((i, idx) => { 
-            t += i.p; 
-            return `<div class="cart-item"><b>${i.n} (RM ${i.p.toFixed(2)})</b><div class="item-details">${i.d}${i.r ? '<br>Nota: '+i.r : ''}</div></div>`; 
-        }).join('') || "Troli Kosong";
+        document.getElementById('cart-list').innerHTML = cart.map((i, idx) => { t += i.p; return `<div class="cart-item"><b>${i.n} (RM ${i.p.toFixed(2)})</b><br><small>${i.d}</small></div>`; }).join('') || "Troli Kosong";
         document.getElementById('grand-total').innerText = t.toFixed(2);
     }
 
     function toggleCart() { document.getElementById('cart-content').classList.toggle('open'); }
-    function openPaymentModal() {
-        document.getElementById('modal-total-display').innerText = "RM " + document.getElementById('grand-total').innerText;
-        document.getElementById('paymentModal').style.display = 'flex';
-    }
+    function openPaymentModal() { document.getElementById('modal-total-display').innerText = "RM " + document.getElementById('grand-total').innerText; document.getElementById('paymentModal').style.display = 'flex'; }
     function closePaymentModal() { document.getElementById('paymentModal').style.display = 'none'; document.getElementById('cash-option-area').style.display = 'none'; }
     function showCash() { document.getElementById('cash-option-area').style.display = 'block'; }
 
     function calcChange() {
         const total = parseFloat(document.getElementById('grand-total').innerText);
         const cash = parseFloat(document.getElementById('cash-amount').value) || 0;
-        const change = cash - total;
-        document.getElementById('change-display').innerText = "RM " + (change < 0 ? "0.00" : change.toFixed(2));
+        const baki = cash - total;
+        document.getElementById('change-display').innerText = "RM " + (baki < 0 ? "0.00" : baki.toFixed(2));
     }
 
     function handlePayment(type) {
         const total = document.getElementById('grand-total').innerText;
         if(type === 'online') {
             const amountInSen = Math.round(parseFloat(total) * 100);
-            const toyyibUrl = `${TOYYIB_LINK}?billAmount=${amountInSen}&billExternalReferenceNo=SB-${Date.now()}`;
             localStorage.setItem('temp_cart', JSON.stringify(cart));
-            window.location.href = toyyibUrl;
+            window.location.href = `${TOYYIB_LINK}?billAmount=${amountInSen}&billExternalReferenceNo=SB-${Date.now()}`;
         } else {
-            const baki = document.getElementById('change-display').innerText;
-            const tunai = document.getElementById('cash-amount').value;
-            sendWhatsAppOrder(`TUNAI (Terima: RM${tunai}, Baki: ${baki})`);
+            const cashVal = document.getElementById('cash-amount').value;
+            const bakiVal = document.getElementById('change-display').innerText;
+            if(!cashVal) { alert("Sila masukkan jumlah duit pelanggan!"); return; }
+            sendWhatsAppOrder(`TUNAI (Terima: RM${cashVal}, Baki: ${bakiVal})`);
         }
     }
 
     function sendWhatsAppOrder(paymentInfo) {
         const total = document.getElementById('grand-total').innerText;
         const name = sessionStorage.getItem('c_name') || "Pelanggan";
-        const status = new URLSearchParams(window.location.search).get('status');
+        const isOnlineSuccess = new URLSearchParams(window.location.search).get('status') === 'success';
         
         let msg = `*PESANAN BARU - SLURP & BITE*\n`;
         msg += `--------------------------\n`;
         msg += `*Nama:* ${name}\n`;
         msg += `*Bayaran:* ${paymentInfo}\n`;
-        if(status === 'success') msg += `*Status ToyyibPay:* ✅ BERJAYA\n`;
-        msg += `*Jumlah Pesanan:* RM ${total}\n`;
+        if(isOnlineSuccess) msg += `*Status ToyyibPay:* ✅ BERJAYA\n`;
+        msg += `*Total Pesanan:* RM ${total}\n`;
         msg += `--------------------------\n`;
         
         cart.forEach((item, index) => {
@@ -275,15 +236,17 @@
         });
         
         msg += `--------------------------\n`;
-        msg += `_Mesej dihantar secara automatik oleh sistem._`;
+        msg += `_Sila sahkan pesanan saya. Terima kasih!_`;
 
-        window.open(`https://wa.me/${PHONE}?text=${encodeURIComponent(msg)}`);
+        // 1. Buka WhatsApp
+        window.open(`https://wa.me/${PHONE}?text=${encodeURIComponent(msg)}`, '_blank');
         
-        cart = [];
-        localStorage.removeItem('temp_cart');
-        renderCart();
-        closePaymentModal();
-        window.history.replaceState({}, document.title, window.location.pathname);
+        // 2. Clear SEMUA data dan RESET page selepas hantar
+        setTimeout(() => {
+            cart = [];
+            localStorage.removeItem('temp_cart');
+            window.location.href = window.location.pathname; // Ini akan refresh page ke asal tanpa status=success
+        }, 1000);
     }
 
     window.onload = () => {
@@ -294,6 +257,9 @@
             sendWhatsAppOrder('ONLINE (ToyyibPay)');
         }
         if(sessionStorage.getItem('c_name')) document.getElementById('welcomeModal').style.display = 'none';
+        
+        // Update visitor stat (dummy)
+        document.getElementById('visitor-stat').innerText = "Pelawat hari ini: " + Math.floor(Math.random() * 50 + 10);
     };
 
     function filterMenu(cat, btn) {
