@@ -3,14 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Slurp & Bite POS - Optimized</title>
+    <title>Slurp & Bite POS - Full Version</title>
     <style>
         :root { --primary: #2d5a27; --whatsapp: #25D366; --danger: #e74c3c; --bg: #f4f7f4; --accent: #d35400; --online: #0061ff; --gold: #f1c40f; }
         
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; margin: 0; padding: 0; scroll-behavior: smooth; }
-        
         html, body { overscroll-behavior-y: none; height: 100%; overflow: hidden; background: #ccc; }
-
         body { font-family: -apple-system, system-ui, sans-serif; display: flex; justify-content: center; }
 
         .main-container { 
@@ -18,7 +16,8 @@
             display: flex; flex-direction: column; position: relative; overflow: hidden;
         }
         
-        nav { background: var(--primary); color: white; text-align: center; padding: 12px; font-weight: bold; flex-shrink: 0; z-index: 100; }
+        nav { background: var(--primary); color: white; text-align: center; padding: 12px; font-weight: bold; flex-shrink: 0; z-index: 100; cursor: pointer; }
+        .visitor-counter { color: #c8e6c9; font-size: 11px; font-weight: normal; }
         .loyalty-info { background: var(--gold); color: #000; padding: 5px; font-size: 12px; font-weight: bold; text-align: center; flex-shrink: 0; }
 
         /* Builder Area */
@@ -42,16 +41,16 @@
         .product-card { background: white; border-radius: 12px; padding: 8px; text-align: center; border: 1px solid #eee; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
         .product-card img { width: 100%; height: 100px; object-fit: cover; border-radius: 8px; margin-bottom: 5px; }
 
-        /* Floating Checkout Bar (Sangat Nipis) */
+        /* Floating Checkout Bar */
         .bottom-bar { 
             position: absolute; bottom: 0; left: 0; right: 0; 
             background: white; border-top: 2px solid var(--primary);
             padding: 10px 15px calc(15px + env(safe-area-inset-bottom));
             display: flex; justify-content: space-between; align-items: center;
-            z-index: 500;
+            z-index: 500; box-shadow: 0 -5px 15px rgba(0,0,0,0.1);
         }
 
-        /* MODAL / POPUP STYLES */
+        /* MODAL STYLES */
         .modal-overlay { 
             display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
             background: rgba(0,0,0,0.7); z-index: 2000; align-items: center; justify-content: center; 
@@ -59,21 +58,15 @@
         }
         .modal-box { 
             background: white; width: 92%; max-width: 450px; border-radius: 20px; 
-            padding: 20px; max-height: 85vh; overflow-y: auto; position: relative;
+            padding: 20px; max-height: 85vh; overflow-y: auto;
         }
 
-        .review-item { 
-            display: flex; justify-content: space-between; align-items: flex-start;
-            padding: 12px 0; border-bottom: 1px solid #eee;
-        }
-        .item-info { flex: 1; }
-        .item-name { font-weight: bold; font-size: 14px; }
-        .item-remark { font-size: 12px; color: #666; font-style: italic; }
-        .item-price { font-weight: bold; color: var(--primary); margin-left: 10px; }
-        .btn-remove { color: var(--danger); font-size: 18px; margin-left: 15px; cursor: pointer; }
-
+        .review-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #eee; }
         .input-box { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; margin-bottom: 10px; font-size: 16px; }
-        .payment-btn { width: 100%; padding: 15px; border: none; border-radius: 10px; margin: 5px 0; font-weight: bold; cursor: pointer; font-size: 15px; }
+        .payment-btn { width: 100%; padding: 15px; border: none; border-radius: 10px; margin: 5px 0; font-weight: bold; cursor: pointer; }
+        
+        .admin-table { width: 100%; border-collapse: collapse; font-size: 12px; margin-top: 10px; }
+        .admin-table th, .admin-table td { border: 1px solid #ddd; padding: 8px; text-align: left; }
     </style>
 </head>
 <body>
@@ -81,25 +74,28 @@
 <div class="main-container">
     <div class="modal-overlay" id="welcomeModal" style="display: flex;">
         <div class="modal-box" style="text-align:center">
-            <h3 style="margin-bottom:10px">Slurp & Bite Taman Rosa</h3>
-            <p style="margin-bottom:15px; color:#666; font-size:14px">Sila masukkan maklumat anda:</p>
-            <input type="text" id="v-name" class="input-box" placeholder="Nama Anda">
-            <input type="number" id="v-phone" class="input-box" placeholder="No. Telefon">
+            <h3>Selamat Datang</h3>
+            <p style="margin-bottom:15px; color:#666;">Masukkan maklumat untuk kumpul Points:</p>
+            <input type="text" id="v-name" class="input-box" placeholder="Nama Penuh">
+            <input type="number" id="v-phone" class="input-box" placeholder="No. Telefon (Cth: 013...)">
             <button class="btn-add-set" onclick="saveVisitor()">MULA PESANAN</button>
         </div>
     </div>
 
-    <nav>SLURP & BITE Taman Rosa</nav>
-    <div class="loyalty-info">✨ <span id="user-name">Pelanggan</span> | Mata: <span id="user-pts">0</span> Points</div>
+    <nav onclick="handleAdminAccess()">
+        SLURP & BITE Taman Rosa
+        <div class="visitor-counter" id="visitor-stat">Pesanan: 0</div>
+    </nav>
+    <div class="loyalty-info">✨ <span id="user-display">Pelanggan</span> | Mata: <span id="user-pts">0</span> Points</div>
 
     <div class="set-builder">
         <div style="display:flex; justify-content:space-between; font-size:12px; font-weight:bold; color:var(--accent); margin-bottom:5px">
-            <span>PILIH MENU</span>
-            <span onclick="resetSet()" style="color:var(--danger)">Padam Semua</span>
+            <span>BINA PESANAN</span>
+            <span onclick="resetSet()" style="color:var(--danger); cursor:pointer">Padam</span>
         </div>
-        <div class="current-set-items" id="set-display">Sila pilih menu di bawah...</div>
-        <input type="text" id="set-note" class="remark-box" placeholder="Nota (contoh: Taknak sayur, nak pedas)">
-        <button class="btn-add-set" id="btn-add-cart" onclick="addToCart()" disabled>+ MASUKKAN DALAM TROLI</button>
+        <div class="current-set-items" id="set-display">Sila pilih menu...</div>
+        <input type="text" id="set-note" class="remark-box" placeholder="Nota: Taknak pedas, nak kuah lebih...">
+        <button class="btn-add-set" id="btn-add-cart" onclick="addToCart()" disabled>+ MASUK TROLI</button>
     </div>
 
     <div class="menu-area">
@@ -116,7 +112,7 @@
 
     <div class="bottom-bar">
         <div>
-            <div style="font-size:10px; color:#666">JUMLAH KESELURUHAN</div>
+            <div style="font-size:10px; color:#666">JUMLAH</div>
             <div style="font-size:18px; font-weight:800; color:var(--primary)">RM <span id="bar-total">0.00</span></div>
         </div>
         <button class="btn-add-set" style="width:auto; padding:12px 25px; background:var(--primary)" onclick="openReview()">SEMAK PESANAN</button>
@@ -126,61 +122,86 @@
 <div class="modal-overlay" id="reviewModal">
     <div class="modal-box">
         <h3 style="text-align:center; margin-bottom:15px">Semak Pesanan</h3>
-        <div id="review-list" style="margin-bottom:20px"></div>
-        <div style="display:flex; justify-content:space-between; font-weight:bold; font-size:18px; margin-bottom:20px; padding:10px; background:#f9f9f9; border-radius:8px">
-            <span>Total:</span>
-            <span>RM <span id="review-total">0.00</span></span>
+        <div id="review-list"></div>
+        <div style="margin-top:15px; padding:10px; background:#f9f9f9; border-radius:8px; font-weight:bold; display:flex; justify-content:space-between">
+            <span>Total:</span><span>RM <span id="review-total">0.00</span></span>
         </div>
-        <button class="payment-btn" style="background:var(--primary); color:white" onclick="goToPayment()">SAHKAN & PILIH BAYARAN</button>
-        <button class="payment-btn" style="background:#eee; color:#333" onclick="closeModals()">KEMBALI EDIT MENU</button>
+        <button class="payment-btn" style="background:var(--primary); color:white; margin-top:15px" onclick="goToPayment()">SAHKAN & BAYAR</button>
+        <button class="payment-btn" style="background:#eee" onclick="closeModals()">KEMBALI EDIT</button>
     </div>
 </div>
 
 <div class="modal-overlay" id="paymentModal">
     <div class="modal-box" style="text-align:center">
-        <h3>Cara Bayaran</h3>
-        <p style="font-size:13px; color:#666; margin-bottom:15px">Pilih kaedah penghantaran & bayaran:</p>
-        
-        <div style="display:flex; gap:10px; margin-bottom:15px;">
-            <button id="btn-self" class="payment-btn" style="background:var(--primary); color:white; flex:1" onclick="setSvc('pick')">Self-Pick</button>
-            <button id="btn-delv" class="payment-btn" style="background:#eee; flex:1" onclick="setSvc('delivery')">Delivery</button>
+        <h3>Checkout</h3>
+        <div id="redeem-btn" style="background:var(--gold); padding:10px; border-radius:8px; margin-bottom:10px; display:none; cursor:pointer" onclick="redeemPoints()">
+            🎁 TEBUS DISKAUN RM5 (Guna 100 Pts)
         </div>
-
-        <div id="delv-area" style="display:none; background:#e3f2fd; padding:10px; border-radius:8px; margin-bottom:15px">
+        <div style="display:flex; gap:10px; margin-bottom:10px;">
+            <button id="b-pick" class="payment-btn" style="background:var(--primary); color:white; flex:1" onclick="setSvc('pick')">Self-Pick</button>
+            <button id="b-delv" class="payment-btn" style="background:#eee; flex:1" onclick="setSvc('delivery')">Delivery</button>
+        </div>
+        <div id="delv-info" style="display:none; background:#e3f2fd; padding:10px; border-radius:8px; margin-bottom:10px">
             <button class="payment-btn" style="background:var(--online); color:white; font-size:12px" onclick="getLoc()">📍 TEKAN UNTUK PIN LOKASI</button>
             <p id="delv-txt" style="font-size:12px; margin-top:5px; font-weight:bold">Kos Delivery: RM 0.00</p>
         </div>
-
-        <div style="text-align:left; font-size:14px; margin-bottom:15px; border-top:1px dashed #ccc; padding-top:10px">
-            <p>Total Makanan: <span style="float:right">RM <span id="p-order">0.00</span></span></p>
-            <p>Kos Delivery: <span style="float:right">RM <span id="p-fee">0.00</span></span></p>
-            <p style="font-weight:bold; font-size:18px; margin-top:5px; color:var(--danger)">Total Bayar: <span style="float:right">RM <span id="p-final">0.00</span></span></p>
+        <div style="text-align:left; font-size:14px; border-top:1px dashed #ccc; padding-top:10px">
+            <p>Order: <span style="float:right">RM <span id="p-order">0.00</span></span></p>
+            <p>Delivery: <span style="float:right">RM <span id="p-fee">0.00</span></span></p>
+            <p id="p-disc-row" style="display:none; color:red">Diskaun: <span style="float:right">-RM 5.00</span></p>
+            <p style="font-weight:bold; font-size:18px; color:var(--danger)">Total: <span style="float:right">RM <span id="p-final">0.00</span></span></p>
         </div>
+        <button class="payment-btn" style="background:var(--online); color:white; margin-top:10px" onclick="finalPay('online')">🌐 BAYAR ONLINE</button>
+        <button class="payment-btn" style="background:#eee" onclick="finalPay('cash')">💵 BAYAR TUNAI</button>
+        <p onclick="closeModals()" style="color:red; margin-top:10px; cursor:pointer">Batal</p>
+    </div>
+</div>
 
-        <button class="payment-btn" style="background:var(--online); color:white" onclick="finalPay('online')">🌐 BAYAR ONLINE (FPX)</button>
-        <button class="payment-btn" style="background:#eee" onclick="finalPay('cash')">💵 BAYAR TUNAI (WHATSAPP)</button>
-        <p onclick="closeModals()" style="color:red; margin-top:15px; font-size:13px; cursor:pointer">Batal</p>
+<div class="modal-overlay" id="adminModal">
+    <div class="modal-box" style="max-width:600px">
+        <h3>Admin Panel</h3>
+        <div id="admin-content"></div>
+        <button class="payment-btn" style="background:#eee; margin-top:15px" onclick="closeModals()">TUTUP</button>
     </div>
 </div>
 
 <script>
     const PHONE = "60133002678";
     const TOYYIB = "https://toyyibpay.com/Slurp-Bite-Order";
+    const ADMIN_PASS = "180594";
+    
     let cart = JSON.parse(localStorage.getItem('sb_cart')) || [];
     let currentSet = [];
     let currentCat = 'Semua';
     let service = 'pick';
     let fee = 0;
+    let discount = 0;
     let uLoc = "";
+    let adminClicks = 0;
 
     const products = [
         { id: 1, cat: 'Makanan', name: 'Oden Original', price: 0.00, img: 'https://i.postimg.cc/KcLWHG11/oden.jpg' },
         { id: 2, cat: 'Makanan', name: 'Dry Pan Mee', price: 4.00, img: 'https://i.postimg.cc/Qx3zL27t/pan_mee.jpg' },
         { id: 3, cat: 'Makanan', name: 'Indo Mee', price: 3.00, img: 'https://i.postimg.cc/dkBBWWFr/indo-mee.jpg' },
+        { id: 4, cat: 'Makanan', name: 'Mee Sedap Korean Cheese', price: 4.00, img: 'https://i.postimg.cc/5Q2mDwNJ/mee-sedap-cheese.jpg' },
+        { id: 5, cat: 'Makanan', name: 'Mee Sedap Korean Spicy', price: 4.00, img: 'https://i.postimg.cc/RJZT2cV4/mee-sedap-spicy.jpg' },
+        { id: 6, cat: 'Makanan', name: 'Nissin Korean Mee', price: 5.00, img: 'https://i.postimg.cc/xqfgkSyS/nissin.jpg' },
+        { id: 7, cat: 'Makanan', name: 'Wow Spageti', price: 3.00, img: 'https://i.postimg.cc/gnrDDqTQ/wow.jpg' },
         { id: 8, cat: 'Minuman', name: 'Chocolate Ice', price: 3.00, img: 'https://i.postimg.cc/jSsPqdxQ/coklat.png' },
         { id: 9, cat: 'Minuman', name: 'Green Tea Ice', price: 3.00, img: 'https://i.postimg.cc/mZyrL3Pg/greentea.png' },
+        { id: 10, cat: 'Minuman', name: 'Thai Tea Ice', price: 3.00, img: 'https://i.postimg.cc/mZyrL3Pr/thaitea.png' },
+        { id: 11, cat: 'Minuman', name: 'White Coffee Caramel', price: 5.00, img: 'https://i.postimg.cc/nVGLFKXc/whitecoffee.png' },
+        { id: 12, cat: 'Minuman', name: 'Aiskrim Float', price: 2.50, img: 'https://i.postimg.cc/f3Y5dzry/float.jpg' },
+        { id: 13, cat: 'Minuman', name: 'Air Seringgit', price: 1.00, img: 'https://i.postimg.cc/t7BkWm24/singgit.jpg' },
         { id: 14, cat: 'Add On', name: 'Enoki', price: 0.50, img: 'https://i.postimg.cc/DW15GvMw/enoki.webp' },
         { id: 15, cat: 'Add On', name: 'Filament Stick', price: 0.50, img: 'https://i.postimg.cc/XZ9x5jzv/filament.jpg' },
+        { id: 16, cat: 'Add On', name: 'Fucuk Ikan', price: 1.00, img: 'https://i.postimg.cc/S2qd7BBY/fucuk-ikan.jpg' },
+        { id: 17, cat: 'Add On', name: 'Ikan', price: 0.50, img: 'https://i.postimg.cc/LYRDBccJ/ikan.jpg' },
+        { id: 18, cat: 'Add On', name: 'Ketam', price: 1.00, img: 'https://i.postimg.cc/YG33XX7Q/ketam.jpg' },
+        { id: 19, cat: 'Add On', name: 'Lobster', price: 1.00, img: 'https://i.postimg.cc/vgzzPPyX/lobster.jpg' },
+        { id: 20, cat: 'Add On', name: 'Maggi', price: 1.00, img: 'https://i.postimg.cc/gXDDMMpM/maggi.jpg' },
+        { id: 21, cat: 'Add On', name: 'Salmon', price: 1.00, img: 'https://i.postimg.cc/vD0hfS3s/salmon.jpg' },
+        { id: 22, cat: 'Add On', name: 'Sosej', price: 0.50, img: 'https://i.postimg.cc/BtmpHwMJ/sosej.jpg' },
         { id: 23, cat: 'Add On', name: 'Sotong', price: 1.00, img: 'https://i.postimg.cc/yWLjcrv3/sotong.jpg' },
         { id: 24, cat: 'Add On', name: 'Telur', price: 1.00, img: 'https://i.postimg.cc/9zLbZNJD/telur.jpg' },
         { id: 25, cat: 'Add On', name: 'Udang', price: 1.00, img: 'https://i.postimg.cc/9rzpptn4/udang.jpg' }
@@ -189,117 +210,128 @@
     function saveVisitor() {
         const n = document.getElementById('v-name').value;
         const p = document.getElementById('v-phone').value;
-        if(!n || !p) return alert("Sila isi nama & no telefon");
+        if(!n || !p) return alert("Isi Nama & No Tel");
         sessionStorage.setItem('sb_name', n); sessionStorage.setItem('sb_phone', p);
         document.getElementById('welcomeModal').style.display = 'none';
-        document.getElementById('user-name').innerText = n;
+        loadUser();
+    }
+
+    function loadUser() {
+        const n = sessionStorage.getItem('sb_name');
+        const p = sessionStorage.getItem('sb_phone');
+        const db = JSON.parse(localStorage.getItem('loyalty_db')) || {};
+        const pts = db[p] ? db[p].points : 0;
+        document.getElementById('user-display').innerText = n;
+        document.getElementById('user-pts').innerText = pts;
+        document.getElementById('redeem-btn').style.display = pts >= 100 ? 'block' : 'none';
+        updateStats();
     }
 
     function renderMenu() {
-        let html = products.filter(p => currentCat === 'Semua' || p.cat === currentCat).map(p => `
+        document.getElementById('menu-grid').innerHTML = products.filter(p => currentCat === 'Semua' || p.cat === currentCat).map(p => `
             <div class="product-card" onclick="addToSet(${p.id})">
-                <img src="${p.img}" loading="lazy">
+                <img src="${p.img}">
                 <div style="font-weight:bold; font-size:13px">${p.name}</div>
                 <div style="color:var(--primary); font-size:12px">RM ${p.price.toFixed(2)}</div>
             </div>
         `).join('');
-        document.getElementById('menu-grid').innerHTML = html;
     }
 
     function addToSet(id) {
         const p = products.find(x => x.id === id);
         currentSet.push({...p, uid: Date.now()});
-        updateSetDisplay();
+        updateSetUI();
     }
 
-    function updateSetDisplay() {
-        const container = document.getElementById('set-display');
-        if(currentSet.length === 0) { container.innerHTML = "Sila pilih menu di bawah..."; document.getElementById('btn-add-cart').disabled = true; return; }
-        container.innerHTML = currentSet.map(i => `<span class="set-item-tag">${i.name} <b onclick="event.stopPropagation(); removeFromSet(${i.uid})" style="color:red">×</b></span>`).join('');
-        document.getElementById('btn-add-cart').disabled = false;
+    function updateSetUI() {
+        const d = document.getElementById('set-display');
+        d.innerHTML = currentSet.length ? currentSet.map(i => `<span class="set-item-tag">${i.name} <b onclick="event.stopPropagation(); removeFromSet(${i.uid})" style="color:red">×</b></span>`).join('') : "Sila pilih menu...";
+        document.getElementById('btn-add-cart').disabled = !currentSet.length;
     }
 
-    function removeFromSet(uid) { currentSet = currentSet.filter(i => i.uid !== uid); updateSetDisplay(); }
-    function resetSet() { currentSet = []; document.getElementById('set-note').value = ""; updateSetDisplay(); }
+    function removeFromSet(uid) { currentSet = currentSet.filter(i => i.uid !== uid); updateSetUI(); }
+    function resetSet() { currentSet = []; document.getElementById('set-note').value = ""; updateSetUI(); }
 
     function addToCart() {
         let name = currentSet.length > 1 ? currentSet[0].name + " Set" : currentSet[0].name;
-        let price = currentSet.reduce((a,b) => a + b.price, 0);
-        cart.push({ n: name, p: price, r: document.getElementById('set-note').value, id: Date.now() });
+        let price = currentSet.reduce((a,b)=>a+b.price, 0);
+        cart.push({ n: name, p: price, r: document.getElementById('set-note').value });
         localStorage.setItem('sb_cart', JSON.stringify(cart));
         resetSet(); updateTotals();
-        alert("Berjaya dimasukkan ke troli!");
     }
 
     function updateTotals() {
-        let total = cart.reduce((a,b) => a + b.p, 0);
-        document.getElementById('bar-total').innerText = total.toFixed(2);
-        document.getElementById('review-total').innerText = total.toFixed(2);
+        let t = cart.reduce((a,b)=>a+b.p, 0);
+        document.getElementById('bar-total').innerText = t.toFixed(2);
     }
 
     function openReview() {
-        if(cart.length === 0) return alert("Troli anda kosong.");
-        let html = cart.map((item, idx) => `
+        if(!cart.length) return alert("Troli kosong");
+        document.getElementById('review-list').innerHTML = cart.map((i, idx) => `
             <div class="review-item">
-                <div class="item-info">
-                    <div class="item-name">${item.n}</div>
-                    <div class="item-remark">${item.r || 'Tiada nota'}</div>
-                </div>
-                <div class="item-price">RM ${item.p.toFixed(2)}</div>
-                <div class="btn-remove" onclick="deleteItem(${idx})">🗑️</div>
+                <div style="flex:1"><b>${i.n}</b><br><small>${i.r || '-'}</small></div>
+                <b>RM ${i.p.toFixed(2)}</b>
+                <span onclick="delItem(${idx})" style="color:red; margin-left:10px">🗑️</span>
             </div>
         `).join('');
-        document.getElementById('review-list').innerHTML = html;
-        updateTotals();
+        document.getElementById('review-total').innerText = cart.reduce((a,b)=>a+b.p, 0).toFixed(2);
         document.getElementById('reviewModal').style.display = 'flex';
     }
 
-    function deleteItem(idx) {
-        cart.splice(idx, 1);
-        localStorage.setItem('sb_cart', JSON.stringify(cart));
-        openReview(); updateTotals();
-    }
+    function delItem(idx) { cart.splice(idx, 1); localStorage.setItem('sb_cart', JSON.stringify(cart)); openReview(); updateTotals(); }
 
     function goToPayment() {
         document.getElementById('reviewModal').style.display = 'none';
-        const total = cart.reduce((a,b) => a + b.p, 0);
-        document.getElementById('p-order').innerText = total.toFixed(2);
+        document.getElementById('p-order').innerText = cart.reduce((a,b)=>a+b.p, 0).toFixed(2);
         updateFinal();
         document.getElementById('paymentModal').style.display = 'flex';
     }
 
     function setSvc(t) {
-        service = t;
-        document.getElementById('btn-self').style.background = t === 'pick' ? 'var(--primary)' : '#eee';
-        document.getElementById('btn-self').style.color = t === 'pick' ? 'white' : 'black';
-        document.getElementById('btn-delv').style.background = t === 'delivery' ? 'var(--primary)' : '#eee';
-        document.getElementById('btn-delv').style.color = t === 'delivery' ? 'white' : 'black';
-        document.getElementById('delv-area').style.display = t === 'delivery' ? 'block' : 'none';
-        if(t === 'pick') { fee = 0; updateFinal(); }
+        service = t; fee = 0; uLoc = "";
+        document.getElementById('b-pick').style = t==='pick'?'background:var(--primary);color:white;flex:1':'background:#eee;flex:1';
+        document.getElementById('b-delv').style = t==='delivery'?'background:var(--primary);color:white;flex:1':'background:#eee;flex:1';
+        document.getElementById('delv-info').style.display = t==='delivery'?'block':'none';
+        updateFinal();
     }
 
     function getLoc() {
         navigator.geolocation.getCurrentPosition(pos => {
             uLoc = `https://www.google.com/maps?q=${pos.coords.latitude},${pos.coords.longitude}`;
-            fee = 5.00; // Contoh flat rate delivery
-            document.getElementById('delv-txt').innerText = "Lokasi Berjaya Diambil! Kos: RM 5.00";
+            fee = 3.00; // Flat fee delivery
+            document.getElementById('delv-txt').innerText = "Lokasi dikesan! Kos: RM 3.00";
             updateFinal();
-        }, () => alert("Sila benarkan akses lokasi."));
+        });
     }
+
+    function redeemPoints() { discount = 5; document.getElementById('p-disc-row').style.display = 'block'; updateFinal(); }
 
     function updateFinal() {
         let order = parseFloat(document.getElementById('p-order').innerText);
-        document.getElementById('p-fee').innerText = fee.toFixed(2);
-        document.getElementById('p-final').innerText = (order + fee).toFixed(2);
+        document.getElementById('p-final').innerText = (order + fee - discount).toFixed(2);
     }
 
     function finalPay(type) {
         const finalTotal = document.getElementById('p-final').innerText;
-        if(service === 'delivery' && !uLoc) return alert("Sila ambil lokasi dahulu!");
+        const p = sessionStorage.getItem('sb_phone');
+        const n = sessionStorage.getItem('sb_name');
         
-        let msg = `*PESANAN BARU*\nNama: ${sessionStorage.getItem('sb_name')}\nJenis: ${service.toUpperCase()}\nTotal: RM ${finalTotal}\n\n`;
-        cart.forEach((i, x) => msg += `${x+1}. ${i.n} - RM${i.p.toFixed(2)}\n   Nota: ${i.r}\n`);
-        if(uLoc) msg += `\n📍 Lokasi: ${uLoc}`;
+        // Update Points
+        const db = JSON.parse(localStorage.getItem('loyalty_db')) || {};
+        let u = db[p] || { name: n, points: 0 };
+        if(discount > 0) u.points -= 100;
+        u.points += Math.floor(finalTotal);
+        db[p] = u;
+        localStorage.setItem('loyalty_db', JSON.stringify(db));
+
+        // Order History for Admin
+        let h = JSON.parse(localStorage.getItem('sb_history')) || [];
+        h.push({ n, p, t: finalTotal, d: new Date().toLocaleString() });
+        localStorage.setItem('sb_history', JSON.stringify(h));
+
+        let msg = `*PESANAN BARU (${service.toUpperCase()})*\nNama: ${n}\nTotal: RM ${finalTotal}\n`;
+        cart.forEach((i, x) => msg += `${x+1}. ${i.n} - RM${i.p.toFixed(2)}\n`);
+        if(uLoc) msg += `📍 Lokasi: ${uLoc}`;
 
         if(type === 'online') {
             window.location.href = `${TOYYIB}?billAmount=${Math.round(finalTotal*100)}`;
@@ -309,27 +341,35 @@
         }
     }
 
-    function closeModals() {
-        document.querySelectorAll('.modal-overlay').forEach(m => {
-            if(m.id !== 'welcomeModal' || sessionStorage.getItem('sb_name')) m.style.display = 'none';
-        });
+    function handleAdminAccess() { 
+        adminClicks++; 
+        if(adminClicks >= 5) { 
+            adminClicks = 0; 
+            if(prompt("Password:") === ADMIN_PASS) showAdmin(); 
+        } 
     }
 
-    function filterMenu(c, btn) {
-        currentCat = c;
-        document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        renderMenu();
+    function showAdmin() {
+        const h = JSON.parse(localStorage.getItem('sb_history')) || [];
+        const db = JSON.parse(localStorage.getItem('loyalty_db')) || {};
+        let html = `<h4>History Pesanan</h4><table class="admin-table"><tr><th>Tarikh</th><th>Nama</th><th>Total</th></tr>`;
+        h.slice(-10).forEach(i => html += `<tr><td>${i.d}</td><td>${i.n}</td><td>RM${i.t}</td></tr>`);
+        html += `</table><h4 style="margin-top:20px">Loyalty List</h4><table class="admin-table"><tr><th>Nama</th><th>Points</th></tr>`;
+        for(let x in db) html += `<tr><td>${db[x].name}</td><td>${db[x].points}</td></tr>`;
+        html += `</table>`;
+        document.getElementById('admin-content').innerHTML = html;
+        document.getElementById('adminModal').style.display = 'flex';
     }
 
-    window.onload = () => {
-        renderMenu(); updateTotals();
-        if(sessionStorage.getItem('sb_name')) {
-            document.getElementById('welcomeModal').style.display = 'none';
-            document.getElementById('user-name').innerText = sessionStorage.getItem('sb_name');
-        }
-    };
+    function updateStats() {
+        const h = JSON.parse(localStorage.getItem('sb_history')) || [];
+        document.getElementById('visitor-stat').innerText = `Pesanan: ${h.length}`;
+    }
+
+    function closeModals() { document.querySelectorAll('.modal-overlay').forEach(m => { if(m.id !== 'welcomeModal' || sessionStorage.getItem('sb_name')) m.style.display = 'none'; }); }
+    function filterMenu(c, b) { currentCat = c; document.querySelectorAll('.cat-btn').forEach(x=>x.classList.remove('active')); b.classList.add('active'); renderMenu(); }
+
+    window.onload = () => { renderMenu(); updateTotals(); if(sessionStorage.getItem('sb_name')) { document.getElementById('welcomeModal').style.display = 'none'; loadUser(); } };
 </script>
-
 </body>
 </html>
