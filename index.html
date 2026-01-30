@@ -3,15 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Slurp & Bite POS - Smooth Experience</title>
+    <title>Slurp & Bite POS - iOS Optimized</title>
     <style>
         :root { --primary: #2d5a27; --whatsapp: #25D366; --danger: #e74c3c; --bg: #f4f7f4; --accent: #d35400; --online: #0061ff; --gold: #f1c40f; }
         
         * { 
             box-sizing: border-box; 
             -webkit-tap-highlight-color: transparent; 
-            margin: 0; 
-            padding: 0;
+            margin: 0; padding: 0;
             scroll-behavior: smooth;
         }
         
@@ -19,11 +18,11 @@
             overscroll-behavior-y: none;
             height: 100%;
             overflow: hidden;
+            background: #ccc;
         }
 
         body { 
             font-family: -apple-system, system-ui, sans-serif; 
-            background: #ccc; 
             display: flex; 
             justify-content: center;
         }
@@ -31,17 +30,16 @@
         .main-container { 
             width: 100%; 
             max-width: 500px; 
-            height: 100vh; 
+            height: 100dvh; /* Dynamic Viewport Height untuk iOS */
             background: white; 
             display: flex; 
             flex-direction: column; 
             position: relative; 
             box-shadow: 0 0 20px rgba(0,0,0,0.1); 
             overflow: hidden;
-            will-change: transform;
         }
         
-        nav { background: var(--primary); color: white; text-align: center; padding: 12px; font-weight: bold; flex-shrink: 0; cursor: pointer; z-index: 1001; }
+        nav { background: var(--primary); color: white; text-align: center; padding: 12px; font-weight: bold; flex-shrink: 0; z-index: 1001; }
         .visitor-counter { color: #c8e6c9; font-size: 11px; font-weight: normal; }
         .loyalty-info { background: var(--gold); color: #000; padding: 5px; font-size: 12px; font-weight: bold; text-align: center; flex-shrink: 0; }
 
@@ -51,57 +49,58 @@
         .set-item-tag { background: white; padding: 2px 8px; border-radius: 4px; border: 1px solid #ddd; margin: 2px; display: inline-block; font-size: 12px; }
         .remark-box { width: 100%; padding: 8px; border: 1px solid #fab1a0; border-radius: 8px; font-size: 14px; margin-bottom: 8px; outline: none; }
         
-        .btn-add-set { width: 100%; background: var(--accent); color: white; border: none; padding: 12px; border-radius: 8px; font-weight: bold; cursor: pointer; transition: transform 0.1s; }
-        .btn-add-set:active { transform: scale(0.98); }
+        .btn-add-set { width: 100%; background: var(--accent); color: white; border: none; padding: 12px; border-radius: 8px; font-weight: bold; cursor: pointer; }
         .btn-add-set:disabled { background: #ccc; }
 
         .menu-area { 
             flex: 1; 
             overflow-y: auto; 
             -webkit-overflow-scrolling: touch;
-            padding-bottom: 20px; 
+            padding-bottom: 100px; /* Ruang tambahan supaya tak sangkut kat bawah */
         }
         
         .header-tools { background: white; position: sticky; top: 0; z-index: 100; padding: 10px; border-bottom: 1px solid #eee; }
-        .category-bar { display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; padding-bottom: 5px; -webkit-overflow-scrolling: touch; }
+        .category-bar { display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; padding-bottom: 5px; }
         .category-bar::-webkit-scrollbar { display: none; }
         
         .cat-btn { padding: 8px 15px; border-radius: 20px; border: 1px solid #ddd; background: white; font-size: 12px; white-space: nowrap; font-weight: bold; }
         .cat-btn.active { background: var(--primary); color: white; }
 
         .menu-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 10px; }
-        .product-card { background: white; border-radius: 12px; padding: 8px; text-align: center; border: 1px solid #eee; transition: background 0.2s; }
-        .product-card:active { background: #f9f9f9; }
+        .product-card { background: white; border-radius: 12px; padding: 8px; text-align: center; border: 1px solid #eee; }
         .product-card img { width: 100%; height: 90px; object-fit: cover; border-radius: 8px; margin-bottom: 5px; }
 
-        /* Penambahbaikan untuk iOS Safe Area */
+        /* FIX UNTUK iOS - MENAIKKAN SECTION CHECKOUT */
         .cart-section { 
             background: white; 
             border-top: 2px solid var(--primary); 
             flex-shrink: 0; 
-            z-index: 1000; 
-            box-shadow: 0 -5px 15px rgba(0,0,0,0.05);
-            padding-bottom: calc(10px + env(safe-area-inset-bottom)); /* Naikkan sedikit untuk iOS */
+            z-index: 2000; 
+            box-shadow: 0 -10px 20px rgba(0,0,0,0.1);
+            /* Tambah padding ekstra untuk elak bar pelayar iOS */
+            padding-bottom: calc(40px + env(safe-area-inset-bottom)); 
         }
         
-        .cart-toggle-btn { background: #eee; text-align: center; padding: 8px; font-size: 10px; font-weight: bold; cursor: pointer; }
-        .cart-content { max-height: 0; overflow: hidden; transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
-        .cart-content.open { max-height: 300px; overflow-y: auto; padding: 10px; -webkit-overflow-scrolling: touch; }
-        .cart-item { border-bottom: 1px solid #eee; padding: 8px 0; font-size: 13px; display: flex; justify-content: space-between; align-items: center; }
-
-        .cart-summary { padding: 12px 15px; display: flex; justify-content: space-between; align-items: center; background: white; }
-        .total-price { font-size: 1.1rem; font-weight: bold; color: var(--primary); }
+        .cart-toggle-btn { background: #eee; text-align: center; padding: 10px; font-size: 11px; font-weight: bold; cursor: pointer; color: #333; }
+        .cart-content { max-height: 0; overflow: hidden; transition: max-height 0.4s ease; }
+        .cart-content.open { max-height: 250px; overflow-y: auto; padding: 10px; }
+        
+        .cart-summary { 
+            padding: 15px; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            background: white;
+        }
+        .total-price { font-size: 1.2rem; font-weight: bold; color: var(--primary); }
 
         .modal-overlay { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index: 3000; align-items:center; justify-content:center; backdrop-filter: blur(3px); }
-        .modal-box { background:white; width: 90%; max-width: 400px; border-radius: 15px; padding: 20px; max-height: 85vh; overflow-y: auto; -webkit-overflow-scrolling: touch; }
+        .modal-box { background:white; width: 90%; max-width: 400px; border-radius: 15px; padding: 20px; max-height: 80vh; overflow-y: auto; }
         .input-box { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; margin-bottom: 10px; font-size: 16px; }
         .payment-btn { width: 100%; padding: 15px; border: none; border-radius: 10px; margin: 5px 0; font-weight: bold; cursor: pointer; }
 
         .delivery-box { background: #e3f2fd; padding: 10px; border-radius: 8px; margin: 10px 0; font-size: 13px; border: 1px solid #2196f3; }
         .map-container { width: 100%; height: 200px; border-radius: 10px; margin-top: 10px; display: none; overflow: hidden; border: 2px solid #2196f3; }
-        
-        .admin-table { width: 100%; border-collapse: collapse; font-size: 12px; }
-        .admin-table th, .admin-table td { border: 1px solid #ddd; padding: 8px; }
     </style>
 </head>
 <body>
@@ -109,8 +108,8 @@
 <div class="main-container">
     <div class="modal-overlay" id="welcomeModal" style="display: flex;">
         <div class="modal-box" style="text-align:center">
-            <h3>Selamat Datang ke Slurp & Bite</h3>
-            <p style="margin-bottom:15px; color:#666;">Sila masukkan maklumat untuk mula mengumpul Points:</p>
+            <h3>Selamat Datang</h3>
+            <p style="margin-bottom:15px; color:#666;">Masukkan maklumat untuk pesanan:</p>
             <input type="text" id="visitor-name-input" class="input-box" placeholder="Nama Penuh">
             <input type="number" id="visitor-phone-input" class="input-box" placeholder="No. Telefon (Cth: 013...)">
             <button class="btn-add-set" onclick="saveVisitor()">MULA PESANAN</button>
@@ -147,13 +146,13 @@
     </div>
 
     <div class="cart-section" id="checkout-section">
-        <div class="cart-toggle-btn" onclick="toggleCart()">LIHAT SENARAI TROLI</div>
+        <div class="cart-toggle-btn" onclick="toggleCart()">LIHAT SENARAI TROLI ▲</div>
         <div id="cart-content" class="cart-content">
             <div id="cart-list" style="padding:10px"></div>
         </div>
         <div class="cart-summary">
-            <div class="total-price">Total: RM <span id="grand-total">0.00</span></div>
-            <button class="btn-add-set" style="width:auto; padding:10px 25px" onclick="openPaymentModal()">CHECKOUT</button>
+            <div class="total-price">RM <span id="grand-total">0.00</span></div>
+            <button class="btn-add-set" style="width:auto; padding:12px 30px; background:var(--accent);" onclick="openPaymentModal()">CHECKOUT</button>
         </div>
     </div>
 </div>
@@ -245,7 +244,6 @@
         sessionStorage.setItem('c_phone', phone);
         document.getElementById('welcomeModal').style.display = 'none';
         loadLoyaltyPoints();
-        updateStats();
     }
 
     function loadLoyaltyPoints() {
@@ -260,7 +258,6 @@
     function redeemPoints() {
         discountAmount = 5;
         document.getElementById('discount-row').style.display = 'block';
-        document.getElementById('redeem-section').style.display = 'none';
         updatePaymentUI();
     }
 
@@ -280,12 +277,10 @@
                 const lat = position.coords.latitude;
                 const lon = position.coords.longitude;
                 userLoc = `https://www.google.com/maps?q=${lat},${lon}`;
-                
                 const mapFrame = document.getElementById('map-frame');
-                const mapContainer = document.getElementById('map-container');
-                mapFrame.src = `https://maps.google.com/maps?q=${lat},${lon}&hl=ms&z=16&output=embed`;
-                mapContainer.style.display = 'block';
-
+                mapFrame.src = `https://maps.google.com/maps?q=${lat},${lon}&t=&z=15&ie=UTF8&iwloc=&output=embed`;
+                document.getElementById('map-container').style.display = 'block';
+                
                 const R = 6371; 
                 const dLat = (lat-SHOP_LAT) * Math.PI / 180;
                 const dLon = (lon-SHOP_LON) * Math.PI / 180;
@@ -293,9 +288,9 @@
                 const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
                 const distance = R * c;
                 deliveryFee = Math.max(1, Math.ceil(distance)); 
-                document.getElementById('dist-text').innerText = `Jarak: ${distance.toFixed(2)} KM (RM ${deliveryFee.toFixed(2)})`;
+                document.getElementById('dist-text').innerText = `Kos Delivery: RM ${deliveryFee.toFixed(2)}`;
                 updatePaymentUI();
-            }, () => alert("Sila aktifkan lokasi (GPS) pada peranti anda."));
+            });
         }
     }
 
@@ -305,17 +300,14 @@
         document.getElementById('modal-del-total').innerText = deliveryFee.toFixed(2);
         let final = (orderTotal + deliveryFee) - discountAmount;
         document.getElementById('modal-final-total').innerText = Math.max(0, final).toFixed(2);
-        calcChange();
     }
 
     function handlePayment(type) {
         const final = document.getElementById('modal-final-total').innerText;
         if(serviceType === 'delivery' && !userLoc) { alert("Sila Pin Lokasi!"); return; }
         if(type === 'online') {
-            localStorage.setItem('temp_cart', JSON.stringify(cart));
             window.location.href = `${TOYYIB_LINK}?billAmount=${Math.round(final*100)}`;
         } else {
-            if(!document.getElementById('cash-amount').value) { alert("Isi jumlah tunai!"); return; }
             sendWhatsAppOrder(`TUNAI (Baki: RM${document.getElementById('change-display').innerText})`);
         }
     }
@@ -332,17 +324,14 @@
         db[phone] = currentData;
         localStorage.setItem('loyalty_db', JSON.stringify(db));
 
-        let msg = `*PESANAN ${serviceType.toUpperCase()}*\nNama: ${name}\nTel: ${phone}\nBayaran: ${pType}\nTotal: RM ${finalTotal}\nPoints: ${currentData.points}\n`;
+        let msg = `*PESANAN ${serviceType.toUpperCase()}*\nNama: ${name}\nBayaran: ${pType}\nTotal: RM ${finalTotal}\n`;
         if(serviceType === 'delivery') msg += `📍 Lokasi: ${userLoc}\n`;
         msg += `--------------------------\n`;
         cart.forEach((i, x) => { msg += `${x+1}. ${i.n} (RM${i.p.toFixed(2)})\n   Nota: ${i.r || '-'}\n`; });
         
-        let h = JSON.parse(localStorage.getItem('order_history')) || [];
-        h.push({name, phone, total: finalTotal, time: new Date().toLocaleString()});
-        localStorage.setItem('order_history', JSON.stringify(h));
-        
         window.open(`https://wa.me/${PHONE}?text=${encodeURIComponent(msg)}`, '_blank');
-        setTimeout(() => { localStorage.removeItem('temp_cart'); window.location.href = window.location.pathname; }, 1000);
+        localStorage.removeItem('temp_cart');
+        window.location.reload();
     }
 
     function renderMenu() {
@@ -361,49 +350,31 @@
         document.getElementById('current-set-display').innerHTML = currentSet.length ? currentSet.map(i => `<span class="set-item-tag">${i.name} <span onclick="event.stopPropagation(); removeFromSet(${i.uid})" style="color:red">×</span></span>`).join('') : "Sila pilih menu...";
         document.getElementById('btn-confirm-set').disabled = !currentSet.length;
     }
-    function resetSet() { currentSet = []; document.getElementById('set-remark').value = ""; updateSet(); }
-    
+    function resetSet() { currentSet = []; updateSet(); }
     function confirmSetToCart() {
         cart.push({ n: currentSet[0].name + (currentSet.length > 1 ? " Set" : ""), p: currentSet.reduce((s,i)=>s+i.price,0), r: document.getElementById('set-remark').value });
         localStorage.setItem('temp_cart', JSON.stringify(cart));
         resetSet(); renderCart(); 
         document.getElementById('cart-content').classList.add('open');
-        setTimeout(() => { 
-            const el = document.getElementById('scroll-anchor');
-            el.scrollIntoView({ behavior: 'smooth', block: 'end' });
-        }, 100);
     }
-
     function renderCart() {
         let t = cart.reduce((s,i)=>s+i.p,0);
-        document.getElementById('cart-list').innerHTML = cart.map((i, idx) => `<div class="cart-item"><span>${i.n}</span> <span>RM ${i.p.toFixed(2)} <span onclick="deleteCartItem(${idx})" style="color:red; margin-left:10px; font-weight:bold">×</span></span></div>`).join('') || "Troli Kosong";
+        document.getElementById('cart-list').innerHTML = cart.map((i, idx) => `<div style="padding:5px 0; border-bottom:1px solid #eee; display:flex; justify-content:space-between; font-size:13px"><span>${i.n}</span> <span>RM ${i.p.toFixed(2)}</span></div>`).join('') || "Troli Kosong";
         document.getElementById('grand-total').innerText = t.toFixed(2);
     }
-    function deleteCartItem(idx) { cart.splice(idx, 1); localStorage.setItem('temp_cart', JSON.stringify(cart)); renderCart(); }
     function toggleCart() { document.getElementById('cart-content').classList.toggle('open'); }
-    function openPaymentModal() { if(cart.length===0) return alert("Troli kosong!"); updatePaymentUI(); document.getElementById('paymentModal').style.display = 'flex'; }
-    function closePaymentModal() { document.getElementById('paymentModal').style.display = 'none'; discountAmount = 0; document.getElementById('discount-row').style.display = 'none'; }
+    function openPaymentModal() { if(cart.length===0) return; updatePaymentUI(); document.getElementById('paymentModal').style.display = 'flex'; }
+    function closePaymentModal() { document.getElementById('paymentModal').style.display = 'none'; }
     function showCash() { document.getElementById('cash-area').style.display = 'block'; }
     function calcChange() {
         const final = parseFloat(document.getElementById('modal-final-total').innerText);
         const cash = parseFloat(document.getElementById('cash-amount').value) || 0;
-        document.getElementById('change-display').innerText = (cash-final < 0 ? "0.00" : (cash-final).toFixed(2));
+        document.getElementById('change-display').innerText = Math.max(0, cash-final).toFixed(2);
     }
-    function handleAdminAccess() { adminClicks++; if(adminClicks >= 5) { adminClicks=0; if(prompt("Pass:")===ADMIN_PASS) openAdmin(); } }
-    function openAdmin() {
-        const h = JSON.parse(localStorage.getItem('order_history')) || [];
-        const db = JSON.parse(localStorage.getItem('loyalty_db')) || {};
-        let lHtml = `<table class="admin-table"><tr><th>User</th><th>Pts</th></tr>`;
-        for(let p in db) { lHtml += `<tr><td>${db[p].name}<br>${p}</td><td>${db[p].points}</td></tr>`; }
-        document.getElementById('adminModal').style.display = 'flex';
-    }
-    function updateStats() {
-        const h = JSON.parse(localStorage.getItem('order_history')) || [];
-        document.getElementById('visitor-stat').innerText = `Pesanan: ${h.length}`;
-    }
+    function handleAdminAccess() { adminClicks++; if(adminClicks >= 5) { adminClicks=0; if(prompt("Pass:")===ADMIN_PASS) alert("Admin Access Granted"); } }
     function filterMenu(c, b) { currentCat = c; document.querySelectorAll('.cat-btn').forEach(x=>x.classList.remove('active')); b.classList.add('active'); renderMenu(); }
 
-    window.onload = () => { renderMenu(); renderCart(); updateStats(); if(sessionStorage.getItem('c_phone')) { document.getElementById('welcomeModal').style.display = 'none'; loadLoyaltyPoints(); } };
+    window.onload = () => { renderMenu(); renderCart(); if(sessionStorage.getItem('c_phone')) { document.getElementById('welcomeModal').style.display = 'none'; loadLoyaltyPoints(); } };
 </script>
 </body>
 </html>
