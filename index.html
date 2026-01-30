@@ -8,60 +8,73 @@
         :root { --primary: #2d5a27; --whatsapp: #25D366; --danger: #e74c3c; --bg: #f4f7f4; --accent: #d35400; --online: #0061ff; }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body { margin: 0; font-family: -apple-system, system-ui, sans-serif; background: var(--bg); height: 100vh; display: flex; flex-direction: column; overflow: hidden; align-items: center; }
+        
         .main-container { width: 100%; max-width: 500px; height: 100vh; background: white; display: flex; flex-direction: column; position: relative; box-shadow: 0 0 20px rgba(0,0,0,0.1); }
-        nav { background: var(--primary); color: white; text-align: center; padding: 12px 12px 5px 12px; font-weight: bold; font-size: 1.1rem; flex-shrink: 0; }
-        .visitor-counter { color: #c8e6c9; font-size: 10px; font-weight: normal; margin-top: 2px; padding-bottom: 5px; }
+        
+        nav { background: var(--primary); color: white; text-align: center; padding: 12px; font-weight: bold; font-size: 1.1rem; flex-shrink: 0; cursor: pointer; user-select: none; }
+        .visitor-counter { color: #c8e6c9; font-size: 11px; font-weight: normal; margin-top: 2px; }
+
         .set-builder { background: #fff3e0; padding: 12px; border-bottom: 2px solid var(--accent); z-index: 110; flex-shrink: 0; }
         .set-title { font-size: 11px; font-weight: bold; color: var(--accent); margin-bottom: 5px; display: flex; justify-content: space-between; }
         .current-set-items { font-size: 14px; color: #333; font-weight: 600; min-height: 20px; margin-bottom: 8px; line-height: 1.4; }
         .set-item-tag { background: white; padding: 2px 8px; border-radius: 4px; border: 1px solid #ddd; margin-right: 5px; display: inline-block; margin-bottom: 4px; font-size: 13px; }
         .remark-box { width: 100%; padding: 10px; border: 1px solid #fab1a0; border-radius: 8px; font-size: 14px; margin-bottom: 10px; outline: none; }
-        .btn-add-set { width: 100%; background: var(--accent); color: white; border: none; padding: 12px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 14px; }
+        
+        .btn-add-set { width: 100%; background: var(--accent); color: white; border: none; padding: 12px; border-radius: 8px; font-weight: bold; cursor: pointer; }
         .btn-add-set:disabled { background: #ccc; }
+
         .menu-area { flex: 1; overflow-y: auto; padding-bottom: 120px; background: #fff; }
         .header-tools { padding: 10px; background: white; position: sticky; top: 0; z-index: 100; border-bottom: 1px solid #ddd; }
         .category-bar { display: flex; gap: 8px; overflow-x: auto; padding: 5px 0; scrollbar-width: none; }
         .cat-btn { padding: 8px 18px; border-radius: 20px; border: 1px solid #ddd; background: white; font-size: 13px; white-space: nowrap; font-weight: 600; cursor: pointer; }
         .cat-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
+
         .menu-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 10px; }
         .product-card { background: white; border-radius: 12px; padding: 10px; text-align: center; border: 1px solid #eee; cursor: pointer; }
         .product-card img { width: 100%; height: 85px; object-fit: cover; border-radius: 8px; }
-        .product-card h4 { margin: 8px 0 4px; font-size: 0.8rem; height: 32px; overflow: hidden; line-height: 1.2; }
-        .product-card p { margin: 0; color: var(--primary); font-weight: bold; }
+        .product-card h4 { margin: 8px 0 4px; font-size: 0.8rem; height: 32px; overflow: hidden; }
+
         .cart-section { background: white; border-top: 2px solid var(--primary); position: absolute; bottom: 0; width: 100%; z-index: 1000; }
         .cart-toggle-btn { background: #f0f0f0; text-align: center; padding: 8px; font-size: 11px; font-weight: bold; color: #555; cursor: pointer; }
         .cart-content { max-height: 0; overflow: hidden; transition: 0.3s; background: white; }
         .cart-content.open { max-height: 300px; overflow-y: auto; padding: 15px; }
-        .cart-item { border-bottom: 1px solid #f0f0f0; padding: 8px 0; }
+        .cart-item { border-bottom: 1px solid #f0f0f0; padding: 8px 0; font-size: 13px; }
+
         .cart-summary { padding: 12px 15px; display: flex; justify-content: space-between; align-items: center; }
         .total-price { font-size: 1.1rem; font-weight: bold; color: var(--primary); }
+
         .modal-overlay { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index: 3000; align-items:center; justify-content:center; }
-        .modal-box { background:white; width: 90%; max-width: 400px; border-radius: 15px; padding: 25px; text-align:center; }
+        .modal-box { background:white; width: 90%; max-width: 450px; border-radius: 15px; padding: 20px; position: relative; max-height: 80vh; overflow-y: auto; }
         .input-box { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; margin-bottom: 10px; font-size: 16px; }
         .payment-btn { width: 100%; padding: 15px; border: none; border-radius: 10px; margin: 8px 0; font-weight: bold; cursor: pointer; }
+
+        /* Admin Styles */
+        .order-history-card { text-align: left; background: #f9f9f9; border: 1px solid #ddd; padding: 10px; border-radius: 8px; margin-bottom: 10px; font-size: 12px; }
+        .order-history-card b { color: var(--primary); }
+        .admin-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 2px solid #eee; padding-bottom: 10px; }
     </style>
 </head>
 <body>
 
 <div class="main-container">
     <div class="modal-overlay" id="welcomeModal" style="display: flex;">
-        <div class="modal-box">
+        <div class="modal-box" style="text-align:center">
             <h3>Selamat Datang!</h3>
-            <p>Masukkan nama anda:</p>
+            <p>Masukkan nama anda untuk mula:</p>
             <input type="text" id="visitor-name-input" class="input-box" placeholder="Nama Anda...">
-            <button class="btn-add-set" onclick="saveVisitor()">MULA PESAN</button>
+            <button class="btn-add-set" onclick="saveVisitor()">MULA PESANAN</button>
         </div>
     </div>
 
-    <nav>
+    <nav onclick="handleAdminAccess()">
         SLURP & BITE Taman Rosa
-        <div class="visitor-counter" id="visitor-stat">Pelawat hari ini: 0</div>
+        <div class="visitor-counter" id="visitor-stat">Pelawat: 0 | Pesanan: 0</div>
     </nav>
 
     <div class="set-builder">
         <div class="set-title"><span>BINA PESANAN</span> <span onclick="resetSet()" style="color:var(--danger); cursor:pointer">Reset</span></div>
         <div class="current-set-items" id="current-set-display">Pilih menu di bawah...</div>
-        <input type="text" id="set-remark" class="remark-box" placeholder="Nota (cth: Tak nak pedas)">
+        <input type="text" id="set-remark" class="remark-box" placeholder="Nota tambahan...">
         <button class="btn-add-set" id="btn-confirm-set" onclick="confirmSetToCart()" disabled>+ MASUK TROLI</button>
     </div>
 
@@ -80,7 +93,7 @@
     <div class="cart-section">
         <div class="cart-toggle-btn" onclick="toggleCart()">▲ SEMAK TROLI ▲</div>
         <div id="cart-content" class="cart-content">
-            <div id="cart-list"><center style="padding:20px; color:#999;">Troli Kosong</center></div>
+            <div id="cart-list" style="padding:10px"></div>
         </div>
         <div class="cart-summary">
             <div class="total-price">Total: RM <span id="grand-total">0.00</span></div>
@@ -90,26 +103,38 @@
 </div>
 
 <div class="modal-overlay" id="paymentModal">
-    <div class="modal-box">
-        <h3>Pilih Pembayaran</h3>
+    <div class="modal-box" style="text-align:center">
+        <h3>Pembayaran</h3>
         <p>Jumlah: <strong id="modal-total-display">RM 0.00</strong></p>
-        
-        <div id="cash-option-area" style="display:none; background:#f9f9f9; padding:15px; border-radius:10px; margin-bottom:10px; border: 1px solid #ddd;">
-            <input type="number" id="cash-amount" class="input-box" placeholder="Duit Pelanggan (RM)" oninput="calcChange()">
-            <div style="font-size:16px; color:var(--danger); font-weight:bold; margin: 10px 0;">Baki: <span id="change-display">RM 0.00</span></div>
+        <div id="cash-option-area" style="display:none; background:#f0f0f0; padding:15px; border-radius:10px; margin-bottom:10px;">
+            <input type="number" id="cash-amount" class="input-box" placeholder="Duit RM" oninput="calcChange()">
+            <div style="font-size:16px; color:var(--danger); font-weight:bold;">Baki: <span id="change-display">RM 0.00</span></div>
             <button class="payment-btn" style="background:var(--primary); color:white" onclick="handlePayment('cash')">SAHKAN & WASAP</button>
         </div>
+        <button class="payment-btn" style="background:var(--online); color:white" onclick="handlePayment('online')">🌐 ONLINE (TOYYIBPAY)</button>
+        <button class="payment-btn" style="background:#eee" onclick="showCash()">💵 TUNAI</button>
+        <p onclick="closePaymentModal()" style="color:red; cursor:pointer; margin-top:10px;">Batal</p>
+    </div>
+</div>
 
-        <button class="payment-btn" style="background:var(--online); color:white" onclick="handlePayment('online')">🌐 BAYAR ONLINE (AUTO)</button>
-        <button class="payment-btn" style="background:#eee" onclick="showCash()">💵 TUNAI DI KEDAI</button>
-        <p onclick="closePaymentModal()" style="color:red; cursor:pointer; margin-top:15px;">Batal</p>
+<div class="modal-overlay" id="adminModal">
+    <div class="modal-box">
+        <div class="admin-header">
+            <h3>Panel Admin</h3>
+            <button onclick="closeAdmin()" style="border:none; background:none; font-size:20px; cursor:pointer">×</button>
+        </div>
+        <div id="admin-stats" style="margin-bottom:15px; font-weight:bold; font-size:14px; color:var(--primary)"></div>
+        <div id="admin-history-list"></div>
+        <button class="payment-btn" style="background:var(--danger); color:white" onclick="clearHistory()">PADAM SEMUA SEJARAH</button>
     </div>
 </div>
 
 <script>
     const PHONE = "60133002678";
     const TOYYIB_LINK = "https://toyyibpay.com/Slurp-Bite-Order";
+    const ADMIN_PASS = "180594";
     
+    let adminClicks = 0;
     let currentSet = []; 
     let cart = JSON.parse(localStorage.getItem('temp_cart')) || []; 
     let currentCat = "Semua";
@@ -127,26 +152,53 @@
         { id: 10, cat: 'Minuman', name: 'Thai Tea Ice', price: 3.00, img: 'https://i.postimg.cc/mZyrL3Pr/thaitea.png' },
         { id: 11, cat: 'Minuman', name: 'White Coffee Caramel', price: 5.00, img: 'https://i.postimg.cc/nVGLFKXc/whitecoffee.png' },
         { id: 12, cat: 'Minuman', name: 'Aiskrim Float', price: 2.50, img: 'https://i.postimg.cc/f3Y5dzry/float.jpg' },
-        { id: 13, cat: 'Minuman', name: 'Air Seringgit', price: 1.00, img: 'https://i.postimg.cc/t7BkWm24/singgit.jpg' },
-        { id: 14, cat: 'Add On', name: 'Enoki', price: 0.50, img: 'https://i.postimg.cc/DW15GvMw/enoki.webp' },
-        { id: 15, cat: 'Add On', name: 'Filament Stick', price: 0.50, img: 'https://i.postimg.cc/XZ9x5jzv/filament.jpg' },
-        { id: 16, cat: 'Add On', name: 'Fucuk Ikan', price: 1.00, img: 'https://i.postimg.cc/S2qd7BBY/fucuk-ikan.jpg' },
-        { id: 17, cat: 'Add On', name: 'Ikan', price: 0.50, img: 'https://i.postimg.cc/LYRDBccJ/ikan.jpg' },
-        { id: 18, cat: 'Add On', name: 'Ketam', price: 1.00, img: 'https://i.postimg.cc/YG33XX7Q/ketam.jpg' },
-        { id: 19, cat: 'Add On', name: 'Lobster', price: 1.00, img: 'https://i.postimg.cc/vgzzPPyX/lobster.jpg' },
-        { id: 20, cat: 'Add On', name: 'Maggi', price: 1.00, img: 'https://i.postimg.cc/gXDDMMpM/maggi.jpg' },
-        { id: 21, cat: 'Add On', name: 'Salmon', price: 1.00, img: 'https://i.postimg.cc/vD0hfS3s/salmon.jpg' },
-        { id: 22, cat: 'Add On', name: 'Sosej', price: 0.50, img: 'https://i.postimg.cc/BtmpHwMJ/sosej.jpg' },
-        { id: 23, cat: 'Add On', name: 'Sotong', price: 1.00, img: 'https://i.postimg.cc/yWLjcrv3/sotong.jpg' },
-        { id: 24, cat: 'Add On', name: 'Telur', price: 1.00, img: 'https://i.postimg.cc/9zLbZNJD/telur.jpg' },
-        { id: 25, cat: 'Add On', name: 'Udang', price: 1.00, img: 'https://i.postimg.cc/9rzpptn4/udang.jpg' }
+        { id: 13, cat: 'Minuman', name: 'Air Seringgit', price: 1.00, img: 'https://i.postimg.cc/t7BkWm24/singgit.jpg' }
     ];
 
+    // Functions
     function saveVisitor() {
         const name = document.getElementById('visitor-name-input').value.trim();
-        if(!name) { alert("Sila taip nama!"); return; }
+        if(!name) return;
         sessionStorage.setItem('c_name', name);
+        let visitors = JSON.parse(localStorage.getItem('visitor_logs')) || [];
+        visitors.push({name, time: new Date().toLocaleString()});
+        localStorage.setItem('visitor_logs', JSON.stringify(visitors));
         document.getElementById('welcomeModal').style.display = 'none';
+        updateStats();
+    }
+
+    function handleAdminAccess() {
+        adminClicks++;
+        if(adminClicks >= 5) {
+            adminClicks = 0;
+            const p = prompt("Masukkan Kata Laluan Admin:");
+            if(p === ADMIN_PASS) openAdmin();
+            else if(p !== null) alert("Salah!");
+        }
+    }
+
+    function openAdmin() {
+        const history = JSON.parse(localStorage.getItem('order_history')) || [];
+        const visitors = JSON.parse(localStorage.getItem('visitor_logs')) || [];
+        document.getElementById('admin-stats').innerText = `Total Pelawat: ${visitors.length} | Total Pesanan: ${history.length}`;
+        document.getElementById('admin-history-list').innerHTML = history.reverse().map(h => `
+            <div class="order-history-card">
+                <b>${h.time}</b><br>
+                Pelanggan: ${h.name}<br>
+                Item: ${h.items}<br>
+                Bayaran: ${h.type} (RM ${h.total})
+            </div>
+        `).join('') || "Tiada sejarah pesanan.";
+        document.getElementById('adminModal').style.display = 'flex';
+    }
+
+    function closeAdmin() { document.getElementById('adminModal').style.display = 'none'; }
+    function clearHistory() { if(confirm("Padam semua data?")) { localStorage.clear(); location.reload(); } }
+
+    function updateStats() {
+        const v = JSON.parse(localStorage.getItem('visitor_logs')) || [];
+        const h = JSON.parse(localStorage.getItem('order_history')) || [];
+        document.getElementById('visitor-stat').innerText = `Pelawat: ${v.length} | Pesanan: ${h.length}`;
     }
 
     function renderMenu() {
@@ -167,7 +219,6 @@
     }
 
     function removeFromSet(uid) { currentSet = currentSet.filter(i => i.uid !== uid); updateSet(); }
-
     function updateSet() {
         const d = document.getElementById('current-set-display');
         d.innerHTML = currentSet.length ? currentSet.map(i => `<span class="set-item-tag">${i.name} <span onclick="event.stopPropagation(); removeFromSet(${i.uid})">❌</span></span>`).join('') : "Pilih menu...";
@@ -181,12 +232,12 @@
         cart.push({ n: currentSet[0].name + (currentSet.length > 1 ? " Set" : ""), d: currentSet.map(i => i.name).join(', '), p: total, r: document.getElementById('set-remark').value });
         localStorage.setItem('temp_cart', JSON.stringify(cart));
         resetSet(); renderCart();
-        if(!document.getElementById('cart-content').classList.contains('open')) toggleCart();
+        toggleCart();
     }
 
     function renderCart() {
         let t = 0;
-        document.getElementById('cart-list').innerHTML = cart.map((i, idx) => { t += i.p; return `<div class="cart-item"><b>${i.n} (RM ${i.p.toFixed(2)})</b><br><small>${i.d}</small></div>`; }).join('') || "Troli Kosong";
+        document.getElementById('cart-list').innerHTML = cart.map((i, idx) => { t += i.p; return `<div class="cart-item"><b>${i.n}</b> (RM ${i.p.toFixed(2)})<br><small>${i.d}</small></div>`; }).join('') || "Troli Kosong";
         document.getElementById('grand-total').innerText = t.toFixed(2);
     }
 
@@ -194,72 +245,47 @@
     function openPaymentModal() { document.getElementById('modal-total-display').innerText = "RM " + document.getElementById('grand-total').innerText; document.getElementById('paymentModal').style.display = 'flex'; }
     function closePaymentModal() { document.getElementById('paymentModal').style.display = 'none'; document.getElementById('cash-option-area').style.display = 'none'; }
     function showCash() { document.getElementById('cash-option-area').style.display = 'block'; }
-
     function calcChange() {
         const total = parseFloat(document.getElementById('grand-total').innerText);
         const cash = parseFloat(document.getElementById('cash-amount').value) || 0;
-        const baki = cash - total;
-        document.getElementById('change-display').innerText = "RM " + (baki < 0 ? "0.00" : baki.toFixed(2));
+        document.getElementById('change-display').innerText = "RM " + (cash - total < 0 ? "0.00" : (cash - total).toFixed(2));
     }
 
     function handlePayment(type) {
         const total = document.getElementById('grand-total').innerText;
         if(type === 'online') {
-            const amountInSen = Math.round(parseFloat(total) * 100);
             localStorage.setItem('temp_cart', JSON.stringify(cart));
-            window.location.href = `${TOYYIB_LINK}?billAmount=${amountInSen}&billExternalReferenceNo=SB-${Date.now()}`;
+            window.location.href = `${TOYYIB_LINK}?billAmount=${Math.round(total*100)}&billExternalReferenceNo=SB-${Date.now()}`;
         } else {
-            const cashVal = document.getElementById('cash-amount').value;
-            const bakiVal = document.getElementById('change-display').innerText;
-            if(!cashVal) { alert("Sila masukkan jumlah duit pelanggan!"); return; }
-            sendWhatsAppOrder(`TUNAI (Terima: RM${cashVal}, Baki: ${bakiVal})`);
+            sendWhatsAppOrder(`TUNAI (Baki: ${document.getElementById('change-display').innerText})`);
         }
     }
 
-    function sendWhatsAppOrder(paymentInfo) {
+    function sendWhatsAppOrder(pType) {
         const total = document.getElementById('grand-total').innerText;
-        const name = sessionStorage.getItem('c_name') || "Pelanggan";
-        const isOnlineSuccess = new URLSearchParams(window.location.search).get('status') === 'success';
+        const name = sessionStorage.getItem('c_name');
+        let orderItems = cart.map(i => i.n + " (" + i.d + ")").join(' | ');
         
-        let msg = `*PESANAN BARU - SLURP & BITE*\n`;
-        msg += `--------------------------\n`;
-        msg += `*Nama:* ${name}\n`;
-        msg += `*Bayaran:* ${paymentInfo}\n`;
-        if(isOnlineSuccess) msg += `*Status ToyyibPay:* ✅ BERJAYA\n`;
-        msg += `*Total Pesanan:* RM ${total}\n`;
-        msg += `--------------------------\n`;
-        
-        cart.forEach((item, index) => {
-            msg += `${index + 1}. *${item.n}* (RM ${item.p.toFixed(2)})\n`;
-            msg += `   _Isi: ${item.d}_\n`;
-            if(item.r) msg += `   _Nota: ${item.r}_\n\n`;
-        });
-        
-        msg += `--------------------------\n`;
-        msg += `_Sila sahkan pesanan saya. Terima kasih!_`;
+        // Simpan Sejarah ke LocalStorage
+        let history = JSON.parse(localStorage.getItem('order_history')) || [];
+        history.push({ name, total, type: pType, items: orderItems, time: new Date().toLocaleString() });
+        localStorage.setItem('order_history', JSON.stringify(history));
 
-        // 1. Buka WhatsApp
+        let msg = `*PESANAN BARU - SLURP & BITE*\nNama: ${name}\nBayaran: ${pType}\nTotal: RM ${total}\n\n`;
+        cart.forEach((i, x) => { msg += `${x+1}. ${i.n}\n   Isi: ${i.d}\n   Nota: ${i.r || '-'}\n\n`; });
+
         window.open(`https://wa.me/${PHONE}?text=${encodeURIComponent(msg)}`, '_blank');
         
-        // 2. Clear SEMUA data dan RESET page selepas hantar
         setTimeout(() => {
-            cart = [];
             localStorage.removeItem('temp_cart');
-            window.location.href = window.location.pathname; // Ini akan refresh page ke asal tanpa status=success
+            window.location.href = window.location.pathname;
         }, 1000);
     }
 
     window.onload = () => {
-        renderMenu();
-        renderCart();
-        const params = new URLSearchParams(window.location.search);
-        if(params.get('status') === 'success' && cart.length > 0) {
-            sendWhatsAppOrder('ONLINE (ToyyibPay)');
-        }
+        renderMenu(); renderCart(); updateStats();
+        if(new URLSearchParams(window.location.search).get('status') === 'success' && cart.length > 0) sendWhatsAppOrder('ONLINE');
         if(sessionStorage.getItem('c_name')) document.getElementById('welcomeModal').style.display = 'none';
-        
-        // Update visitor stat (dummy)
-        document.getElementById('visitor-stat').innerText = "Pelawat hari ini: " + Math.floor(Math.random() * 50 + 10);
     };
 
     function filterMenu(cat, btn) {
