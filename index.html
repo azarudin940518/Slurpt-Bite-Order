@@ -67,7 +67,8 @@
         .payment-btn { width: 100%; padding: 15px; border: none; border-radius: 10px; margin: 5px 0; font-weight: bold; cursor: pointer; }
 
         .delivery-box { background: #e3f2fd; padding: 10px; border-radius: 8px; margin: 10px 0; font-size: 13px; border: 1px solid #2196f3; }
-        .map-preview { width: 100%; height: 150px; background: #eee; border-radius: 8px; margin-top: 10px; display: none; border: 1px solid #2196f3; object-fit: cover; }
+        .map-container { width: 100%; height: 200px; border-radius: 10px; margin-top: 10px; display: none; overflow: hidden; border: 2px solid #2196f3; }
+        
         .admin-table { width: 100%; border-collapse: collapse; font-size: 12px; }
         .admin-table th, .admin-table td { border: 1px solid #ddd; padding: 8px; }
     </style>
@@ -138,7 +139,9 @@
         </div>
         <div id="delivery-info" class="delivery-box" style="display:none;">
             <button onclick="getLocation()" style="background:var(--online); color:white; border:none; padding:10px; border-radius:5px; width:100%;">📍 PIN LOKASI SAYA</button>
-            <img id="mini-map" class="map-preview" alt="Peta Lokasi">
+            <div id="map-container" class="map-container">
+                <iframe id="map-frame" width="100%" height="100%" frameborder="0" style="border:0"></iframe>
+            </div>
             <p id="dist-text" style="margin-top:5px; font-weight:bold;">Kos Delivery: RM 0.00</p>
         </div>
         <div style="text-align:left; margin:10px 0; font-size:14px">
@@ -156,19 +159,6 @@
         <button class="payment-btn" style="background:var(--online); color:white" onclick="handlePayment('online')">🌐 BAYAR ONLINE</button>
         <button class="payment-btn" style="background:#eee" onclick="showCash()">💵 BAYAR TUNAI</button>
         <p onclick="closePaymentModal()" style="color:red; cursor:pointer; margin-top:15px; font-size:14px">Batal</p>
-    </div>
-</div>
-
-<div class="modal-overlay" id="adminModal">
-    <div class="modal-box">
-        <h3>Panel Admin</h3>
-        <p id="admin-stats"></p><br>
-        <h4>Mata Pelanggan</h4>
-        <div id="admin-loyalty-list" style="max-height:150px; overflow-y:auto; border:1px solid #eee; margin-bottom:10px"></div>
-        <h4>Rekod Jualan</h4>
-        <div id="admin-history-list" style="max-height:150px; overflow-y:auto; border:1px solid #eee"></div>
-        <button class="payment-btn" style="background:var(--danger); color:white; margin-top:10px" onclick="clearHistory()">RESET SEMUA DATA</button>
-        <button class="payment-btn" onclick="closeAdmin()">TUTUP</button>
     </div>
 </div>
 
@@ -260,12 +250,11 @@
                 const lon = position.coords.longitude;
                 userLoc = `https://www.google.com/maps?q=${lat},${lon}`;
                 
-                // Tunjuk Peta Kecil
-                const mapImg = document.getElementById('mini-map');
-                mapImg.src = `https://maps.googleapis.com/maps/api/staticmap?center=${lat},${lon}&zoom=15&size=400x200&markers=color:red%7C${lat},${lon}&key=YOUR_API_KEY_OR_USE_OSM_BELOW`;
-                // Jika tiada API Key Google, kita guna placeholder map OpenStreetMap
-                mapImg.src = `https://static-maps.yandex.ru/1.x/?lang=en_US&ll=${lon},${lat}&z=16&l=map&size=450,200&pt=${lon},${lat},pm2rdl`;
-                mapImg.style.display = 'block';
+                // Paparkan Peta melalui iframe (Pasti Keluar)
+                const mapFrame = document.getElementById('map-frame');
+                const mapContainer = document.getElementById('map-container');
+                mapFrame.src = `https://maps.google.com/maps?q=${lat},${lon}&hl=ms&z=16&output=embed`;
+                mapContainer.style.display = 'block';
 
                 const R = 6371; 
                 const dLat = (lat-SHOP_LAT) * Math.PI / 180;
@@ -347,12 +336,9 @@
     function confirmSetToCart() {
         cart.push({ n: currentSet[0].name + (currentSet.length > 1 ? " Set" : ""), p: currentSet.reduce((s,i)=>s+i.price,0), r: document.getElementById('set-remark').value });
         localStorage.setItem('temp_cart', JSON.stringify(cart));
-        resetSet(); 
-        renderCart(); 
+        resetSet(); renderCart(); 
         document.getElementById('cart-content').classList.add('open');
-        setTimeout(() => {
-            document.getElementById('scroll-anchor').scrollIntoView({ behavior: 'smooth' });
-        }, 300);
+        setTimeout(() => { document.getElementById('scroll-anchor').scrollIntoView({ behavior: 'smooth' }); }, 300);
     }
 
     function renderCart() {
@@ -374,20 +360,10 @@
     function openAdmin() {
         const h = JSON.parse(localStorage.getItem('order_history')) || [];
         const db = JSON.parse(localStorage.getItem('loyalty_db')) || {};
-        document.getElementById('admin-stats').innerText = `Total Pesanan: ${h.length}`;
         let lHtml = `<table class="admin-table"><tr><th>User</th><th>Pts</th></tr>`;
-        for(let p in db) { lHtml += `<tr><td>${db[p].name}<br>${p}</td><td>${db[p].points} <button onclick="editPts('${p}')">Edit</button></td></tr>`; }
-        document.getElementById('admin-loyalty-list').innerHTML = lHtml + `</table>`;
-        document.getElementById('admin-history-list').innerHTML = h.reverse().map(i => `<div style="font-size:11px; border-bottom:1px solid #eee; padding:5px">${i.time} - ${i.name} (RM${i.total})</div>`).join('');
+        for(let p in db) { lHtml += `<tr><td>${db[p].name}<br>${p}</td><td>${db[p].points}</td></tr>`; }
         document.getElementById('adminModal').style.display = 'flex';
     }
-    function editPts(p) { 
-        const db = JSON.parse(localStorage.getItem('loyalty_db')); 
-        const n = prompt("Mata baru:", db[p].points); 
-        if(n!==null) { db[p].points=parseInt(n); localStorage.setItem('loyalty_db', JSON.stringify(db)); openAdmin(); } 
-    }
-    function closeAdmin() { document.getElementById('adminModal').style.display = 'none'; }
-    function clearHistory() { if(confirm("Hapus semua data?")) { localStorage.clear(); location.reload(); } }
     function updateStats() {
         const h = JSON.parse(localStorage.getItem('order_history')) || [];
         document.getElementById('visitor-stat').innerText = `Pesanan: ${h.length}`;
