@@ -42,7 +42,7 @@
         .btn-add-set { width: 100%; background: var(--accent); color: white; border: none; padding: 12px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 14px; }
         .btn-add-set:disabled { background: #ccc; }
 
-        .menu-area { flex: 1; overflow-y: auto; padding-bottom: 100px; background: #fff; }
+        .menu-area { flex: 1; overflow-y: auto; padding-bottom: 120px; background: #fff; }
         .header-tools { padding: 10px; background: white; position: sticky; top: 0; z-index: 100; border-bottom: 1px solid #ddd; }
         .category-bar { display: flex; gap: 8px; overflow-x: auto; padding: 5px 0; scrollbar-width: none; }
         .category-bar::-webkit-scrollbar { display: none; }
@@ -51,8 +51,7 @@
         .cat-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
 
         .menu-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 10px; }
-        .product-card { background: white; border-radius: 12px; padding: 10px; text-align: center; border: 1px solid #eee; box-shadow: 0 2px 4px rgba(0,0,0,0.05); cursor: pointer; transition: 0.2s; }
-        .product-card:active { transform: scale(0.95); }
+        .product-card { background: white; border-radius: 12px; padding: 10px; text-align: center; border: 1px solid #eee; box-shadow: 0 2px 4px rgba(0,0,0,0.05); cursor: pointer; }
         .product-card img { width: 100%; height: 95px; object-fit: cover; border-radius: 8px; background: #f0f0f0; }
         .product-card h4 { margin: 8px 0 4px; font-size: 0.85rem; height: 34px; overflow: hidden; display: flex; align-items: center; justify-content: center; line-height: 1.2; }
         .product-card p { margin: 0; color: var(--primary); font-weight: bold; font-size: 1rem; }
@@ -60,9 +59,8 @@
         .cart-section { background: white; border-top: 2px solid var(--primary); position: absolute; bottom: 0; width: 100%; z-index: 1000; }
         .cart-toggle-btn { background: #f0f0f0; text-align: center; padding: 8px; font-size: 11px; font-weight: bold; color: #555; cursor: pointer; }
         .cart-content { max-height: 0; overflow: hidden; transition: 0.3s ease-out; background: white; }
-        .cart-content.open { max-height: 350px; overflow-y: auto; padding: 15px; }
-        .cart-item { border-bottom: 1px solid #f0f0f0; padding: 10px 0; position: relative; }
-        .btn-remove-cart { color: red; font-size: 12px; cursor: pointer; float: right; }
+        .cart-content.open { max-height: 300px; overflow-y: auto; padding: 15px; }
+        .cart-item { border-bottom: 1px solid #f0f0f0; padding: 10px 0; }
         .item-details { font-size: 12px; color: #666; background: #fdf2e9; padding: 8px; border-radius: 6px; margin-top: 6px; border-left: 3px solid var(--accent); }
 
         .cart-summary { padding: 12px 15px; background: white; border-top: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; }
@@ -70,10 +68,9 @@
         .btn-checkout { background: var(--primary); color: white; border: none; padding: 12px 25px; border-radius: 8px; font-weight: bold; cursor: pointer; }
 
         .modal-overlay { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index: 3000; align-items:center; justify-content:center; }
-        .modal-box { background:white; width: 90%; max-width: 400px; border-radius: 15px; padding: 25px; text-align:center; position: relative; }
-        .input-box { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; margin-bottom: 10px; font-size: 16px; outline: none; }
+        .modal-box { background:white; width: 90%; max-width: 400px; border-radius: 15px; padding: 25px; text-align:center; }
+        .input-box { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; margin-bottom: 10px; font-size: 16px; }
         .payment-btn { width: 100%; padding: 15px; border: none; border-radius: 10px; margin: 8px 0; font-weight: bold; font-size: 16px; cursor: pointer; }
-        #admin-list { text-align: left; max-height: 200px; overflow-y: auto; background: #f9f9f9; padding: 10px; border-radius: 5px; font-size: 13px; }
     </style>
 </head>
 <body>
@@ -82,7 +79,7 @@
     <div class="modal-overlay" id="welcomeModal" style="display: flex;">
         <div class="modal-box">
             <h3>Selamat Datang!</h3>
-            <p>Sila masukkan nama anda untuk mula memesan:</p>
+            <p>Masukkan nama anda:</p>
             <input type="text" id="visitor-name-input" class="input-box" placeholder="Nama Anda...">
             <button class="btn-add-set" onclick="saveVisitor()">MULA PESAN</button>
         </div>
@@ -95,9 +92,9 @@
 
     <div class="set-builder">
         <div class="set-title"><span>BINA PESANAN</span> <span onclick="resetSet()" style="color:var(--danger); cursor:pointer">Reset</span></div>
-        <div class="current-set-items" id="current-set-display">Sila pilih menu di bawah...</div>
-        <input type="text" id="set-remark" class="remark-box" placeholder="Tambah nota (cth: Tak nak pedas)">
-        <button class="btn-add-set" id="btn-confirm-set" onclick="confirmSetToCart()" disabled>+ MASUKKAN DALAM TROLI</button>
+        <div class="current-set-items" id="current-set-display">Pilih menu di bawah...</div>
+        <input type="text" id="set-remark" class="remark-box" placeholder="Nota (cth: Tak nak pedas)">
+        <button class="btn-add-set" id="btn-confirm-set" onclick="confirmSetToCart()" disabled>+ MASUK TROLI</button>
     </div>
 
     <div class="menu-area">
@@ -128,22 +125,16 @@
     <div class="modal-box">
         <h3>Pilih Pembayaran</h3>
         <p>Jumlah: <strong id="modal-total-display">RM 0.00</strong></p>
+        
         <div id="cash-option-area" style="display:none; background:#f0f0f0; padding:15px; border-radius:10px; margin-bottom:10px;">
-            <input type="number" id="cash-amount" class="input-box" placeholder="Masukkan Tunai RM" oninput="calcChange()">
-            <div style="font-size:14px; color:var(--danger); font-weight:bold;">Baki: <span id="change-display">RM 0.00</span></div>
+            <input type="number" id="cash-amount" class="input-box" placeholder="Tunai Diterima RM" oninput="calcChange()">
+            <div style="font-size:14px; color:var(--danger); font-weight:bold;">Baki Pelanggan: <span id="change-display">RM 0.00</span></div>
             <button class="payment-btn" style="background:var(--primary); color:white; margin-top:10px;" onclick="handlePayment('cash')">SAHKAN & WASAP</button>
         </div>
-        <button class="payment-btn" style="background:var(--online); color:white" id="btn-pay-online" onclick="handlePayment('online')">🌐 BAYAR ONLINE (AUTO)</button>
-        <button class="payment-btn" style="background:#eee" id="btn-pay-cash" onclick="showCash()">💵 TUNAI DI KEDAI</button>
-        <p onclick="closePaymentModal()" style="color:red; cursor:pointer; margin-top:10px;">Batal</p>
-    </div>
-</div>
 
-<div class="modal-overlay" id="adminModal">
-    <div class="modal-box">
-        <h3>Data Pelawat (Admin)</h3>
-        <div id="admin-list"></div>
-        <button class="payment-btn" style="background:#eee" onclick="document.getElementById('adminModal').style.display='none'">TUTUP</button>
+        <button class="payment-btn" style="background:var(--online); color:white" onclick="handlePayment('online')">🌐 BAYAR ONLINE (AUTO)</button>
+        <button class="payment-btn" style="background:#eee" onclick="showCash()">💵 TUNAI DI KEDAI</button>
+        <p onclick="closePaymentModal()" style="color:red; cursor:pointer; margin-top:10px;">Batal</p>
     </div>
 </div>
 
@@ -194,7 +185,7 @@
         const grid = document.getElementById('menu-grid');
         grid.innerHTML = products.filter(p => currentCat === 'Semua' || p.cat === currentCat).map(p => `
             <div class="product-card" onclick="addToSet(${p.id})">
-                <img src="${p.img}" onerror="this.src='https://placehold.co/100x100?text=Food'">
+                <img src="${p.img}" onerror="this.src='https://placehold.co/100x100?text=Menu'">
                 <h4>${p.name}</h4>
                 <p>RM ${p.price.toFixed(2)}</p>
             </div>
@@ -214,13 +205,13 @@
 
     function updateSet() {
         const d = document.getElementById('current-set-display');
-        d.innerHTML = currentSet.length ? currentSet.map(i => `<span class="set-item-tag">${i.name} <span onclick="event.stopPropagation(); removeFromSet(${i.uid})">❌</span></span>`).join('') : "Sila pilih menu...";
+        d.innerHTML = currentSet.length ? currentSet.map(i => `<span class="set-item-tag">${i.name} <span onclick="event.stopPropagation(); removeFromSet(${i.uid})">❌</span></span>`).join('') : "Pilih menu...";
         document.getElementById('btn-confirm-set').disabled = !currentSet.length;
     }
 
     function confirmSetToCart() {
         const total = currentSet.reduce((s, i) => s + i.price, 0);
-        cart.push({ n: currentSet[0].name + " Set", d: currentSet.map(i => i.name).join(', '), p: total, r: document.getElementById('set-remark').value });
+        cart.push({ n: currentSet[0].name + (currentSet.length > 1 ? " Set" : ""), d: currentSet.map(i => i.name).join(', '), p: total, r: document.getElementById('set-remark').value });
         localStorage.setItem('temp_cart', JSON.stringify(cart));
         currentSet = []; updateSet(); document.getElementById('set-remark').value = ""; renderCart();
         if(!document.getElementById('cart-content').classList.contains('open')) toggleCart();
@@ -230,35 +221,41 @@
         let t = 0;
         document.getElementById('cart-list').innerHTML = cart.map((i, idx) => { 
             t += i.p; 
-            return `<div class="cart-item"><b>${i.n} (RM ${i.p.toFixed(2)})</b><div class="item-details">${i.d}${i.r ? '<br>Note: '+i.r : ''}</div></div>`; 
+            return `<div class="cart-item"><b>${i.n} (RM ${i.p.toFixed(2)})</b><div class="item-details">${i.d}${i.r ? '<br>Nota: '+i.r : ''}</div></div>`; 
         }).join('') || "Troli Kosong";
         document.getElementById('grand-total').innerText = t.toFixed(2);
     }
 
     function toggleCart() { document.getElementById('cart-content').classList.toggle('open'); }
-
     function openPaymentModal() {
         document.getElementById('modal-total-display').innerText = "RM " + document.getElementById('grand-total').innerText;
         document.getElementById('paymentModal').style.display = 'flex';
     }
-
-    function closePaymentModal() { document.getElementById('paymentModal').style.display = 'none'; }
+    function closePaymentModal() { document.getElementById('paymentModal').style.display = 'none'; document.getElementById('cash-option-area').style.display = 'none'; }
     function showCash() { document.getElementById('cash-option-area').style.display = 'block'; }
+
+    function calcChange() {
+        const total = parseFloat(document.getElementById('grand-total').innerText);
+        const cash = parseFloat(document.getElementById('cash-amount').value) || 0;
+        const change = cash - total;
+        document.getElementById('change-display').innerText = "RM " + (change < 0 ? "0.00" : change.toFixed(2));
+    }
 
     function handlePayment(type) {
         const total = document.getElementById('grand-total').innerText;
         if(type === 'online') {
             const amountInSen = Math.round(parseFloat(total) * 100);
             const toyyibUrl = `${TOYYIB_LINK}?billAmount=${amountInSen}&billExternalReferenceNo=SB-${Date.now()}`;
-            // Simpan data cart sebelum ke ToyyibPay
             localStorage.setItem('temp_cart', JSON.stringify(cart));
             window.location.href = toyyibUrl;
         } else {
-            sendWhatsAppOrder('TUNAI');
+            const baki = document.getElementById('change-display').innerText;
+            const tunai = document.getElementById('cash-amount').value;
+            sendWhatsAppOrder(`TUNAI (Terima: RM${tunai}, Baki: ${baki})`);
         }
     }
 
-    function sendWhatsAppOrder(paymentType) {
+    function sendWhatsAppOrder(paymentInfo) {
         const total = document.getElementById('grand-total').innerText;
         const name = sessionStorage.getItem('c_name') || "Pelanggan";
         const status = new URLSearchParams(window.location.search).get('status');
@@ -266,9 +263,9 @@
         let msg = `*PESANAN BARU - SLURP & BITE*\n`;
         msg += `--------------------------\n`;
         msg += `*Nama:* ${name}\n`;
-        msg += `*Bayaran:* ${paymentType}\n`;
-        if(status === 'success') msg += `*Status:* ✅ BERJAYA (ToyyibPay)\n`;
-        msg += `*Jumlah:* RM ${total}\n`;
+        msg += `*Bayaran:* ${paymentInfo}\n`;
+        if(status === 'success') msg += `*Status ToyyibPay:* ✅ BERJAYA\n`;
+        msg += `*Jumlah Pesanan:* RM ${total}\n`;
         msg += `--------------------------\n`;
         
         cart.forEach((item, index) => {
@@ -278,31 +275,25 @@
         });
         
         msg += `--------------------------\n`;
-        msg += `Sila semak resit jika bayaran online.`;
+        msg += `_Mesej dihantar secara automatik oleh sistem._`;
 
         window.open(`https://wa.me/${PHONE}?text=${encodeURIComponent(msg)}`);
         
-        // Clear cart selepas hantar
         cart = [];
         localStorage.removeItem('temp_cart');
         renderCart();
-        window.history.replaceState({}, document.title, window.location.pathname); // Buang ?status=success dari URL
+        closePaymentModal();
+        window.history.replaceState({}, document.title, window.location.pathname);
     }
 
-    // AUTO-RUN APABILA KEMBALI DARI TOYYIBPAY
     window.onload = () => {
         renderMenu();
         renderCart();
-        
         const params = new URLSearchParams(window.location.search);
-        if(params.get('status') === 'success') {
-            alert("Bayaran Berjaya! Menghantar pesanan ke WhatsApp...");
+        if(params.get('status') === 'success' && cart.length > 0) {
             sendWhatsAppOrder('ONLINE (ToyyibPay)');
         }
-
-        if(sessionStorage.getItem('c_name')) {
-            document.getElementById('welcomeModal').style.display = 'none';
-        }
+        if(sessionStorage.getItem('c_name')) document.getElementById('welcomeModal').style.display = 'none';
     };
 
     function filterMenu(cat, btn) {
