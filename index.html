@@ -67,6 +67,7 @@
         .payment-btn { width: 100%; padding: 15px; border: none; border-radius: 10px; margin: 5px 0; font-weight: bold; cursor: pointer; }
 
         .delivery-box { background: #e3f2fd; padding: 10px; border-radius: 8px; margin: 10px 0; font-size: 13px; border: 1px solid #2196f3; }
+        .map-preview { width: 100%; height: 150px; background: #eee; border-radius: 8px; margin-top: 10px; display: none; border: 1px solid #2196f3; object-fit: cover; }
         .admin-table { width: 100%; border-collapse: collapse; font-size: 12px; }
         .admin-table th, .admin-table td { border: 1px solid #ddd; padding: 8px; }
     </style>
@@ -137,6 +138,7 @@
         </div>
         <div id="delivery-info" class="delivery-box" style="display:none;">
             <button onclick="getLocation()" style="background:var(--online); color:white; border:none; padding:10px; border-radius:5px; width:100%;">📍 PIN LOKASI SAYA</button>
+            <img id="mini-map" class="map-preview" alt="Peta Lokasi">
             <p id="dist-text" style="margin-top:5px; font-weight:bold;">Kos Delivery: RM 0.00</p>
         </div>
         <div style="text-align:left; margin:10px 0; font-size:14px">
@@ -257,6 +259,14 @@
                 const lat = position.coords.latitude;
                 const lon = position.coords.longitude;
                 userLoc = `https://www.google.com/maps?q=${lat},${lon}`;
+                
+                // Tunjuk Peta Kecil
+                const mapImg = document.getElementById('mini-map');
+                mapImg.src = `https://maps.googleapis.com/maps/api/staticmap?center=${lat},${lon}&zoom=15&size=400x200&markers=color:red%7C${lat},${lon}&key=YOUR_API_KEY_OR_USE_OSM_BELOW`;
+                // Jika tiada API Key Google, kita guna placeholder map OpenStreetMap
+                mapImg.src = `https://static-maps.yandex.ru/1.x/?lang=en_US&ll=${lon},${lat}&z=16&l=map&size=450,200&pt=${lon},${lat},pm2rdl`;
+                mapImg.style.display = 'block';
+
                 const R = 6371; 
                 const dLat = (lat-SHOP_LAT) * Math.PI / 180;
                 const dLon = (lon-SHOP_LON) * Math.PI / 180;
@@ -266,7 +276,7 @@
                 deliveryFee = Math.max(1, Math.ceil(distance)); 
                 document.getElementById('dist-text').innerText = `Jarak: ${distance.toFixed(2)} KM (RM ${deliveryFee.toFixed(2)})`;
                 updatePaymentUI();
-            }, () => alert("Sila aktifkan GPS."));
+            }, () => alert("Sila aktifkan lokasi (GPS) pada peranti anda."));
         }
     }
 
@@ -339,11 +349,7 @@
         localStorage.setItem('temp_cart', JSON.stringify(cart));
         resetSet(); 
         renderCart(); 
-        
-        // AUTO-OPEN CART
         document.getElementById('cart-content').classList.add('open');
-        
-        // AUTO-SCROLL TO BOTTOM
         setTimeout(() => {
             document.getElementById('scroll-anchor').scrollIntoView({ behavior: 'smooth' });
         }, 300);
