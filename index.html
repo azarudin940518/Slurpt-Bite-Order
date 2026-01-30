@@ -7,7 +7,7 @@
     <style>
         :root { --primary: #2d5a27; --whatsapp: #25D366; --danger: #e74c3c; --bg: #f4f7f4; --accent: #d35400; --online: #0061ff; --gold: #f1c40f; }
         
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; margin: 0; padding: 0; scroll-behavior: smooth; }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; margin: 0; padding: 0; }
         html, body { overscroll-behavior-y: none; height: 100%; overflow: hidden; background: #ccc; }
         body { font-family: -apple-system, system-ui, sans-serif; display: flex; justify-content: center; }
 
@@ -17,11 +17,9 @@
         }
         
         nav { background: var(--primary); color: white; text-align: center; padding: 12px; font-weight: bold; flex-shrink: 0; z-index: 1001; cursor: pointer; }
-        .visitor-counter { color: #c8e6c9; font-size: 11px; font-weight: normal; }
         .loyalty-info { background: var(--gold); color: #000; padding: 5px; font-size: 12px; font-weight: bold; text-align: center; flex-shrink: 0; }
 
-        .set-builder { background: #fff3e0; padding: 10px; border-bottom: 2px solid var(--accent); flex-shrink: 0; z-index: 10; }
-        .set-title { font-size: 11px; font-weight: bold; color: var(--accent); display: flex; justify-content: space-between; margin-bottom: 5px; }
+        .set-builder { background: #fff3e0; padding: 10px; border-bottom: 2px solid var(--accent); flex-shrink: 0; }
         .current-set-items { font-size: 13px; font-weight: 600; min-height: 20px; margin-bottom: 8px; }
         .set-item-tag { background: white; padding: 2px 8px; border-radius: 4px; border: 1px solid #ddd; margin: 2px; display: inline-block; font-size: 12px; }
         .remark-box { width: 100%; padding: 8px; border: 1px solid #fab1a0; border-radius: 8px; font-size: 14px; margin-bottom: 8px; outline: none; }
@@ -29,10 +27,9 @@
         .btn-add-set { width: 100%; background: var(--accent); color: white; border: none; padding: 12px; border-radius: 8px; font-weight: bold; cursor: pointer; }
         .btn-add-set:disabled { background: #ccc; }
 
-        .menu-area { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; padding-bottom: 150px; }
+        .menu-area { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; padding-bottom: 120px; }
         .header-tools { background: white; position: sticky; top: 0; z-index: 100; padding: 10px; border-bottom: 1px solid #eee; }
         .category-bar { display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; padding-bottom: 5px; }
-        .category-bar::-webkit-scrollbar { display: none; }
         .cat-btn { padding: 8px 15px; border-radius: 20px; border: 1px solid #ddd; background: white; font-size: 12px; white-space: nowrap; font-weight: bold; }
         .cat-btn.active { background: var(--primary); color: white; }
 
@@ -40,31 +37,26 @@
         .product-card { background: white; border-radius: 12px; padding: 8px; text-align: center; border: 1px solid #eee; }
         .product-card img { width: 100%; height: 90px; object-fit: cover; border-radius: 8px; margin-bottom: 5px; }
 
-        /* FIX UNTUK iOS: CART SECTION */
         .cart-section { 
             background: white; border-top: 2px solid var(--primary); flex-shrink: 0; z-index: 1000; 
-            box-shadow: 0 -5px 15px rgba(0,0,0,0.05);
-            padding-bottom: calc(15px + env(safe-area-inset-bottom)); /* Menaikkan butang di iOS */
+            padding-bottom: calc(10px + env(safe-area-inset-bottom));
         }
-        
         .cart-toggle-btn { background: #eee; text-align: center; padding: 8px; font-size: 10px; font-weight: bold; cursor: pointer; }
-        .cart-content { max-height: 0; overflow: hidden; transition: max-height 0.4s ease; }
-        .cart-content.open { max-height: 250px; overflow-y: auto; padding: 10px; }
-        .cart-item { border-bottom: 1px solid #eee; padding: 8px 0; font-size: 13px; display: flex; justify-content: space-between; align-items: center; }
+        .cart-content { max-height: 0; overflow: hidden; transition: max-height 0.3s; }
+        .cart-content.open { max-height: 200px; overflow-y: auto; padding: 10px; }
+        .cart-item { border-bottom: 1px solid #eee; padding: 6px 0; font-size: 13px; display: flex; justify-content: space-between; }
 
-        .cart-summary { padding: 12px 15px; display: flex; justify-content: space-between; align-items: center; background: white; }
+        .cart-summary { padding: 10px 15px; display: flex; justify-content: space-between; align-items: center; }
         .total-price { font-size: 1.1rem; font-weight: bold; color: var(--primary); }
 
-        /* MODAL & PETA */
         .modal-overlay { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index: 3000; align-items:center; justify-content:center; backdrop-filter: blur(3px); }
-        .modal-box { background:white; width: 90%; max-width: 400px; border-radius: 15px; padding: 20px; max-height: 85vh; overflow-y: auto; }
+        .modal-box { background:white; width: 92%; max-width: 400px; border-radius: 15px; padding: 20px; max-height: 85vh; overflow-y: auto; }
         .input-box { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; margin-bottom: 10px; font-size: 16px; }
         .payment-btn { width: 100%; padding: 15px; border: none; border-radius: 10px; margin: 5px 0; font-weight: bold; cursor: pointer; }
-        .delivery-box { background: #e3f2fd; padding: 10px; border-radius: 8px; margin: 10px 0; font-size: 13px; border: 1px solid #2196f3; }
-        .map-container { width: 100%; height: 180px; border-radius: 10px; margin-top: 10px; display: none; overflow: hidden; border: 2px solid #2196f3; }
         
-        .admin-table { width: 100%; border-collapse: collapse; font-size: 12px; }
-        .admin-table th, .admin-table td { border: 1px solid #ddd; padding: 8px; }
+        .map-container { width: 100%; height: 180px; border-radius: 10px; margin-top: 10px; display: none; border: 2px solid #2196f3; overflow: hidden; }
+        .admin-table { width: 100%; border-collapse: collapse; font-size: 11px; margin-top: 10px; }
+        .admin-table th, .admin-table td { border: 1px solid #ddd; padding: 6px; }
     </style>
 </head>
 <body>
@@ -75,20 +67,19 @@
             <h3>Selamat Datang</h3>
             <p style="margin-bottom:15px; color:#666;">Isi maklumat untuk kumpul Points:</p>
             <input type="text" id="v-name" class="input-box" placeholder="Nama Penuh">
-            <input type="number" id="v-phone" class="input-box" placeholder="No. Telefon (Cth: 013...)">
+            <input type="number" id="v-phone" class="input-box" placeholder="No. Telefon (013...)">
             <button class="btn-add-set" onclick="saveVisitor()">MULA PESANAN</button>
         </div>
     </div>
 
-    <nav onclick="handleAdminAccess()">
-        SLURP & BITE Taman Rosa
-        <div class="visitor-counter" id="visitor-stat">Pesanan: 0</div>
-    </nav>
+    <nav onclick="handleAdminAccess()">SLURP & BITE Taman Rosa</nav>
     <div class="loyalty-info">✨ <span id="u-name">Pelanggan</span> | Mata: <span id="u-pts">0</span> Points</div>
 
     <div class="set-builder">
-        <div class="set-title"><span>BINA PESANAN</span> <span onclick="resetSet()" style="color:var(--danger); cursor:pointer">Padam</span></div>
-        <div class="current-set-items" id="set-display">Sila pilih menu...</div>
+        <div style="font-size:11px; font-weight:bold; color:var(--accent); display:flex; justify-content:space-between;">
+            <span>BINA PESANAN</span> <span onclick="resetSet()" style="color:var(--danger); cursor:pointer">Padam</span>
+        </div>
+        <div class="current-set-items" id="set-display">Pilih menu...</div>
         <input type="text" id="set-note" class="remark-box" placeholder="Nota: Taknak pedas, nak kuah lebih...">
         <button class="btn-add-set" id="btn-add-cart" onclick="confirmToCart()" disabled>+ MASUK TROLI</button>
     </div>
@@ -128,20 +119,19 @@
             <button id="b-delv" class="payment-btn" style="background:#eee; flex:1" onclick="setSvc('delivery')">Delivery</button>
         </div>
         
-        <div id="delv-area" class="delivery-box" style="display:none;">
-            <button onclick="getLoc()" style="background:var(--online); color:white; border:none; padding:10px; border-radius:5px; width:100%;">📍 PIN LOKASI SAYA</button>
+        <div id="delv-area" style="display:none; background:#e3f2fd; padding:10px; border-radius:8px; margin-bottom:10px">
+            <button onclick="getLoc()" style="background:var(--online); color:white; border:none; padding:10px; border-radius:5px; width:100%; font-weight:bold">📍 PIN LOKASI SAYA</button>
             <div id="m-container" class="map-container">
                 <iframe id="m-frame" width="100%" height="100%" frameborder="0"></iframe>
             </div>
-            <p id="dist-txt" style="margin-top:5px; font-weight:bold;">Kos Delivery: RM 0.00</p>
+            <p id="dist-txt" style="margin-top:5px; font-weight:bold; font-size:12px">Kos: RM 0.00 (0km)</p>
         </div>
 
         <div style="text-align:left; margin:10px 0; font-size:14px">
             <p>Makanan: <span style="float:right">RM <span id="p-order">0.00</span></span></p>
             <p>Delivery: <span style="float:right">RM <span id="p-fee">0.00</span></span></p>
             <p id="p-disc-row" style="display:none; color:red">Diskaun: <span style="float:right">-RM 5.00</span></p>
-            <hr style="margin:5px 0">
-            <p style="font-weight:bold; font-size:18px">Total: <span style="float:right; color:var(--danger)">RM <span id="p-final">0.00</span></span></p>
+            <p style="font-weight:bold; font-size:18px; color:var(--danger); border-top:1px solid #eee; margin-top:5px; padding-top:5px">Total: <span style="float:right">RM <span id="p-final">0.00</span></span></p>
         </div>
 
         <div id="cash-box" style="display:none; background:#f9f9f9; padding:10px; border-radius:8px; margin-bottom:10px">
@@ -166,18 +156,13 @@
 
 <script>
     const PHONE = "60133002678";
-    const TOYYIB = "https://toyyibpay.com/Slurp-Bite-Order";
     const ADMIN_PASS = "180594";
     const SHOP_LAT = 3.5037985; const SHOP_LON = 103.4555344;
 
     let cart = JSON.parse(localStorage.getItem('sb_cart')) || [];
     let currentSet = [];
     let service = 'pick';
-    let fee = 0;
-    let discount = 0;
-    let uLoc = "";
-    let adminClicks = 0;
-    let currentCat = 'Semua';
+    let fee = 0; let discount = 0; let uLoc = ""; let adminClicks = 0; let currentCat = 'Semua';
 
     const products = [
         { id: 1, cat: 'Makanan', name: 'Oden Original', price: 0.00, img: 'https://i.postimg.cc/KcLWHG11/oden.jpg' },
@@ -208,142 +193,133 @@
     ];
 
     function saveVisitor() {
-        const n = document.getElementById('v-name').value;
-        const p = document.getElementById('v-phone').value;
-        if(!n || !p) return alert("Isi maklumat!");
+        const n = document.getElementById('v-name').value; const p = document.getElementById('v-phone').value;
+        if(!n || !p) return alert("Sila isi maklumat!");
         sessionStorage.setItem('sb_n', n); sessionStorage.setItem('sb_p', p);
         document.getElementById('welcomeModal').style.display = 'none';
         loadLoyalty();
     }
 
     function loadLoyalty() {
-        const p = sessionStorage.getItem('sb_p');
-        const db = JSON.parse(localStorage.getItem('loyalty_db')) || {};
+        const p = sessionStorage.getItem('sb_p'); const db = JSON.parse(localStorage.getItem('loyalty_db')) || {};
         const pts = db[p] ? db[p].points : 0;
         document.getElementById('u-name').innerText = sessionStorage.getItem('sb_n');
         document.getElementById('u-pts').innerText = pts;
         document.getElementById('redeem-btn').style.display = pts >= 100 ? 'block' : 'none';
-        updateStats();
     }
 
     function renderMenu() {
         document.getElementById('menu-grid').innerHTML = products.filter(p => currentCat === 'Semua' || p.cat === currentCat).map(p => `
             <div class="product-card" onclick="addToSet(${p.id})">
                 <img src="${p.img}" loading="lazy">
-                <p style="font-weight:bold; font-size:13px">${p.name}</p>
-                <p style="color:var(--primary); font-size:12px">RM ${p.price.toFixed(2)}</p>
+                <p style="font-weight:bold; font-size:12px">${p.name}</p>
+                <p style="color:var(--primary); font-size:11px">RM ${p.price.toFixed(2)}</p>
             </div>
         `).join('');
     }
 
     function addToSet(id) { const p = products.find(x => x.id === id); currentSet.push({...p, uid: Date.now()}); updateSetUI(); }
-    function removeFromSet(uid) { currentSet = currentSet.filter(i => i.uid !== uid); updateSetUI(); }
+    function removeFromSet(u) { currentSet = currentSet.filter(i => i.uid !== u); updateSetUI(); }
     function updateSetUI() {
-        document.getElementById('set-display').innerHTML = currentSet.length ? currentSet.map(i => `<span class="set-item-tag">${i.name} <b onclick="event.stopPropagation(); removeFromSet(${i.uid})" style="color:red">×</b></span>`).join('') : "Sila pilih menu...";
+        document.getElementById('set-display').innerHTML = currentSet.length ? currentSet.map(i => `<span class="set-item-tag">${i.name} <b onclick="event.stopPropagation(); removeFromSet(${i.uid})" style="color:red">×</b></span>`).join('') : "Pilih menu...";
         document.getElementById('btn-add-cart').disabled = !currentSet.length;
     }
     function resetSet() { currentSet = []; document.getElementById('set-note').value = ""; updateSetUI(); }
 
     function confirmToCart() {
-        let name = currentSet.length > 1 ? currentSet[0].name + " Set" : currentSet[0].name;
-        let price = currentSet.reduce((a,b)=>a+b.price, 0);
-        cart.push({ n: name, p: price, r: document.getElementById('set-note').value });
+        let n = currentSet.length > 1 ? currentSet[0].name + " Set" : currentSet[0].name;
+        let p = currentSet.reduce((a,b)=>a+b.price, 0);
+        cart.push({ n, p, r: document.getElementById('set-note').value });
         localStorage.setItem('sb_cart', JSON.stringify(cart));
         resetSet(); renderCart();
     }
 
     function renderCart() {
         let t = cart.reduce((a,b)=>a+b.p, 0);
-        document.getElementById('cart-list').innerHTML = cart.map((i, idx) => `<div class="cart-item"><span>${i.n}</span> <span>RM ${i.p.toFixed(2)} <b onclick="delCart(${idx})" style="color:red; margin-left:10px">×</b></span></div>`).join('') || "Kosong";
+        document.getElementById('cart-list').innerHTML = cart.map((i, idx) => `<div class="cart-item"><span>${i.n}</span> <span>RM ${i.p.toFixed(2)} <b onclick="delCart(${idx})" style="color:red; margin-left:10px">×</b></span></div>`).join('');
         document.getElementById('grand-total').innerText = t.toFixed(2);
     }
-    function delCart(idx) { cart.splice(idx, 1); localStorage.setItem('sb_cart', JSON.stringify(cart)); renderCart(); }
+    function delCart(i) { cart.splice(i, 1); localStorage.setItem('sb_cart', JSON.stringify(cart)); renderCart(); }
     function toggleCart() { document.getElementById('cart-content').classList.toggle('open'); }
 
-    function openPayment() {
-        if(!cart.length) return;
-        const t = cart.reduce((a,b)=>a+b.p, 0);
-        document.getElementById('p-order').innerText = t.toFixed(2);
-        updateFinal();
-        document.getElementById('paymentModal').style.display = 'flex';
-    }
+    function openPayment() { if(!cart.length) return; document.getElementById('p-order').innerText = cart.reduce((a,b)=>a+b.p, 0).toFixed(2); updateFinal(); document.getElementById('paymentModal').style.display = 'flex'; }
 
     function setSvc(t) {
-        service = t;
+        service = t; fee = 0;
         document.getElementById('b-pick').style = t==='pick'?'background:var(--primary);color:white;flex:1':'background:#eee;flex:1';
         document.getElementById('b-delv').style = t==='delivery'?'background:var(--primary);color:white;flex:1':'background:#eee;flex:1';
         document.getElementById('delv-area').style.display = t==='delivery'?'block':'none';
-        if(t==='pick') { fee = 0; updateFinal(); }
+        updateFinal();
     }
 
     function getLoc() {
         navigator.geolocation.getCurrentPosition(pos => {
             const lat = pos.coords.latitude; const lon = pos.coords.longitude;
             uLoc = `https://www.google.com/maps?q=${lat},${lon}`;
-            document.getElementById('m-frame').src = `https://maps.google.com/maps?q=${lat},${lon}&hl=ms&z=15&output=embed`;
+            document.getElementById('m-frame').src = `https://maps.google.com/maps?q=${lat},${lon}&z=15&output=embed`;
             document.getElementById('m-container').style.display = 'block';
-            fee = 3.00; // Flat fee
-            document.getElementById('dist-txt').innerText = "Kos Delivery: RM 3.00";
+            
+            const R = 6371;
+            const dLat = (lat-SHOP_LAT) * Math.PI/180;
+            const dLon = (lon-SHOP_LON) * Math.PI/180;
+            const a = Math.sin(dLat/2) * Math.sin(dLat/2) + Math.cos(SHOP_LAT*Math.PI/180) * Math.cos(lat*Math.PI/180) * Math.sin(dLon/2) * Math.sin(dLon/2);
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+            const dist = R * c;
+
+            // Logik: Bawah 1km = RM1. Lebih 1km = RM1/km
+            if (dist <= 1) { fee = 1.00; } 
+            else { fee = Math.ceil(dist); }
+
+            document.getElementById('dist-txt').innerText = `Kos: RM ${fee.toFixed(2)} (${dist.toFixed(2)}km)`;
             updateFinal();
         });
     }
 
     function redeemPoints() { discount = 5; document.getElementById('p-disc-row').style.display='block'; updateFinal(); }
-    function updateFinal() {
-        let o = parseFloat(document.getElementById('p-order').innerText);
-        document.getElementById('p-final').innerText = (o + fee - discount).toFixed(2);
+    function updateFinal() { 
+        let o = parseFloat(document.getElementById('p-order').innerText); 
+        document.getElementById('p-final').innerText = (o + fee - discount).toFixed(2); 
         calcChange();
     }
-
     function showCash() { document.getElementById('cash-box').style.display='block'; }
-    function calcChange() {
-        const final = parseFloat(document.getElementById('p-final').innerText);
-        const cash = parseFloat(document.getElementById('cash-in').value) || 0;
-        document.getElementById('change-txt').innerText = Math.max(0, cash-final).toFixed(2);
+    function calcChange() { 
+        const f = parseFloat(document.getElementById('p-final').innerText); 
+        const c = parseFloat(document.getElementById('cash-in').value) || 0; 
+        document.getElementById('change-txt').innerText = Math.max(0, c-f).toFixed(2); 
     }
 
     function doPay(type) {
-        const final = document.getElementById('p-final').innerText;
-        const n = sessionStorage.getItem('sb_n'); const p = sessionStorage.getItem('sb_p');
-        
+        const f = document.getElementById('p-final').innerText; const n = sessionStorage.getItem('sb_n'); const p = sessionStorage.getItem('sb_p');
         const db = JSON.parse(localStorage.getItem('loyalty_db')) || {};
         let u = db[p] || { name: n, points: 0 };
-        if(discount > 0) u.points -= 100;
-        u.points += Math.floor(final);
+        if(discount > 0) u.points -= 100; u.points += Math.floor(f);
         db[p] = u; localStorage.setItem('loyalty_db', JSON.stringify(db));
 
         let h = JSON.parse(localStorage.getItem('sb_hist')) || [];
-        h.push({ n, p, t: final, d: new Date().toLocaleString() });
+        h.push({ n, p, t: f, d: new Date().toLocaleString() });
         localStorage.setItem('sb_hist', JSON.stringify(h));
 
-        let msg = `*ORDER ${service.toUpperCase()}*\nNama: ${n}\nTotal: RM ${final}\n`;
+        let msg = `*ORDER ${service.toUpperCase()}*\nNama: ${n}\nTotal: RM ${f}\n`;
         cart.forEach((i,x) => msg += `${x+1}. ${i.n} (RM${i.p.toFixed(2)})\n`);
         if(uLoc) msg += `📍 Lokasi: ${uLoc}`;
 
-        if(type === 'online') {
-            window.location.href = `${TOYYIB}?billAmount=${Math.round(final*100)}`;
-        } else {
-            window.open(`https://wa.me/${PHONE}?text=${encodeURIComponent(msg)}`, '_blank');
-            localStorage.removeItem('sb_cart'); window.location.reload();
-        }
+        if(type === 'online') { window.location.href = `https://toyyibpay.com/Slurp-Bite-Order?billAmount=${Math.round(f*100)}`; }
+        else { window.open(`https://wa.me/${PHONE}?text=${encodeURIComponent(msg)}`, '_blank'); localStorage.removeItem('sb_cart'); window.location.reload(); }
     }
 
     function handleAdminAccess() { adminClicks++; if(adminClicks>=5){ adminClicks=0; if(prompt("Pass:")===ADMIN_PASS) showAdmin(); } }
     function showAdmin() {
-        const h = JSON.parse(localStorage.getItem('sb_hist')) || [];
-        const db = JSON.parse(localStorage.getItem('loyalty_db')) || {};
+        const h = JSON.parse(localStorage.getItem('sb_hist')) || []; const db = JSON.parse(localStorage.getItem('loyalty_db')) || {};
         let html = `<b>10 Order Terakhir:</b><table class="admin-table"><tr><th>Nama</th><th>RM</th></tr>`;
         h.slice(-10).forEach(i => html += `<tr><td>${i.n}</td><td>${i.t}</td></tr>`);
-        html += `</table><br><b>Loyalty:</b><table class="admin-table"><tr><th>Nama</th><th>Pts</th></tr>`;
+        html += `</table><br><b>Loyalty List:</b><table class="admin-table"><tr><th>Nama</th><th>Pts</th></tr>`;
         for(let x in db) html += `<tr><td>${db[x].name}</td><td>${db[x].points}</td></tr>`;
         html += `</table>`;
-        document.getElementById('admin-content').innerHTML = html;
-        document.getElementById('adminModal').style.display='flex';
+        document.getElementById('admin-content').innerHTML = html; document.getElementById('adminModal').style.display='flex';
     }
 
-    function updateStats() { document.getElementById('visitor-stat').innerText = `Pesanan: ${(JSON.parse(localStorage.getItem('sb_hist')) || []).length}`; }
-    function closePay() { document.getElementById('paymentModal').style.display='none'; }
     function filterMenu(c, b) { currentCat = c; document.querySelectorAll('.cat-btn').forEach(x=>x.classList.remove('active')); b.classList.add('active'); renderMenu(); }
+    function closePay() { document.getElementById('paymentModal').style.display='none'; }
 
     window.onload = () => { renderMenu(); renderCart(); if(sessionStorage.getItem('sb_n')) { document.getElementById('welcomeModal').style.display='none'; loadLoyalty(); } };
 </script>
