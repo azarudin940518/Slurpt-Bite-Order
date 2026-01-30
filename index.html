@@ -266,21 +266,24 @@
             const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
             const dist = R * c;
 
-            // Logik: Bawah 1km = RM1. Lebih 1km = RM1/km
+            // Logik Kos: Bawah 1km = RM1. Atas 1km ikut km.
             if (dist <= 1) { fee = 1.00; } 
             else { fee = Math.ceil(dist); }
 
             document.getElementById('dist-txt').innerText = `Kos: RM ${fee.toFixed(2)} (${dist.toFixed(2)}km)`;
-            updateFinal();
+            updateFinal(); // PENTING: Kemaskini baki akhir termasuk fee delivery
         });
     }
 
     function redeemPoints() { discount = 5; document.getElementById('p-disc-row').style.display='block'; updateFinal(); }
+    
     function updateFinal() { 
         let o = parseFloat(document.getElementById('p-order').innerText); 
+        document.getElementById('p-fee').innerText = fee.toFixed(2); // PAPAR HARGA DELIVERY DI SINI
         document.getElementById('p-final').innerText = (o + fee - discount).toFixed(2); 
         calcChange();
     }
+
     function showCash() { document.getElementById('cash-box').style.display='block'; }
     function calcChange() { 
         const f = parseFloat(document.getElementById('p-final').innerText); 
