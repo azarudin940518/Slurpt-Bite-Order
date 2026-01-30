@@ -3,15 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Slurp & Bite POS - HD System</title>
+    <title>Slurp & Bite POS - Delivery System</title>
     <style>
         :root { --primary: #2d5a27; --whatsapp: #25D366; --danger: #e74c3c; --bg: #f4f7f4; --accent: #d35400; --online: #0061ff; }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body { margin: 0; font-family: -apple-system, system-ui, sans-serif; background: var(--bg); height: 100vh; display: flex; flex-direction: column; overflow: hidden; align-items: center; }
-        
         .main-container { width: 100%; max-width: 500px; height: 100vh; background: white; display: flex; flex-direction: column; position: relative; box-shadow: 0 0 20px rgba(0,0,0,0.1); }
         
-        nav { background: var(--primary); color: white; text-align: center; padding: 12px; font-weight: bold; font-size: 1.1rem; flex-shrink: 0; cursor: pointer; user-select: none; }
+        nav { background: var(--primary); color: white; text-align: center; padding: 12px; font-weight: bold; font-size: 1.1rem; flex-shrink: 0; cursor: pointer; }
         .visitor-counter { color: #c8e6c9; font-size: 11px; font-weight: normal; margin-top: 2px; }
 
         .set-builder { background: #fff3e0; padding: 12px; border-bottom: 2px solid var(--accent); z-index: 110; flex-shrink: 0; }
@@ -32,7 +31,6 @@
         .menu-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 10px; }
         .product-card { background: white; border-radius: 12px; padding: 10px; text-align: center; border: 1px solid #eee; cursor: pointer; }
         .product-card img { width: 100%; height: 85px; object-fit: cover; border-radius: 8px; }
-        .product-card h4 { margin: 8px 0 4px; font-size: 0.8rem; height: 32px; overflow: hidden; }
 
         .cart-section { background: white; border-top: 2px solid var(--primary); position: absolute; bottom: 0; width: 100%; z-index: 1000; }
         .cart-toggle-btn { background: #f0f0f0; text-align: center; padding: 8px; font-size: 11px; font-weight: bold; color: #555; cursor: pointer; }
@@ -48,10 +46,8 @@
         .input-box { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; margin-bottom: 10px; font-size: 16px; }
         .payment-btn { width: 100%; padding: 15px; border: none; border-radius: 10px; margin: 8px 0; font-weight: bold; cursor: pointer; }
 
-        /* Admin Styles */
+        .delivery-box { background: #e3f2fd; padding: 10px; border-radius: 8px; margin: 10px 0; font-size: 13px; border: 1px solid #2196f3; }
         .order-history-card { text-align: left; background: #f9f9f9; border: 1px solid #ddd; padding: 10px; border-radius: 8px; margin-bottom: 10px; font-size: 12px; }
-        .order-history-card b { color: var(--primary); }
-        .admin-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 2px solid #eee; padding-bottom: 10px; }
     </style>
 </head>
 <body>
@@ -59,8 +55,8 @@
 <div class="main-container">
     <div class="modal-overlay" id="welcomeModal" style="display: flex;">
         <div class="modal-box" style="text-align:center">
-            <h3>Selamat Datang!</h3>
-            <p>Masukkan nama anda untuk mula:</p>
+            <h3>Slurp & Bite</h3>
+            <p>Masukkan nama anda:</p>
             <input type="text" id="visitor-name-input" class="input-box" placeholder="Nama Anda...">
             <button class="btn-add-set" onclick="saveVisitor()">MULA PESANAN</button>
         </div>
@@ -104,30 +100,41 @@
 
 <div class="modal-overlay" id="paymentModal">
     <div class="modal-box" style="text-align:center">
-        <h3>Pembayaran</h3>
-        <p>Jumlah: <strong id="modal-total-display">RM 0.00</strong></p>
+        <h3>Checkout</h3>
+        <div style="display:flex; gap:10px; margin-bottom:15px;">
+            <button id="btn-collect" class="payment-btn" style="background:var(--primary); color:white; margin:0;" onclick="setService('collect')">Ambil Sendiri</button>
+            <button id="btn-delivery" class="payment-btn" style="background:#eee; color:black; margin:0;" onclick="setService('delivery')">Delivery</button>
+        </div>
+
+        <div id="delivery-info" class="delivery-box" style="display:none;">
+            <button onclick="getLocation()" style="background:var(--online); color:white; border:none; padding:8px; border-radius:5px; cursor:pointer; width:100%;">📍 PIN LOKASI SAYA</button>
+            <p id="dist-text" style="margin:8px 0 0 0; font-weight:bold;">Kos Delivery: RM 0.00</p>
+        </div>
+
+        <p>Pesanan: <strong id="modal-order-total">RM 0.00</strong></p>
+        <p>Cas Delivery: <strong id="modal-del-total">RM 0.00</strong></p>
+        <hr>
+        <p>Total: <strong style="font-size:20px; color:var(--danger)">RM <span id="modal-final-total">0.00</span></strong></p>
         
-        <div id="cash-option-area" style="display:none; background:#f0f0f0; padding:15px; border-radius:10px; margin-bottom:10px; border: 1px solid #ccc;">
+        <div id="cash-area" style="display:none; background:#f0f0f0; padding:10px; border-radius:8px; margin-top:10px;">
             <input type="number" id="cash-amount" class="input-box" placeholder="Duit Pelanggan RM" oninput="calcChange()">
-            <div style="font-size:18px; color:var(--danger); font-weight:bold; margin: 10px 0;">Baki: <span id="change-display">RM 0.00</span></div>
+            <div style="font-weight:bold; color:var(--danger)">Baki: <span id="change-display">RM 0.00</span></div>
             <button class="payment-btn" style="background:var(--primary); color:white" onclick="handlePayment('cash')">SAHKAN & WASAP</button>
         </div>
 
-        <button class="payment-btn" style="background:var(--online); color:white" onclick="handlePayment('online')">🌐 ONLINE (TOYYIBPAY)</button>
-        <button class="payment-btn" style="background:#eee" onclick="showCash()">💵 TUNAI DI KEDAI</button>
+        <button class="payment-btn" style="background:var(--online); color:white" onclick="handlePayment('online')">🌐 BAYAR ONLINE</button>
+        <button class="payment-btn" style="background:#eee" onclick="showCash()">💵 BAYAR TUNAI</button>
         <p onclick="closePaymentModal()" style="color:red; cursor:pointer; margin-top:10px;">Batal</p>
     </div>
 </div>
 
 <div class="modal-overlay" id="adminModal">
     <div class="modal-box">
-        <div class="admin-header">
-            <h3>Panel Admin</h3>
-            <button onclick="closeAdmin()" style="border:none; background:none; font-size:20px; cursor:pointer">×</button>
-        </div>
-        <div id="admin-stats" style="margin-bottom:15px; font-weight:bold; font-size:14px; color:var(--primary)"></div>
-        <div id="admin-history-list"></div>
-        <button class="payment-btn" style="background:var(--danger); color:white" onclick="clearHistory()">PADAM SEMUA DATA</button>
+        <h3>Panel Admin</h3>
+        <div id="admin-stats"></div>
+        <div id="admin-history-list" style="margin-top:10px;"></div>
+        <button class="payment-btn" style="background:var(--danger); color:white" onclick="clearHistory()">PADAM SEMUA</button>
+        <button class="payment-btn" onclick="closeAdmin()">TUTUP</button>
     </div>
 </div>
 
@@ -135,11 +142,16 @@
     const PHONE = "60133002678";
     const TOYYIB_LINK = "https://toyyibpay.com/Slurp-Bite-Order";
     const ADMIN_PASS = "180594";
-    
+    // KOORDINAT KEDAI ANDA (Taman Tg Agas Rosa)
+    const SHOP_LAT = 3.5037985; 
+    const SHOP_LON = 103.4555344;
+
+    let cart = JSON.parse(localStorage.getItem('temp_cart')) || [];
+    let currentSet = [];
+    let serviceType = 'collect';
+    let deliveryFee = 0;
+    let userLoc = "";
     let adminClicks = 0;
-    let currentSet = []; 
-    let cart = JSON.parse(localStorage.getItem('temp_cart')) || []; 
-    let currentCat = "Semua";
 
     const products = [
         { id: 1, cat: 'Makanan', name: 'Oden Original', price: 0.00, img: 'https://i.postimg.cc/KcLWHG11/oden.jpg' },
@@ -154,149 +166,146 @@
         { id: 10, cat: 'Minuman', name: 'Thai Tea Ice', price: 3.00, img: 'https://i.postimg.cc/mZyrL3Pr/thaitea.png' },
         { id: 11, cat: 'Minuman', name: 'White Coffee Caramel', price: 5.00, img: 'https://i.postimg.cc/nVGLFKXc/whitecoffee.png' },
         { id: 12, cat: 'Minuman', name: 'Aiskrim Float', price: 2.50, img: 'https://i.postimg.cc/f3Y5dzry/float.jpg' },
-        { id: 13, cat: 'Minuman', name: 'Air Seringgit', price: 1.00, img: 'https://i.postimg.cc/t7BkWm24/singgit.jpg' }
+        { id: 13, cat: 'Minuman', name: 'Air Seringgit', price: 1.00, img: 'https://i.postimg.cc/t7BkWm24/singgit.jpg' },
+        { id: 14, cat: 'Add On', name: 'Enoki', price: 0.50, img: 'https://i.postimg.cc/DW15GvMw/enoki.webp' },
+        { id: 15, cat: 'Add On', name: 'Filament Stick', price: 0.50, img: 'https://i.postimg.cc/XZ9x5jzv/filament.jpg' },
+        { id: 16, cat: 'Add On', name: 'Fucuk Ikan', price: 1.00, img: 'https://i.postimg.cc/S2qd7BBY/fucuk-ikan.jpg' },
+        { id: 17, cat: 'Add On', name: 'Ikan', price: 0.50, img: 'https://i.postimg.cc/LYRDBccJ/ikan.jpg' },
+        { id: 18, cat: 'Add On', name: 'Ketam', price: 1.00, img: 'https://i.postimg.cc/YG33XX7Q/ketam.jpg' },
+        { id: 19, cat: 'Add On', name: 'Lobster', price: 1.00, img: 'https://i.postimg.cc/vgzzPPyX/lobster.jpg' },
+        { id: 20, cat: 'Add On', name: 'Maggi', price: 1.00, img: 'https://i.postimg.cc/gXDDMMpM/maggi.jpg' },
+        { id: 21, cat: 'Add On', name: 'Salmon', price: 1.00, img: 'https://i.postimg.cc/vD0hfS3s/salmon.jpg' },
+        { id: 22, cat: 'Add On', name: 'Sosej', price: 0.50, img: 'https://i.postimg.cc/BtmpHwMJ/sosej.jpg' },
+        { id: 23, cat: 'Add On', name: 'Sotong', price: 1.00, img: 'https://i.postimg.cc/yWLjcrv3/sotong.jpg' },
+        { id: 24, cat: 'Add On', name: 'Telur', price: 1.00, img: 'https://i.postimg.cc/9zLbZNJD/telur.jpg' },
+        { id: 25, cat: 'Add On', name: 'Udang', price: 1.00, img: 'https://i.postimg.cc/9rzpptn4/udang.jpg' }
     ];
 
     function saveVisitor() {
-        const name = document.getElementById('visitor-name-input').value.trim();
-        if(!name) return;
-        sessionStorage.setItem('c_name', name);
-        let visitors = JSON.parse(localStorage.getItem('visitor_logs')) || [];
-        visitors.push({name, time: new Date().toLocaleString()});
-        localStorage.setItem('visitor_logs', JSON.stringify(visitors));
+        const n = document.getElementById('visitor-name-input').value;
+        if(!n) return;
+        sessionStorage.setItem('c_name', n);
+        let v = JSON.parse(localStorage.getItem('visitor_logs')) || [];
+        v.push({name: n, time: new Date().toLocaleString()});
+        localStorage.setItem('visitor_logs', JSON.stringify(v));
         document.getElementById('welcomeModal').style.display = 'none';
         updateStats();
     }
 
-    function handleAdminAccess() {
-        adminClicks++;
-        if(adminClicks >= 5) {
-            adminClicks = 0;
-            const p = prompt("Password Admin:");
-            if(p === ADMIN_PASS) openAdmin();
+    function setService(type) {
+        serviceType = type;
+        document.getElementById('btn-collect').style.background = type === 'collect' ? 'var(--primary)' : '#eee';
+        document.getElementById('btn-collect').style.color = type === 'collect' ? 'white' : 'black';
+        document.getElementById('btn-delivery').style.background = type === 'delivery' ? 'var(--primary)' : '#eee';
+        document.getElementById('btn-delivery').style.color = type === 'delivery' ? 'white' : 'black';
+        document.getElementById('delivery-info').style.display = type === 'delivery' ? 'block' : 'none';
+        if(type === 'collect') { deliveryFee = 0; updatePaymentUI(); }
+    }
+
+    function getLocation() {
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition((position) => {
+                const lat = position.coords.latitude;
+                const lon = position.coords.longitude;
+                userLoc = `https://www.google.com/maps?q=${lat},${lon}`;
+                const R = 6371; 
+                const dLat = (lat-SHOP_LAT) * Math.PI / 180;
+                const dLon = (lon-SHOP_LON) * Math.PI / 180;
+                const a = Math.sin(dLat/2) * Math.sin(dLat/2) + Math.cos(SHOP_LAT * Math.PI / 180) * Math.cos(lat * Math.PI / 180) * Math.sin(dLon/2) * Math.sin(dLon/2);
+                const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+                const distance = R * c;
+                deliveryFee = Math.max(1, Math.ceil(distance)); 
+                document.getElementById('dist-text').innerText = `Jarak: ${distance.toFixed(2)} KM (Cas: RM ${deliveryFee.toFixed(2)})`;
+                updatePaymentUI();
+            }, () => alert("GPS tidak aktif."));
         }
     }
 
-    function openAdmin() {
-        const history = JSON.parse(localStorage.getItem('order_history')) || [];
-        const visitors = JSON.parse(localStorage.getItem('visitor_logs')) || [];
-        document.getElementById('admin-stats').innerText = `Pelawat: ${visitors.length} | Pesanan: ${history.length}`;
-        document.getElementById('admin-history-list').innerHTML = history.reverse().map(h => `
-            <div class="order-history-card">
-                <b>${h.time}</b><br>
-                Nama: ${h.name}<br>
-                Item: ${h.items}<br>
-                Status: ${h.type} (RM ${h.total})
-            </div>
-        `).join('') || "Tiada data.";
-        document.getElementById('adminModal').style.display = 'flex';
+    function updatePaymentUI() {
+        const orderTotal = parseFloat(document.getElementById('grand-total').innerText);
+        document.getElementById('modal-order-total').innerText = "RM " + orderTotal.toFixed(2);
+        document.getElementById('modal-del-total').innerText = "RM " + deliveryFee.toFixed(2);
+        document.getElementById('modal-final-total').innerText = (orderTotal + deliveryFee).toFixed(2);
+        calcChange();
     }
 
+    function handlePayment(type) {
+        const final = document.getElementById('modal-final-total').innerText;
+        if(serviceType === 'delivery' && !userLoc) { alert("Sila Pin Lokasi!"); return; }
+        if(type === 'online') {
+            localStorage.setItem('temp_cart', JSON.stringify(cart));
+            window.location.href = `${TOYYIB_LINK}?billAmount=${Math.round(final*100)}`;
+        } else {
+            if(!document.getElementById('cash-amount').value) { alert("Isi jumlah tunai!"); return; }
+            sendWhatsAppOrder(`TUNAI (Baki: ${document.getElementById('change-display').innerText})`);
+        }
+    }
+
+    function sendWhatsAppOrder(pType) {
+        const finalTotal = document.getElementById('modal-final-total').innerText;
+        const name = sessionStorage.getItem('c_name');
+        let msg = `*PESANAN ${serviceType.toUpperCase()}*\nNama: ${name}\nBayaran: ${pType}\nTotal: RM ${finalTotal}\n`;
+        if(serviceType === 'delivery') msg += `📍 Lokasi: ${userLoc}\n`;
+        msg += `--------------------------\n`;
+        cart.forEach((i, x) => { msg += `${x+1}. ${i.n} (RM${i.p.toFixed(2)})\n   Nota: ${i.r || '-'}\n`; });
+        let h = JSON.parse(localStorage.getItem('order_history')) || [];
+        h.push({name, total: finalTotal, type: pType, items: cart.map(i=>i.n).join(','), time: new Date().toLocaleString()});
+        localStorage.setItem('order_history', JSON.stringify(h));
+        window.open(`https://wa.me/${PHONE}?text=${encodeURIComponent(msg)}`, '_blank');
+        setTimeout(() => { localStorage.removeItem('temp_cart'); window.location.href = window.location.pathname; }, 1000);
+    }
+
+    function renderMenu() {
+        document.getElementById('menu-grid').innerHTML = products.filter(p => currentCat === 'Semua' || p.cat === currentCat).map(p => `
+            <div class="product-card" onclick="addToSet(${p.id})">
+                <img src="${p.img}" onerror="this.src='https://placehold.co/100x100'">
+                <h4>${p.name}</h4><p>RM ${p.price.toFixed(2)}</p>
+            </div>
+        `).join('');
+    }
+    function addToSet(id) { const p = products.find(x => x.id === id); currentSet.push({...p, uid: Date.now()}); updateSet(); }
+    function removeFromSet(uid) { currentSet = currentSet.filter(i => i.uid !== uid); updateSet(); }
+    function updateSet() {
+        document.getElementById('current-set-display').innerHTML = currentSet.length ? currentSet.map(i => `<span class="set-item-tag">${i.name} <span onclick="event.stopPropagation(); removeFromSet(${i.uid})">×</span></span>`).join('') : "Pilih menu...";
+        document.getElementById('btn-confirm-set').disabled = !currentSet.length;
+    }
+    function resetSet() { currentSet = []; document.getElementById('set-remark').value = ""; updateSet(); }
+    function confirmSetToCart() {
+        cart.push({ n: currentSet[0].name + (currentSet.length > 1 ? " Set" : ""), p: currentSet.reduce((s,i)=>s+i.price,0), r: document.getElementById('set-remark').value });
+        localStorage.setItem('temp_cart', JSON.stringify(cart));
+        resetSet(); renderCart(); toggleCart();
+    }
+    function renderCart() {
+        let t = cart.reduce((s,i)=>s+i.p,0);
+        document.getElementById('cart-list').innerHTML = cart.map(i => `<div class="cart-item"><b>${i.n}</b> (RM ${i.p.toFixed(2)})</div>`).join('') || "Kosong";
+        document.getElementById('grand-total').innerText = t.toFixed(2);
+    }
+    function toggleCart() { document.getElementById('cart-content').classList.toggle('open'); }
+    function openPaymentModal() { updatePaymentUI(); document.getElementById('paymentModal').style.display = 'flex'; }
+    function closePaymentModal() { document.getElementById('paymentModal').style.display = 'none'; }
+    function showCash() { document.getElementById('cash-area').style.display = 'block'; }
+    function calcChange() {
+        const final = parseFloat(document.getElementById('modal-final-total').innerText);
+        const cash = parseFloat(document.getElementById('cash-amount').value) || 0;
+        document.getElementById('change-display').innerText = "RM " + (cash-final < 0 ? "0.00" : (cash-final).toFixed(2));
+    }
+    function handleAdminAccess() { adminClicks++; if(adminClicks >= 5) { adminClicks=0; if(prompt("Pass:")===ADMIN_PASS) openAdmin(); } }
+    function openAdmin() {
+        const h = JSON.parse(localStorage.getItem('order_history')) || [];
+        document.getElementById('admin-stats').innerText = `Total Pesanan: ${h.length}`;
+        document.getElementById('admin-history-list').innerHTML = h.reverse().map(i => `<div class="order-history-card"><b>${i.time}</b><br>${i.name} - RM${i.total}<br><small>${i.items}</small></div>`).join('');
+        document.getElementById('adminModal').style.display = 'flex';
+    }
     function closeAdmin() { document.getElementById('adminModal').style.display = 'none'; }
-    function clearHistory() { if(confirm("Padam sejarah?")) { localStorage.clear(); location.reload(); } }
+    function clearHistory() { localStorage.clear(); location.reload(); }
     function updateStats() {
         const v = JSON.parse(localStorage.getItem('visitor_logs')) || [];
         const h = JSON.parse(localStorage.getItem('order_history')) || [];
         document.getElementById('visitor-stat').innerText = `Pelawat: ${v.length} | Pesanan: ${h.length}`;
     }
+    function filterMenu(c, b) { currentCat = c; document.querySelectorAll('.cat-btn').forEach(x=>x.classList.remove('active')); b.classList.add('active'); renderMenu(); }
 
-    function renderMenu() {
-        const grid = document.getElementById('menu-grid');
-        grid.innerHTML = products.filter(p => currentCat === 'Semua' || p.cat === currentCat).map(p => `
-            <div class="product-card" onclick="addToSet(${p.id})">
-                <img src="${p.img}" onerror="this.src='https://placehold.co/100x100?text=Menu'">
-                <h4>${p.name}</h4>
-                <p>RM ${p.price.toFixed(2)}</p>
-            </div>
-        `).join('');
-    }
-
-    function addToSet(id) {
-        const p = products.find(x => x.id === id);
-        currentSet.push({...p, uid: Date.now() + Math.random()}); 
-        updateSet();
-    }
-
-    function removeFromSet(uid) { currentSet = currentSet.filter(i => i.uid !== uid); updateSet(); }
-    function updateSet() {
-        const d = document.getElementById('current-set-display');
-        d.innerHTML = currentSet.length ? currentSet.map(i => `<span class="set-item-tag">${i.name} <span onclick="event.stopPropagation(); removeFromSet(${i.uid})">❌</span></span>`).join('') : "Pilih menu...";
-        document.getElementById('btn-confirm-set').disabled = !currentSet.length;
-    }
-
-    function resetSet() { currentSet = []; document.getElementById('set-remark').value = ""; updateSet(); }
-
-    function confirmSetToCart() {
-        const total = currentSet.reduce((s, i) => s + i.price, 0);
-        cart.push({ n: currentSet[0].name + (currentSet.length > 1 ? " Set" : ""), d: currentSet.map(i => i.name).join(', '), p: total, r: document.getElementById('set-remark').value });
-        localStorage.setItem('temp_cart', JSON.stringify(cart));
-        resetSet(); renderCart(); toggleCart();
-    }
-
-    function renderCart() {
-        let t = 0;
-        document.getElementById('cart-list').innerHTML = cart.map((i, idx) => { t += i.p; return `<div class="cart-item"><b>${i.n}</b> (RM ${i.p.toFixed(2)})<br><small>${i.d}</small></div>`; }).join('') || "Troli Kosong";
-        document.getElementById('grand-total').innerText = t.toFixed(2);
-    }
-
-    function toggleCart() { document.getElementById('cart-content').classList.toggle('open'); }
-    function openPaymentModal() { document.getElementById('modal-total-display').innerText = "RM " + document.getElementById('grand-total').innerText; document.getElementById('paymentModal').style.display = 'flex'; }
-    function closePaymentModal() { document.getElementById('paymentModal').style.display = 'none'; document.getElementById('cash-option-area').style.display = 'none'; }
-    
-    // FUNGSI TUNAI
-    function showCash() { document.getElementById('cash-option-area').style.display = 'block'; }
-    function calcChange() {
-        const total = parseFloat(document.getElementById('grand-total').innerText);
-        const cash = parseFloat(document.getElementById('cash-amount').value) || 0;
-        const baki = cash - total;
-        document.getElementById('change-display').innerText = "RM " + (baki < 0 ? "0.00" : baki.toFixed(2));
-    }
-
-    function handlePayment(type) {
-        const total = document.getElementById('grand-total').innerText;
-        if(type === 'online') {
-            localStorage.setItem('temp_cart', JSON.stringify(cart));
-            window.location.href = `${TOYYIB_LINK}?billAmount=${Math.round(total*100)}&billExternalReferenceNo=SB-${Date.now()}`;
-        } else {
-            const baki = document.getElementById('change-display').innerText;
-            const cash = document.getElementById('cash-amount').value;
-            if(!cash) { alert("Masukkan jumlah duit!"); return; }
-            sendWhatsAppOrder(`TUNAI (Baki: ${baki})`);
-        }
-    }
-
-    function sendWhatsAppOrder(pType) {
-        const total = document.getElementById('grand-total').innerText;
-        const name = sessionStorage.getItem('c_name');
-        let orderDesc = cart.map(i => i.n).join(', ');
-        
-        let history = JSON.parse(localStorage.getItem('order_history')) || [];
-        history.push({ name, total, type: pType, items: orderDesc, time: new Date().toLocaleString() });
-        localStorage.setItem('order_history', JSON.stringify(history));
-
-        let msg = `*PESANAN BARU - SLURP & BITE*\nNama: ${name}\nBayaran: ${pType}\nTotal: RM ${total}\n\n`;
-        cart.forEach((i, x) => { msg += `${x+1}. ${i.n}\n   Isi: ${i.d}\n   Nota: ${i.r || '-'}\n\n`; });
-
-        window.open(`https://wa.me/${PHONE}?text=${encodeURIComponent(msg)}`, '_blank');
-        
-        setTimeout(() => {
-            localStorage.removeItem('temp_cart');
-            window.location.href = window.location.pathname;
-        }, 1000);
-    }
-
-    window.onload = () => {
-        renderMenu(); renderCart(); updateStats();
-        if(new URLSearchParams(window.location.search).get('status') === 'success' && cart.length > 0) sendWhatsAppOrder('ONLINE');
-        if(sessionStorage.getItem('c_name')) document.getElementById('welcomeModal').style.display = 'none';
-    };
-
-    function filterMenu(cat, btn) {
-        currentCat = cat;
-        document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        renderMenu();
-    }
+    window.onload = () => { renderMenu(); renderCart(); updateStats(); if(sessionStorage.getItem('c_name')) document.getElementById('welcomeModal').style.display = 'none'; };
 </script>
 </body>
 </html>
