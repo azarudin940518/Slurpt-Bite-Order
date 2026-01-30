@@ -2,59 +2,80 @@
 <html lang="ms">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Slurp & Bite POS - Loyalty Pro</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Slurp & Bite POS - Multi-Device</title>
     <style>
         :root { --primary: #2d5a27; --whatsapp: #25D366; --danger: #e74c3c; --bg: #f4f7f4; --accent: #d35400; --online: #0061ff; --gold: #f1c40f; }
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        body { margin: 0; font-family: -apple-system, system-ui, sans-serif; background: var(--bg); height: 100vh; display: flex; flex-direction: column; overflow: hidden; align-items: center; }
-        .main-container { width: 100%; max-width: 500px; height: 100vh; background: white; display: flex; flex-direction: column; position: relative; box-shadow: 0 0 20px rgba(0,0,0,0.1); }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; margin: 0; padding: 0; }
         
-        nav { background: var(--primary); color: white; text-align: center; padding: 12px; font-weight: bold; font-size: 1.1rem; flex-shrink: 0; cursor: pointer; }
-        .visitor-counter { color: #c8e6c9; font-size: 11px; font-weight: normal; margin-top: 2px; }
-        .loyalty-info { background: var(--gold); color: #000; padding: 5px 10px; font-size: 12px; font-weight: bold; border-bottom: 2px solid #d4ac0d; text-align: center; }
+        body { 
+            font-family: -apple-system, system-ui, sans-serif; 
+            background: #ccc; 
+            height: 100vh; 
+            height: -webkit-fill-available;
+            display: flex; 
+            justify-content: center;
+        }
 
-        .set-builder { background: #fff3e0; padding: 12px; border-bottom: 2px solid var(--accent); z-index: 110; flex-shrink: 0; }
-        .set-title { font-size: 11px; font-weight: bold; color: var(--accent); margin-bottom: 5px; display: flex; justify-content: space-between; }
-        .current-set-items { font-size: 14px; color: #333; font-weight: 600; min-height: 20px; margin-bottom: 8px; line-height: 1.4; }
-        .set-item-tag { background: white; padding: 2px 8px; border-radius: 4px; border: 1px solid #ddd; margin-right: 5px; display: inline-block; margin-bottom: 4px; font-size: 13px; }
-        .remark-box { width: 100%; padding: 10px; border: 1px solid #fab1a0; border-radius: 8px; font-size: 14px; margin-bottom: 10px; outline: none; }
+        .main-container { 
+            width: 100%; 
+            max-width: 500px; 
+            height: 100%; 
+            background: white; 
+            display: flex; 
+            flex-direction: column; 
+            position: relative; 
+            box-shadow: 0 0 20px rgba(0,0,0,0.1); 
+            overflow: hidden;
+        }
+        
+        nav { background: var(--primary); color: white; text-align: center; padding: 12px; font-weight: bold; flex-shrink: 0; cursor: pointer; z-index: 1001; }
+        .visitor-counter { color: #c8e6c9; font-size: 11px; font-weight: normal; }
+        .loyalty-info { background: var(--gold); color: #000; padding: 5px; font-size: 12px; font-weight: bold; text-align: center; flex-shrink: 0; }
+
+        .set-builder { background: #fff3e0; padding: 10px; border-bottom: 2px solid var(--accent); flex-shrink: 0; }
+        .set-title { font-size: 11px; font-weight: bold; color: var(--accent); display: flex; justify-content: space-between; margin-bottom: 5px; }
+        .current-set-items { font-size: 13px; font-weight: 600; min-height: 20px; margin-bottom: 8px; }
+        .set-item-tag { background: white; padding: 2px 8px; border-radius: 4px; border: 1px solid #ddd; margin: 2px; display: inline-block; font-size: 12px; }
+        .remark-box { width: 100%; padding: 8px; border: 1px solid #fab1a0; border-radius: 8px; font-size: 14px; margin-bottom: 8px; outline: none; }
         
         .btn-add-set { width: 100%; background: var(--accent); color: white; border: none; padding: 12px; border-radius: 8px; font-weight: bold; cursor: pointer; }
         .btn-add-set:disabled { background: #ccc; }
 
-        .menu-area { flex: 1; overflow-y: auto; padding-bottom: 120px; background: #fff; }
-        .header-tools { padding: 10px; background: white; position: sticky; top: 0; z-index: 100; border-bottom: 1px solid #ddd; }
-        .category-bar { display: flex; gap: 8px; overflow-x: auto; padding: 5px 0; scrollbar-width: none; }
-        .cat-btn { padding: 8px 18px; border-radius: 20px; border: 1px solid #ddd; background: white; font-size: 13px; white-space: nowrap; font-weight: 600; cursor: pointer; }
-        .cat-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
+        .menu-area { flex: 1; overflow-y: auto; padding-bottom: 80px; }
+        .header-tools { background: white; position: sticky; top: 0; z-index: 100; padding: 10px; border-bottom: 1px solid #eee; }
+        .category-bar { display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; padding-bottom: 5px; }
+        .cat-btn { padding: 8px 15px; border-radius: 20px; border: 1px solid #ddd; background: white; font-size: 12px; white-space: nowrap; font-weight: bold; }
+        .cat-btn.active { background: var(--primary); color: white; }
 
         .menu-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 10px; }
-        .product-card { background: white; border-radius: 12px; padding: 10px; text-align: center; border: 1px solid #eee; cursor: pointer; }
-        .product-card img { width: 100%; height: 85px; object-fit: cover; border-radius: 8px; }
+        .product-card { background: white; border-radius: 12px; padding: 8px; text-align: center; border: 1px solid #eee; }
+        .product-card img { width: 100%; height: 90px; object-fit: cover; border-radius: 8px; margin-bottom: 5px; }
 
-        .cart-section { background: white; border-top: 2px solid var(--primary); position: absolute; bottom: 0; width: 100%; z-index: 1000; }
-        .cart-toggle-btn { background: #f0f0f0; text-align: center; padding: 8px; font-size: 11px; font-weight: bold; color: #555; cursor: pointer; }
-        .cart-content { max-height: 0; overflow: hidden; transition: 0.3s; background: white; }
-        .cart-content.open { max-height: 300px; overflow-y: auto; padding: 15px; }
-        .cart-item { border-bottom: 1px solid #f0f0f0; padding: 8px 0; font-size: 13px; }
+        /* Bawah Skrin - Sentiasa Nampak */
+        .cart-section { 
+            background: white; 
+            border-top: 2px solid var(--primary); 
+            flex-shrink: 0;
+            z-index: 1000;
+        }
+        .cart-toggle-btn { background: #eee; text-align: center; padding: 6px; font-size: 10px; font-weight: bold; cursor: pointer; }
+        .cart-content { max-height: 0; overflow: hidden; transition: 0.3s; }
+        .cart-content.open { max-height: 250px; overflow-y: auto; padding: 10px; }
+        .cart-item { border-bottom: 1px solid #eee; padding: 8px 0; font-size: 13px; display: flex; justify-content: space-between; }
 
-        .cart-summary { padding: 12px 15px; display: flex; justify-content: space-between; align-items: center; }
+        .cart-summary { padding: 12px; display: flex; justify-content: space-between; align-items: center; background: white; }
         .total-price { font-size: 1.1rem; font-weight: bold; color: var(--primary); }
 
+        /* Modals */
         .modal-overlay { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index: 3000; align-items:center; justify-content:center; }
-        .modal-box { background:white; width: 90%; max-width: 450px; border-radius: 15px; padding: 20px; position: relative; max-height: 80vh; overflow-y: auto; }
+        .modal-box { background:white; width: 90%; max-width: 400px; border-radius: 15px; padding: 20px; max-height: 85vh; overflow-y: auto; }
         .input-box { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; margin-bottom: 10px; font-size: 16px; }
-        .payment-btn { width: 100%; padding: 15px; border: none; border-radius: 10px; margin: 8px 0; font-weight: bold; cursor: pointer; }
+        .payment-btn { width: 100%; padding: 15px; border: none; border-radius: 10px; margin: 5px 0; font-weight: bold; cursor: pointer; }
 
         .delivery-box { background: #e3f2fd; padding: 10px; border-radius: 8px; margin: 10px 0; font-size: 13px; border: 1px solid #2196f3; }
-        .order-history-card { text-align: left; background: #f9f9f9; border: 1px solid #ddd; padding: 10px; border-radius: 8px; margin-bottom: 10px; font-size: 12px; }
-        .btn-redeem { background: var(--gold); color: black; padding: 10px; border-radius: 8px; font-weight: bold; border: 2px dashed #000; margin-bottom: 10px; cursor: pointer; display: none; }
-        
-        /* Admin Table Styles */
-        .admin-table { width: 100%; border-collapse: collapse; font-size: 12px; margin-top: 10px; }
-        .admin-table th, .admin-table td { border: 1px solid #ddd; padding: 8px; text-align: left; }
-        .admin-table th { background: #eee; }
+        .admin-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+        .admin-table th, .admin-table td { border: 1px solid #ddd; padding: 8px; }
     </style>
 </head>
 <body>
@@ -63,7 +84,7 @@
     <div class="modal-overlay" id="welcomeModal" style="display: flex;">
         <div class="modal-box" style="text-align:center">
             <h3>Slurp & Bite</h3>
-            <p>Sila masukkan maklumat anda:</p>
+            <p style="margin-bottom:15px">Sila masukkan maklumat pesanan:</p>
             <input type="text" id="visitor-name-input" class="input-box" placeholder="Nama Penuh">
             <input type="number" id="visitor-phone-input" class="input-box" placeholder="No. Telefon (Cth: 013...)">
             <button class="btn-add-set" onclick="saveVisitor()">MULA PESANAN</button>
@@ -72,7 +93,7 @@
 
     <nav onclick="handleAdminAccess()">
         SLURP & BITE Taman Rosa
-        <div class="visitor-counter" id="visitor-stat">Pelawat: 0 | Pesanan: 0</div>
+        <div class="visitor-counter" id="visitor-stat">Pesanan: 0</div>
     </nav>
 
     <div id="loyalty-bar" class="loyalty-info">
@@ -80,9 +101,9 @@
     </div>
 
     <div class="set-builder">
-        <div class="set-title"><span>BINA PESANAN</span> <span onclick="resetSet()" style="color:var(--danger); cursor:pointer">Reset</span></div>
-        <div class="current-set-items" id="current-set-display">Pilih menu di bawah...</div>
-        <input type="text" id="set-remark" class="remark-box" placeholder="Nota tambahan...">
+        <div class="set-title"><span>BINA PESANAN</span> <span onclick="resetSet()" style="color:var(--danger); cursor:pointer">Padam</span></div>
+        <div class="current-set-items" id="current-set-display">Sila pilih menu...</div>
+        <input type="text" id="set-remark" class="remark-box" placeholder="Nota: Taknak pedas, nak kuah lebih...">
         <button class="btn-add-set" id="btn-confirm-set" onclick="confirmSetToCart()" disabled>+ MASUK TROLI</button>
     </div>
 
@@ -99,13 +120,13 @@
     </div>
 
     <div class="cart-section">
-        <div class="cart-toggle-btn" onclick="toggleCart()">▲ SEMAK TROLI ▲</div>
+        <div class="cart-toggle-btn" onclick="toggleCart()">LIHAT SENARAI TROLI</div>
         <div id="cart-content" class="cart-content">
             <div id="cart-list" style="padding:10px"></div>
         </div>
         <div class="cart-summary">
             <div class="total-price">Total: RM <span id="grand-total">0.00</span></div>
-            <button class="btn-add-set" style="width:auto; padding:10px 20px" onclick="openPaymentModal()">CHECKOUT</button>
+            <button class="btn-add-set" style="width:auto; padding:10px 25px" onclick="openPaymentModal()">CHECKOUT</button>
         </div>
     </div>
 </div>
@@ -113,44 +134,44 @@
 <div class="modal-overlay" id="paymentModal">
     <div class="modal-box" style="text-align:center">
         <h3>Checkout</h3>
-        <div id="redeem-section" class="btn-redeem" onclick="redeemPoints()">
-            🎁 TEBUS DISKAUN RM5 (Guna 100 Points)
+        <div id="redeem-section" class="btn-redeem" style="background:var(--gold); padding:10px; border-radius:8px; margin-bottom:10px; display:none" onclick="redeemPoints()">
+            🎁 TEBUS DISKAUN RM5 (100 Pts)
         </div>
-        <div style="display:flex; gap:10px; margin-bottom:15px;">
-            <button id="btn-collect" class="payment-btn" style="background:var(--primary); color:white; margin:0;" onclick="setService('collect')">Self-Pick</button>
-            <button id="btn-delivery" class="payment-btn" style="background:#eee; color:black; margin:0;" onclick="setService('delivery')">Delivery</button>
+        <div style="display:flex; gap:10px; margin-bottom:10px;">
+            <button id="btn-collect" class="payment-btn" style="background:var(--primary); color:white; flex:1" onclick="setService('collect')">Self-Pick</button>
+            <button id="btn-delivery" class="payment-btn" style="background:#eee; flex:1" onclick="setService('delivery')">Delivery</button>
         </div>
         <div id="delivery-info" class="delivery-box" style="display:none;">
-            <button onclick="getLocation()" style="background:var(--online); color:white; border:none; padding:8px; border-radius:5px; cursor:pointer; width:100%;">📍 PIN LOKASI SAYA</button>
-            <p id="dist-text" style="margin:8px 0 0 0; font-weight:bold;">Kos Delivery: RM 0.00</p>
+            <button onclick="getLocation()" style="background:var(--online); color:white; border:none; padding:10px; border-radius:5px; width:100%;">📍 PIN LOKASI SAYA</button>
+            <p id="dist-text" style="margin-top:5px; font-weight:bold;">Kos Delivery: RM 0.00</p>
         </div>
-        <p>Pesanan: <strong>RM <span id="modal-order-total">0.00</span></strong></p>
-        <p>Cas Delivery: <strong>RM <span id="modal-del-total">0.00</span></strong></p>
-        <p id="discount-row" style="display:none; color:var(--danger);">Loyalty Discount: <strong>-RM 5.00</strong></p>
-        <hr>
-        <p>Total Bayar: <strong style="font-size:20px; color:var(--danger)">RM <span id="modal-final-total">0.00</span></strong></p>
-        <div id="cash-area" style="display:none; background:#f0f0f0; padding:10px; border-radius:8px; margin-top:10px;">
-            <input type="number" id="cash-amount" class="input-box" placeholder="Duit Pelanggan RM" oninput="calcChange()">
-            <div style="font-weight:bold; color:var(--danger)">Baki: <span id="change-display">RM 0.00</span></div>
-            <button class="payment-btn" style="background:var(--primary); color:white" onclick="handlePayment('cash')">SAHKAN & WASAP</button>
+        <div style="text-align:left; margin:10px 0; font-size:14px">
+            <p>Harga Makanan: <span style="float:right">RM <span id="modal-order-total">0.00</span></span></p>
+            <p>Cas Delivery: <span style="float:right">RM <span id="modal-del-total">0.00</span></span></p>
+            <p id="discount-row" style="display:none; color:red">Diskaun: <span style="float:right">-RM 5.00</span></p>
+            <hr style="margin:5px 0">
+            <p style="font-weight:bold; font-size:18px">Total Bayar: <span style="float:right; color:var(--danger)">RM <span id="modal-final-total">0.00</span></span></p>
         </div>
-        <button class="payment-btn" style="background:var(--online); color:white" onclick="handlePayment('online')">🌐 BAYAR ONLINE</button>
+        <div id="cash-area" style="display:none; background:#f9f9f9; padding:10px; border-radius:8px; margin-bottom:10px">
+            <input type="number" id="cash-amount" class="input-box" placeholder="Duit Tunai RM" oninput="calcChange()">
+            <p style="color:var(--danger); font-weight:bold">Baki: RM <span id="change-display">0.00</span></p>
+            <button class="payment-btn" style="background:var(--primary); color:white" onclick="handlePayment('cash')">SAHKAN & WHATSAPP</button>
+        </div>
+        <button class="payment-btn" style="background:var(--online); color:white" onclick="handlePayment('online')">🌐 BAYAR ONLINE (ToyyibPay)</button>
         <button class="payment-btn" style="background:#eee" onclick="showCash()">💵 BAYAR TUNAI</button>
-        <p onclick="closePaymentModal()" style="color:red; cursor:pointer; margin-top:10px;">Batal</p>
+        <p onclick="closePaymentModal()" style="color:red; cursor:pointer; margin-top:15px; font-size:14px">Batal / Kembali</p>
     </div>
 </div>
 
 <div class="modal-overlay" id="adminModal">
     <div class="modal-box">
         <h3>Panel Admin</h3>
-        <div id="admin-stats"></div>
-        <hr>
-        <h4>Senarai Mata Pelanggan</h4>
-        <div id="admin-loyalty-list" style="max-height: 200px; overflow-y: auto;"></div>
-        <hr>
-        <h4>Sejarah Pesanan</h4>
-        <div id="admin-history-list" style="max-height: 200px; overflow-y: auto;"></div>
-        <button class="payment-btn" style="background:var(--danger); color:white" onclick="clearHistory()">PADAM SEMUA</button>
+        <p id="admin-stats"></p><br>
+        <h4>Mata Pelanggan</h4>
+        <div id="admin-loyalty-list" style="max-height:150px; overflow-y:auto; border:1px solid #eee; margin-bottom:10px"></div>
+        <h4>Rekod Jualan</h4>
+        <div id="admin-history-list" style="max-height:150px; overflow-y:auto; border:1px solid #eee"></div>
+        <button class="payment-btn" style="background:var(--danger); color:white; margin-top:10px" onclick="clearHistory()">RESET SEMUA DATA</button>
         <button class="payment-btn" onclick="closeAdmin()">TUTUP</button>
     </div>
 </div>
@@ -169,6 +190,7 @@
     let discountAmount = 0;
     let userLoc = "";
     let adminClicks = 0;
+    let currentCat = 'Semua';
 
     const products = [
         { id: 1, cat: 'Makanan', name: 'Oden Original', price: 0.00, img: 'https://i.postimg.cc/KcLWHG11/oden.jpg' },
@@ -201,7 +223,7 @@
     function saveVisitor() {
         const name = document.getElementById('visitor-name-input').value.trim();
         const phone = document.getElementById('visitor-phone-input').value.trim();
-        if(!name || !phone) { alert("Sila isi Nama & No Telefon!"); return; }
+        if(!name || !phone) { alert("Isi Nama & No Telefon!"); return; }
         sessionStorage.setItem('c_name', name);
         sessionStorage.setItem('c_phone', phone);
         document.getElementById('welcomeModal').style.display = 'none';
@@ -211,10 +233,9 @@
 
     function loadLoyaltyPoints() {
         const phone = sessionStorage.getItem('c_phone');
-        const name = sessionStorage.getItem('c_name');
-        const pointsData = JSON.parse(localStorage.getItem('loyalty_db')) || {};
-        const pts = pointsData[phone] ? pointsData[phone].points : 0;
-        document.getElementById('display-user-name').innerText = name;
+        const db = JSON.parse(localStorage.getItem('loyalty_db')) || {};
+        const pts = db[phone] ? db[phone].points : 0;
+        document.getElementById('display-user-name').innerText = sessionStorage.getItem('c_name');
         document.getElementById('user-points').innerText = pts;
         document.getElementById('redeem-section').style.display = pts >= 100 ? 'block' : 'none';
     }
@@ -249,7 +270,7 @@
                 const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
                 const distance = R * c;
                 deliveryFee = Math.max(1, Math.ceil(distance)); 
-                document.getElementById('dist-text').innerText = `Jarak: ${distance.toFixed(2)} KM (Cas: RM ${deliveryFee.toFixed(2)})`;
+                document.getElementById('dist-text').innerText = `Jarak: ${distance.toFixed(2)} KM (RM ${deliveryFee.toFixed(2)})`;
                 updatePaymentUI();
             }, () => alert("Sila aktifkan GPS."));
         }
@@ -282,94 +303,78 @@
         const phone = sessionStorage.getItem('c_phone');
         const db = JSON.parse(localStorage.getItem('loyalty_db')) || {};
         
-        // Update Points Logic
         let currentData = db[phone] || { name: name, points: 0 };
         if(discountAmount > 0) currentData.points -= 100;
         currentData.points += Math.floor(parseFloat(finalTotal));
         db[phone] = currentData;
         localStorage.setItem('loyalty_db', JSON.stringify(db));
 
-        let msg = `*PESANAN ${serviceType.toUpperCase()}*\nNama: ${name}\nTel: ${phone}\nBayaran: ${pType}\nTotal: RM ${finalTotal}\n`;
-        msg += `Loyalty Points: ${currentData.points} Pts\n`;
-        if(discountAmount > 0) msg += `*TEBUS DISKAUN RM5*\n`;
+        let msg = `*PESANAN ${serviceType.toUpperCase()}*\nNama: ${name}\nTel: ${phone}\nBayaran: ${pType}\nTotal: RM ${finalTotal}\nPoints: ${currentData.points}\n`;
         if(serviceType === 'delivery') msg += `📍 Lokasi: ${userLoc}\n`;
         msg += `--------------------------\n`;
         cart.forEach((i, x) => { msg += `${x+1}. ${i.n} (RM${i.p.toFixed(2)})\n   Nota: ${i.r || '-'}\n`; });
         
         let h = JSON.parse(localStorage.getItem('order_history')) || [];
-        h.push({name, phone, total: finalTotal, type: pType, items: cart.map(i=>i.n).join(','), time: new Date().toLocaleString()});
+        h.push({name, phone, total: finalTotal, time: new Date().toLocaleString()});
         localStorage.setItem('order_history', JSON.stringify(h));
         
         window.open(`https://wa.me/${PHONE}?text=${encodeURIComponent(msg)}`, '_blank');
         setTimeout(() => { localStorage.removeItem('temp_cart'); window.location.href = window.location.pathname; }, 1000);
     }
 
-    function handleAdminAccess() { adminClicks++; if(adminClicks >= 5) { adminClicks=0; if(prompt("Pass:")===ADMIN_PASS) openAdmin(); } }
-    
-    function openAdmin() {
-        const h = JSON.parse(localStorage.getItem('order_history')) || [];
-        const db = JSON.parse(localStorage.getItem('loyalty_db')) || {};
-        
-        document.getElementById('admin-stats').innerText = `Total Pesanan: ${h.length}`;
-        
-        // Render Loyalty Table
-        let loyaltyHtml = `<table class="admin-table"><tr><th>Nama</th><th>Mata</th><th>Aksi</th></tr>`;
-        for(let p in db) {
-            loyaltyHtml += `<tr><td>${db[p].name}<br><small>${p}</small></td><td>${db[p].points}</td>
-            <td><button onclick="editPts('${p}')">Ubah</button></td></tr>`;
-        }
-        loyaltyHtml += `</table>`;
-        document.getElementById('admin-loyalty-list').innerHTML = loyaltyHtml;
-
-        document.getElementById('admin-history-list').innerHTML = h.reverse().map(i => `
-            <div class="order-history-card"><b>${i.time}</b><br>${i.name} (${i.phone}) - RM${i.total}</div>
-        `).join('');
-        document.getElementById('adminModal').style.display = 'flex';
-    }
-
-    function editPts(phone) {
-        const db = JSON.parse(localStorage.getItem('loyalty_db'));
-        const newPts = prompt(`Mata baru untuk ${db[phone].name}:`, db[phone].points);
-        if(newPts !== null) {
-            db[phone].points = parseInt(newPts);
-            localStorage.setItem('loyalty_db', JSON.stringify(db));
-            openAdmin();
-        }
-    }
-
     function renderMenu() {
         document.getElementById('menu-grid').innerHTML = products.filter(p => currentCat === 'Semua' || p.cat === currentCat).map(p => `
             <div class="product-card" onclick="addToSet(${p.id})">
                 <img src="${p.img}" onerror="this.src='https://placehold.co/100x100'">
-                <h4>${p.name}</h4><p>RM ${p.price.toFixed(2)}</p>
+                <p style="font-weight:bold; font-size:13px">${p.name}</p>
+                <p style="color:var(--primary); font-size:12px">RM ${p.price.toFixed(2)}</p>
             </div>
         `).join('');
     }
+    
     function addToSet(id) { const p = products.find(x => x.id === id); currentSet.push({...p, uid: Date.now()}); updateSet(); }
     function removeFromSet(uid) { currentSet = currentSet.filter(i => i.uid !== uid); updateSet(); }
     function updateSet() {
-        document.getElementById('current-set-display').innerHTML = currentSet.length ? currentSet.map(i => `<span class="set-item-tag">${i.name} <span onclick="event.stopPropagation(); removeFromSet(${i.uid})">×</span></span>`).join('') : "Pilih menu...";
+        document.getElementById('current-set-display').innerHTML = currentSet.length ? currentSet.map(i => `<span class="set-item-tag">${i.name} <span onclick="event.stopPropagation(); removeFromSet(${i.uid})" style="color:red">×</span></span>`).join('') : "Sila pilih menu...";
         document.getElementById('btn-confirm-set').disabled = !currentSet.length;
     }
-    function resetSet() { currentSet = []; document.getElementById('set-remark').value = ""; updateSet(); discountAmount = 0; }
+    function resetSet() { currentSet = []; document.getElementById('set-remark').value = ""; updateSet(); }
     function confirmSetToCart() {
         cart.push({ n: currentSet[0].name + (currentSet.length > 1 ? " Set" : ""), p: currentSet.reduce((s,i)=>s+i.price,0), r: document.getElementById('set-remark').value });
         localStorage.setItem('temp_cart', JSON.stringify(cart));
-        resetSet(); renderCart(); toggleCart();
+        resetSet(); renderCart(); 
+        if(!document.getElementById('cart-content').classList.contains('open')) toggleCart();
     }
     function renderCart() {
         let t = cart.reduce((s,i)=>s+i.p,0);
-        document.getElementById('cart-list').innerHTML = cart.map(i => `<div class="cart-item"><b>${i.n}</b> (RM ${i.p.toFixed(2)})</div>`).join('') || "Kosong";
+        document.getElementById('cart-list').innerHTML = cart.map((i, idx) => `<div class="cart-item"><span>${i.n}</span> <span>RM ${i.p.toFixed(2)} <span onclick="deleteCartItem(${idx})" style="color:red; margin-left:10px">×</span></span></div>`).join('') || "Troli Kosong";
         document.getElementById('grand-total').innerText = t.toFixed(2);
     }
+    function deleteCartItem(idx) { cart.splice(idx, 1); localStorage.setItem('temp_cart', JSON.stringify(cart)); renderCart(); }
     function toggleCart() { document.getElementById('cart-content').classList.toggle('open'); }
-    function openPaymentModal() { updatePaymentUI(); document.getElementById('paymentModal').style.display = 'flex'; }
-    function closePaymentModal() { document.getElementById('paymentModal').style.display = 'none'; discountAmount = 0; document.getElementById('discount-row').style.display = 'none'; loadLoyaltyPoints(); }
+    function openPaymentModal() { if(cart.length===0) return alert("Troli kosong!"); updatePaymentUI(); document.getElementById('paymentModal').style.display = 'flex'; }
+    function closePaymentModal() { document.getElementById('paymentModal').style.display = 'none'; discountAmount = 0; document.getElementById('discount-row').style.display = 'none'; }
     function showCash() { document.getElementById('cash-area').style.display = 'block'; }
     function calcChange() {
         const final = parseFloat(document.getElementById('modal-final-total').innerText);
         const cash = parseFloat(document.getElementById('cash-amount').value) || 0;
         document.getElementById('change-display').innerText = (cash-final < 0 ? "0.00" : (cash-final).toFixed(2));
+    }
+    function handleAdminAccess() { adminClicks++; if(adminClicks >= 5) { adminClicks=0; if(prompt("Pass:")===ADMIN_PASS) openAdmin(); } }
+    function openAdmin() {
+        const h = JSON.parse(localStorage.getItem('order_history')) || [];
+        const db = JSON.parse(localStorage.getItem('loyalty_db')) || {};
+        document.getElementById('admin-stats').innerText = `Total Pesanan: ${h.length}`;
+        let lHtml = `<table class="admin-table"><tr><th>User</th><th>Pts</th></tr>`;
+        for(let p in db) { lHtml += `<tr><td>${db[p].name}<br>${p}</td><td>${db[p].points} <button onclick="editPts('${p}')">Edit</button></td></tr>`; }
+        document.getElementById('admin-loyalty-list').innerHTML = lHtml + `</table>`;
+        document.getElementById('admin-history-list').innerHTML = h.reverse().map(i => `<div style="font-size:11px; border-bottom:1px solid #eee; padding:5px">${i.time} - ${i.name} (RM${i.total})</div>`).join('');
+        document.getElementById('adminModal').style.display = 'flex';
+    }
+    function editPts(p) { 
+        const db = JSON.parse(localStorage.getItem('loyalty_db')); 
+        const n = prompt("Mata baru:", db[p].points); 
+        if(n!==null) { db[p].points=parseInt(n); localStorage.setItem('loyalty_db', JSON.stringify(db)); openAdmin(); } 
     }
     function closeAdmin() { document.getElementById('adminModal').style.display = 'none'; }
     function clearHistory() { if(confirm("Hapus semua data?")) { localStorage.clear(); location.reload(); } }
@@ -379,7 +384,6 @@
     }
     function filterMenu(c, b) { currentCat = c; document.querySelectorAll('.cat-btn').forEach(x=>x.classList.remove('active')); b.classList.add('active'); renderMenu(); }
 
-    let currentCat = 'Semua';
     window.onload = () => { renderMenu(); renderCart(); updateStats(); if(sessionStorage.getItem('c_phone')) { document.getElementById('welcomeModal').style.display = 'none'; loadLoyaltyPoints(); } };
 </script>
 </body>
