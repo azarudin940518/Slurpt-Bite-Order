@@ -106,13 +106,15 @@
     <div class="modal-box" style="text-align:center">
         <h3>Pembayaran</h3>
         <p>Jumlah: <strong id="modal-total-display">RM 0.00</strong></p>
-        <div id="cash-option-area" style="display:none; background:#f0f0f0; padding:15px; border-radius:10px; margin-bottom:10px;">
-            <input type="number" id="cash-amount" class="input-box" placeholder="Duit RM" oninput="calcChange()">
-            <div style="font-size:16px; color:var(--danger); font-weight:bold;">Baki: <span id="change-display">RM 0.00</span></div>
+        
+        <div id="cash-option-area" style="display:none; background:#f0f0f0; padding:15px; border-radius:10px; margin-bottom:10px; border: 1px solid #ccc;">
+            <input type="number" id="cash-amount" class="input-box" placeholder="Duit Pelanggan RM" oninput="calcChange()">
+            <div style="font-size:18px; color:var(--danger); font-weight:bold; margin: 10px 0;">Baki: <span id="change-display">RM 0.00</span></div>
             <button class="payment-btn" style="background:var(--primary); color:white" onclick="handlePayment('cash')">SAHKAN & WASAP</button>
         </div>
+
         <button class="payment-btn" style="background:var(--online); color:white" onclick="handlePayment('online')">🌐 ONLINE (TOYYIBPAY)</button>
-        <button class="payment-btn" style="background:#eee" onclick="showCash()">💵 TUNAI</button>
+        <button class="payment-btn" style="background:#eee" onclick="showCash()">💵 TUNAI DI KEDAI</button>
         <p onclick="closePaymentModal()" style="color:red; cursor:pointer; margin-top:10px;">Batal</p>
     </div>
 </div>
@@ -125,7 +127,7 @@
         </div>
         <div id="admin-stats" style="margin-bottom:15px; font-weight:bold; font-size:14px; color:var(--primary)"></div>
         <div id="admin-history-list"></div>
-        <button class="payment-btn" style="background:var(--danger); color:white" onclick="clearHistory()">PADAM SEMUA SEJARAH</button>
+        <button class="payment-btn" style="background:var(--danger); color:white" onclick="clearHistory()">PADAM SEMUA DATA</button>
     </div>
 </div>
 
@@ -155,7 +157,6 @@
         { id: 13, cat: 'Minuman', name: 'Air Seringgit', price: 1.00, img: 'https://i.postimg.cc/t7BkWm24/singgit.jpg' }
     ];
 
-    // Functions
     function saveVisitor() {
         const name = document.getElementById('visitor-name-input').value.trim();
         if(!name) return;
@@ -171,30 +172,28 @@
         adminClicks++;
         if(adminClicks >= 5) {
             adminClicks = 0;
-            const p = prompt("Masukkan Kata Laluan Admin:");
+            const p = prompt("Password Admin:");
             if(p === ADMIN_PASS) openAdmin();
-            else if(p !== null) alert("Salah!");
         }
     }
 
     function openAdmin() {
         const history = JSON.parse(localStorage.getItem('order_history')) || [];
         const visitors = JSON.parse(localStorage.getItem('visitor_logs')) || [];
-        document.getElementById('admin-stats').innerText = `Total Pelawat: ${visitors.length} | Total Pesanan: ${history.length}`;
+        document.getElementById('admin-stats').innerText = `Pelawat: ${visitors.length} | Pesanan: ${history.length}`;
         document.getElementById('admin-history-list').innerHTML = history.reverse().map(h => `
             <div class="order-history-card">
                 <b>${h.time}</b><br>
-                Pelanggan: ${h.name}<br>
+                Nama: ${h.name}<br>
                 Item: ${h.items}<br>
-                Bayaran: ${h.type} (RM ${h.total})
+                Status: ${h.type} (RM ${h.total})
             </div>
-        `).join('') || "Tiada sejarah pesanan.";
+        `).join('') || "Tiada data.";
         document.getElementById('adminModal').style.display = 'flex';
     }
 
     function closeAdmin() { document.getElementById('adminModal').style.display = 'none'; }
-    function clearHistory() { if(confirm("Padam semua data?")) { localStorage.clear(); location.reload(); } }
-
+    function clearHistory() { if(confirm("Padam sejarah?")) { localStorage.clear(); location.reload(); } }
     function updateStats() {
         const v = JSON.parse(localStorage.getItem('visitor_logs')) || [];
         const h = JSON.parse(localStorage.getItem('order_history')) || [];
@@ -231,8 +230,7 @@
         const total = currentSet.reduce((s, i) => s + i.price, 0);
         cart.push({ n: currentSet[0].name + (currentSet.length > 1 ? " Set" : ""), d: currentSet.map(i => i.name).join(', '), p: total, r: document.getElementById('set-remark').value });
         localStorage.setItem('temp_cart', JSON.stringify(cart));
-        resetSet(); renderCart();
-        toggleCart();
+        resetSet(); renderCart(); toggleCart();
     }
 
     function renderCart() {
@@ -244,11 +242,14 @@
     function toggleCart() { document.getElementById('cart-content').classList.toggle('open'); }
     function openPaymentModal() { document.getElementById('modal-total-display').innerText = "RM " + document.getElementById('grand-total').innerText; document.getElementById('paymentModal').style.display = 'flex'; }
     function closePaymentModal() { document.getElementById('paymentModal').style.display = 'none'; document.getElementById('cash-option-area').style.display = 'none'; }
+    
+    // FUNGSI TUNAI
     function showCash() { document.getElementById('cash-option-area').style.display = 'block'; }
     function calcChange() {
         const total = parseFloat(document.getElementById('grand-total').innerText);
         const cash = parseFloat(document.getElementById('cash-amount').value) || 0;
-        document.getElementById('change-display').innerText = "RM " + (cash - total < 0 ? "0.00" : (cash - total).toFixed(2));
+        const baki = cash - total;
+        document.getElementById('change-display').innerText = "RM " + (baki < 0 ? "0.00" : baki.toFixed(2));
     }
 
     function handlePayment(type) {
@@ -257,18 +258,20 @@
             localStorage.setItem('temp_cart', JSON.stringify(cart));
             window.location.href = `${TOYYIB_LINK}?billAmount=${Math.round(total*100)}&billExternalReferenceNo=SB-${Date.now()}`;
         } else {
-            sendWhatsAppOrder(`TUNAI (Baki: ${document.getElementById('change-display').innerText})`);
+            const baki = document.getElementById('change-display').innerText;
+            const cash = document.getElementById('cash-amount').value;
+            if(!cash) { alert("Masukkan jumlah duit!"); return; }
+            sendWhatsAppOrder(`TUNAI (Baki: ${baki})`);
         }
     }
 
     function sendWhatsAppOrder(pType) {
         const total = document.getElementById('grand-total').innerText;
         const name = sessionStorage.getItem('c_name');
-        let orderItems = cart.map(i => i.n + " (" + i.d + ")").join(' | ');
+        let orderDesc = cart.map(i => i.n).join(', ');
         
-        // Simpan Sejarah ke LocalStorage
         let history = JSON.parse(localStorage.getItem('order_history')) || [];
-        history.push({ name, total, type: pType, items: orderItems, time: new Date().toLocaleString() });
+        history.push({ name, total, type: pType, items: orderDesc, time: new Date().toLocaleString() });
         localStorage.setItem('order_history', JSON.stringify(history));
 
         let msg = `*PESANAN BARU - SLURP & BITE*\nNama: ${name}\nBayaran: ${pType}\nTotal: RM ${total}\n\n`;
