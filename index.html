@@ -3,15 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Slurp & Bite POS - Delivery System</title>
+    <title>Slurp & Bite POS - Loyalty Pro</title>
     <style>
-        :root { --primary: #2d5a27; --whatsapp: #25D366; --danger: #e74c3c; --bg: #f4f7f4; --accent: #d35400; --online: #0061ff; }
+        :root { --primary: #2d5a27; --whatsapp: #25D366; --danger: #e74c3c; --bg: #f4f7f4; --accent: #d35400; --online: #0061ff; --gold: #f1c40f; }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body { margin: 0; font-family: -apple-system, system-ui, sans-serif; background: var(--bg); height: 100vh; display: flex; flex-direction: column; overflow: hidden; align-items: center; }
         .main-container { width: 100%; max-width: 500px; height: 100vh; background: white; display: flex; flex-direction: column; position: relative; box-shadow: 0 0 20px rgba(0,0,0,0.1); }
         
         nav { background: var(--primary); color: white; text-align: center; padding: 12px; font-weight: bold; font-size: 1.1rem; flex-shrink: 0; cursor: pointer; }
         .visitor-counter { color: #c8e6c9; font-size: 11px; font-weight: normal; margin-top: 2px; }
+        .loyalty-info { background: var(--gold); color: #000; padding: 5px 10px; font-size: 12px; font-weight: bold; border-bottom: 2px solid #d4ac0d; text-align: center; }
 
         .set-builder { background: #fff3e0; padding: 12px; border-bottom: 2px solid var(--accent); z-index: 110; flex-shrink: 0; }
         .set-title { font-size: 11px; font-weight: bold; color: var(--accent); margin-bottom: 5px; display: flex; justify-content: space-between; }
@@ -48,6 +49,12 @@
 
         .delivery-box { background: #e3f2fd; padding: 10px; border-radius: 8px; margin: 10px 0; font-size: 13px; border: 1px solid #2196f3; }
         .order-history-card { text-align: left; background: #f9f9f9; border: 1px solid #ddd; padding: 10px; border-radius: 8px; margin-bottom: 10px; font-size: 12px; }
+        .btn-redeem { background: var(--gold); color: black; padding: 10px; border-radius: 8px; font-weight: bold; border: 2px dashed #000; margin-bottom: 10px; cursor: pointer; display: none; }
+        
+        /* Admin Table Styles */
+        .admin-table { width: 100%; border-collapse: collapse; font-size: 12px; margin-top: 10px; }
+        .admin-table th, .admin-table td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        .admin-table th { background: #eee; }
     </style>
 </head>
 <body>
@@ -56,8 +63,9 @@
     <div class="modal-overlay" id="welcomeModal" style="display: flex;">
         <div class="modal-box" style="text-align:center">
             <h3>Slurp & Bite</h3>
-            <p>Masukkan nama anda:</p>
-            <input type="text" id="visitor-name-input" class="input-box" placeholder="Nama Anda...">
+            <p>Sila masukkan maklumat anda:</p>
+            <input type="text" id="visitor-name-input" class="input-box" placeholder="Nama Penuh">
+            <input type="number" id="visitor-phone-input" class="input-box" placeholder="No. Telefon (Cth: 013...)">
             <button class="btn-add-set" onclick="saveVisitor()">MULA PESANAN</button>
         </div>
     </div>
@@ -66,6 +74,10 @@
         SLURP & BITE Taman Rosa
         <div class="visitor-counter" id="visitor-stat">Pelawat: 0 | Pesanan: 0</div>
     </nav>
+
+    <div id="loyalty-bar" class="loyalty-info">
+        ✨ <span id="display-user-name">Pelanggan</span> | Mata: <span id="user-points">0</span> Points
+    </div>
 
     <div class="set-builder">
         <div class="set-title"><span>BINA PESANAN</span> <span onclick="resetSet()" style="color:var(--danger); cursor:pointer">Reset</span></div>
@@ -101,27 +113,27 @@
 <div class="modal-overlay" id="paymentModal">
     <div class="modal-box" style="text-align:center">
         <h3>Checkout</h3>
+        <div id="redeem-section" class="btn-redeem" onclick="redeemPoints()">
+            🎁 TEBUS DISKAUN RM5 (Guna 100 Points)
+        </div>
         <div style="display:flex; gap:10px; margin-bottom:15px;">
-            <button id="btn-collect" class="payment-btn" style="background:var(--primary); color:white; margin:0;" onclick="setService('collect')">Ambil Sendiri</button>
+            <button id="btn-collect" class="payment-btn" style="background:var(--primary); color:white; margin:0;" onclick="setService('collect')">Self-Pick</button>
             <button id="btn-delivery" class="payment-btn" style="background:#eee; color:black; margin:0;" onclick="setService('delivery')">Delivery</button>
         </div>
-
         <div id="delivery-info" class="delivery-box" style="display:none;">
             <button onclick="getLocation()" style="background:var(--online); color:white; border:none; padding:8px; border-radius:5px; cursor:pointer; width:100%;">📍 PIN LOKASI SAYA</button>
             <p id="dist-text" style="margin:8px 0 0 0; font-weight:bold;">Kos Delivery: RM 0.00</p>
         </div>
-
-        <p>Pesanan: <strong id="modal-order-total">RM 0.00</strong></p>
-        <p>Cas Delivery: <strong id="modal-del-total">RM 0.00</strong></p>
+        <p>Pesanan: <strong>RM <span id="modal-order-total">0.00</span></strong></p>
+        <p>Cas Delivery: <strong>RM <span id="modal-del-total">0.00</span></strong></p>
+        <p id="discount-row" style="display:none; color:var(--danger);">Loyalty Discount: <strong>-RM 5.00</strong></p>
         <hr>
-        <p>Total: <strong style="font-size:20px; color:var(--danger)">RM <span id="modal-final-total">0.00</span></strong></p>
-        
+        <p>Total Bayar: <strong style="font-size:20px; color:var(--danger)">RM <span id="modal-final-total">0.00</span></strong></p>
         <div id="cash-area" style="display:none; background:#f0f0f0; padding:10px; border-radius:8px; margin-top:10px;">
             <input type="number" id="cash-amount" class="input-box" placeholder="Duit Pelanggan RM" oninput="calcChange()">
             <div style="font-weight:bold; color:var(--danger)">Baki: <span id="change-display">RM 0.00</span></div>
             <button class="payment-btn" style="background:var(--primary); color:white" onclick="handlePayment('cash')">SAHKAN & WASAP</button>
         </div>
-
         <button class="payment-btn" style="background:var(--online); color:white" onclick="handlePayment('online')">🌐 BAYAR ONLINE</button>
         <button class="payment-btn" style="background:#eee" onclick="showCash()">💵 BAYAR TUNAI</button>
         <p onclick="closePaymentModal()" style="color:red; cursor:pointer; margin-top:10px;">Batal</p>
@@ -132,7 +144,12 @@
     <div class="modal-box">
         <h3>Panel Admin</h3>
         <div id="admin-stats"></div>
-        <div id="admin-history-list" style="margin-top:10px;"></div>
+        <hr>
+        <h4>Senarai Mata Pelanggan</h4>
+        <div id="admin-loyalty-list" style="max-height: 200px; overflow-y: auto;"></div>
+        <hr>
+        <h4>Sejarah Pesanan</h4>
+        <div id="admin-history-list" style="max-height: 200px; overflow-y: auto;"></div>
         <button class="payment-btn" style="background:var(--danger); color:white" onclick="clearHistory()">PADAM SEMUA</button>
         <button class="payment-btn" onclick="closeAdmin()">TUTUP</button>
     </div>
@@ -142,7 +159,6 @@
     const PHONE = "60133002678";
     const TOYYIB_LINK = "https://toyyibpay.com/Slurp-Bite-Order";
     const ADMIN_PASS = "180594";
-    // KOORDINAT KEDAI ANDA (Taman Tg Agas Rosa)
     const SHOP_LAT = 3.5037985; 
     const SHOP_LON = 103.4555344;
 
@@ -150,6 +166,7 @@
     let currentSet = [];
     let serviceType = 'collect';
     let deliveryFee = 0;
+    let discountAmount = 0;
     let userLoc = "";
     let adminClicks = 0;
 
@@ -182,14 +199,31 @@
     ];
 
     function saveVisitor() {
-        const n = document.getElementById('visitor-name-input').value;
-        if(!n) return;
-        sessionStorage.setItem('c_name', n);
-        let v = JSON.parse(localStorage.getItem('visitor_logs')) || [];
-        v.push({name: n, time: new Date().toLocaleString()});
-        localStorage.setItem('visitor_logs', JSON.stringify(v));
+        const name = document.getElementById('visitor-name-input').value.trim();
+        const phone = document.getElementById('visitor-phone-input').value.trim();
+        if(!name || !phone) { alert("Sila isi Nama & No Telefon!"); return; }
+        sessionStorage.setItem('c_name', name);
+        sessionStorage.setItem('c_phone', phone);
         document.getElementById('welcomeModal').style.display = 'none';
+        loadLoyaltyPoints();
         updateStats();
+    }
+
+    function loadLoyaltyPoints() {
+        const phone = sessionStorage.getItem('c_phone');
+        const name = sessionStorage.getItem('c_name');
+        const pointsData = JSON.parse(localStorage.getItem('loyalty_db')) || {};
+        const pts = pointsData[phone] ? pointsData[phone].points : 0;
+        document.getElementById('display-user-name').innerText = name;
+        document.getElementById('user-points').innerText = pts;
+        document.getElementById('redeem-section').style.display = pts >= 100 ? 'block' : 'none';
+    }
+
+    function redeemPoints() {
+        discountAmount = 5;
+        document.getElementById('discount-row').style.display = 'block';
+        document.getElementById('redeem-section').style.display = 'none';
+        updatePaymentUI();
     }
 
     function setService(type) {
@@ -217,15 +251,16 @@
                 deliveryFee = Math.max(1, Math.ceil(distance)); 
                 document.getElementById('dist-text').innerText = `Jarak: ${distance.toFixed(2)} KM (Cas: RM ${deliveryFee.toFixed(2)})`;
                 updatePaymentUI();
-            }, () => alert("GPS tidak aktif."));
+            }, () => alert("Sila aktifkan GPS."));
         }
     }
 
     function updatePaymentUI() {
         const orderTotal = parseFloat(document.getElementById('grand-total').innerText);
-        document.getElementById('modal-order-total').innerText = "RM " + orderTotal.toFixed(2);
-        document.getElementById('modal-del-total').innerText = "RM " + deliveryFee.toFixed(2);
-        document.getElementById('modal-final-total').innerText = (orderTotal + deliveryFee).toFixed(2);
+        document.getElementById('modal-order-total').innerText = orderTotal.toFixed(2);
+        document.getElementById('modal-del-total').innerText = deliveryFee.toFixed(2);
+        let final = (orderTotal + deliveryFee) - discountAmount;
+        document.getElementById('modal-final-total').innerText = Math.max(0, final).toFixed(2);
         calcChange();
     }
 
@@ -237,22 +272,69 @@
             window.location.href = `${TOYYIB_LINK}?billAmount=${Math.round(final*100)}`;
         } else {
             if(!document.getElementById('cash-amount').value) { alert("Isi jumlah tunai!"); return; }
-            sendWhatsAppOrder(`TUNAI (Baki: ${document.getElementById('change-display').innerText})`);
+            sendWhatsAppOrder(`TUNAI (Baki: RM${document.getElementById('change-display').innerText})`);
         }
     }
 
     function sendWhatsAppOrder(pType) {
         const finalTotal = document.getElementById('modal-final-total').innerText;
         const name = sessionStorage.getItem('c_name');
-        let msg = `*PESANAN ${serviceType.toUpperCase()}*\nNama: ${name}\nBayaran: ${pType}\nTotal: RM ${finalTotal}\n`;
+        const phone = sessionStorage.getItem('c_phone');
+        const db = JSON.parse(localStorage.getItem('loyalty_db')) || {};
+        
+        // Update Points Logic
+        let currentData = db[phone] || { name: name, points: 0 };
+        if(discountAmount > 0) currentData.points -= 100;
+        currentData.points += Math.floor(parseFloat(finalTotal));
+        db[phone] = currentData;
+        localStorage.setItem('loyalty_db', JSON.stringify(db));
+
+        let msg = `*PESANAN ${serviceType.toUpperCase()}*\nNama: ${name}\nTel: ${phone}\nBayaran: ${pType}\nTotal: RM ${finalTotal}\n`;
+        msg += `Loyalty Points: ${currentData.points} Pts\n`;
+        if(discountAmount > 0) msg += `*TEBUS DISKAUN RM5*\n`;
         if(serviceType === 'delivery') msg += `📍 Lokasi: ${userLoc}\n`;
         msg += `--------------------------\n`;
         cart.forEach((i, x) => { msg += `${x+1}. ${i.n} (RM${i.p.toFixed(2)})\n   Nota: ${i.r || '-'}\n`; });
+        
         let h = JSON.parse(localStorage.getItem('order_history')) || [];
-        h.push({name, total: finalTotal, type: pType, items: cart.map(i=>i.n).join(','), time: new Date().toLocaleString()});
+        h.push({name, phone, total: finalTotal, type: pType, items: cart.map(i=>i.n).join(','), time: new Date().toLocaleString()});
         localStorage.setItem('order_history', JSON.stringify(h));
+        
         window.open(`https://wa.me/${PHONE}?text=${encodeURIComponent(msg)}`, '_blank');
         setTimeout(() => { localStorage.removeItem('temp_cart'); window.location.href = window.location.pathname; }, 1000);
+    }
+
+    function handleAdminAccess() { adminClicks++; if(adminClicks >= 5) { adminClicks=0; if(prompt("Pass:")===ADMIN_PASS) openAdmin(); } }
+    
+    function openAdmin() {
+        const h = JSON.parse(localStorage.getItem('order_history')) || [];
+        const db = JSON.parse(localStorage.getItem('loyalty_db')) || {};
+        
+        document.getElementById('admin-stats').innerText = `Total Pesanan: ${h.length}`;
+        
+        // Render Loyalty Table
+        let loyaltyHtml = `<table class="admin-table"><tr><th>Nama</th><th>Mata</th><th>Aksi</th></tr>`;
+        for(let p in db) {
+            loyaltyHtml += `<tr><td>${db[p].name}<br><small>${p}</small></td><td>${db[p].points}</td>
+            <td><button onclick="editPts('${p}')">Ubah</button></td></tr>`;
+        }
+        loyaltyHtml += `</table>`;
+        document.getElementById('admin-loyalty-list').innerHTML = loyaltyHtml;
+
+        document.getElementById('admin-history-list').innerHTML = h.reverse().map(i => `
+            <div class="order-history-card"><b>${i.time}</b><br>${i.name} (${i.phone}) - RM${i.total}</div>
+        `).join('');
+        document.getElementById('adminModal').style.display = 'flex';
+    }
+
+    function editPts(phone) {
+        const db = JSON.parse(localStorage.getItem('loyalty_db'));
+        const newPts = prompt(`Mata baru untuk ${db[phone].name}:`, db[phone].points);
+        if(newPts !== null) {
+            db[phone].points = parseInt(newPts);
+            localStorage.setItem('loyalty_db', JSON.stringify(db));
+            openAdmin();
+        }
     }
 
     function renderMenu() {
@@ -269,7 +351,7 @@
         document.getElementById('current-set-display').innerHTML = currentSet.length ? currentSet.map(i => `<span class="set-item-tag">${i.name} <span onclick="event.stopPropagation(); removeFromSet(${i.uid})">×</span></span>`).join('') : "Pilih menu...";
         document.getElementById('btn-confirm-set').disabled = !currentSet.length;
     }
-    function resetSet() { currentSet = []; document.getElementById('set-remark').value = ""; updateSet(); }
+    function resetSet() { currentSet = []; document.getElementById('set-remark').value = ""; updateSet(); discountAmount = 0; }
     function confirmSetToCart() {
         cart.push({ n: currentSet[0].name + (currentSet.length > 1 ? " Set" : ""), p: currentSet.reduce((s,i)=>s+i.price,0), r: document.getElementById('set-remark').value });
         localStorage.setItem('temp_cart', JSON.stringify(cart));
@@ -282,30 +364,23 @@
     }
     function toggleCart() { document.getElementById('cart-content').classList.toggle('open'); }
     function openPaymentModal() { updatePaymentUI(); document.getElementById('paymentModal').style.display = 'flex'; }
-    function closePaymentModal() { document.getElementById('paymentModal').style.display = 'none'; }
+    function closePaymentModal() { document.getElementById('paymentModal').style.display = 'none'; discountAmount = 0; document.getElementById('discount-row').style.display = 'none'; loadLoyaltyPoints(); }
     function showCash() { document.getElementById('cash-area').style.display = 'block'; }
     function calcChange() {
         const final = parseFloat(document.getElementById('modal-final-total').innerText);
         const cash = parseFloat(document.getElementById('cash-amount').value) || 0;
-        document.getElementById('change-display').innerText = "RM " + (cash-final < 0 ? "0.00" : (cash-final).toFixed(2));
-    }
-    function handleAdminAccess() { adminClicks++; if(adminClicks >= 5) { adminClicks=0; if(prompt("Pass:")===ADMIN_PASS) openAdmin(); } }
-    function openAdmin() {
-        const h = JSON.parse(localStorage.getItem('order_history')) || [];
-        document.getElementById('admin-stats').innerText = `Total Pesanan: ${h.length}`;
-        document.getElementById('admin-history-list').innerHTML = h.reverse().map(i => `<div class="order-history-card"><b>${i.time}</b><br>${i.name} - RM${i.total}<br><small>${i.items}</small></div>`).join('');
-        document.getElementById('adminModal').style.display = 'flex';
+        document.getElementById('change-display').innerText = (cash-final < 0 ? "0.00" : (cash-final).toFixed(2));
     }
     function closeAdmin() { document.getElementById('adminModal').style.display = 'none'; }
-    function clearHistory() { localStorage.clear(); location.reload(); }
+    function clearHistory() { if(confirm("Hapus semua data?")) { localStorage.clear(); location.reload(); } }
     function updateStats() {
-        const v = JSON.parse(localStorage.getItem('visitor_logs')) || [];
         const h = JSON.parse(localStorage.getItem('order_history')) || [];
-        document.getElementById('visitor-stat').innerText = `Pelawat: ${v.length} | Pesanan: ${h.length}`;
+        document.getElementById('visitor-stat').innerText = `Pesanan: ${h.length}`;
     }
     function filterMenu(c, b) { currentCat = c; document.querySelectorAll('.cat-btn').forEach(x=>x.classList.remove('active')); b.classList.add('active'); renderMenu(); }
 
-    window.onload = () => { renderMenu(); renderCart(); updateStats(); if(sessionStorage.getItem('c_name')) document.getElementById('welcomeModal').style.display = 'none'; };
+    let currentCat = 'Semua';
+    window.onload = () => { renderMenu(); renderCart(); updateStats(); if(sessionStorage.getItem('c_phone')) { document.getElementById('welcomeModal').style.display = 'none'; loadLoyaltyPoints(); } };
 </script>
 </body>
 </html>
