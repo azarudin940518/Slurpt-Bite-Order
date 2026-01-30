@@ -56,7 +56,7 @@
         
         .map-container { width: 100%; height: 180px; border-radius: 10px; margin-top: 10px; display: none; border: 2px solid #2196f3; overflow: hidden; }
         .admin-table { width: 100%; border-collapse: collapse; font-size: 11px; margin-top: 10px; }
-        .admin-table th, .admin-table td { border: 1px solid #ddd; padding: 6px; }
+        .admin-table th, .admin-table td { border: 1px solid #ddd; padding: 8px; text-align: left; }
     </style>
 </head>
 <body>
@@ -266,12 +266,11 @@
             const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
             const dist = R * c;
 
-            // Logik Kos: Bawah 1km = RM1. Atas 1km ikut km.
             if (dist <= 1) { fee = 1.00; } 
             else { fee = Math.ceil(dist); }
 
             document.getElementById('dist-txt').innerText = `Kos: RM ${fee.toFixed(2)} (${dist.toFixed(2)}km)`;
-            updateFinal(); // PENTING: Kemaskini baki akhir termasuk fee delivery
+            updateFinal();
         });
     }
 
@@ -279,7 +278,7 @@
     
     function updateFinal() { 
         let o = parseFloat(document.getElementById('p-order').innerText); 
-        document.getElementById('p-fee').innerText = fee.toFixed(2); // PAPAR HARGA DELIVERY DI SINI
+        document.getElementById('p-fee').innerText = fee.toFixed(2);
         document.getElementById('p-final').innerText = (o + fee - discount).toFixed(2); 
         calcChange();
     }
@@ -292,39 +291,81 @@
     }
 
     function doPay(type) {
-        const f = document.getElementById('p-final').innerText; const n = sessionStorage.getItem('sb_n'); const p = sessionStorage.getItem('sb_p');
+        const finalAmount = document.getElementById('p-final').innerText; 
+        const userName = sessionStorage.getItem('sb_n'); 
+        const userPhone = sessionStorage.getItem('sb_p');
+        
+        // 1. Update Loyalty
         const db = JSON.parse(localStorage.getItem('loyalty_db')) || {};
-        let u = db[p] || { name: n, points: 0 };
-        if(discount > 0) u.points -= 100; u.points += Math.floor(f);
-        db[p] = u; localStorage.setItem('loyalty_db', JSON.stringify(db));
+        let u = db[userPhone] || { name: userName, points: 0 };
+        if(discount > 0) u.points -= 100; u.points += Math.floor(finalAmount);
+        db[userPhone] = u; 
+        localStorage.setItem('loyalty_db', JSON.stringify(db));
 
-        let h = JSON.parse(localStorage.getItem('sb_hist')) || [];
-        h.push({ n, p, t: f, d: new Date().toLocaleString() });
-        localStorage.setItem('sb_hist', JSON.stringify(h));
+        // 2. Simpan Sejarah Order (sb_hist)
+        let history = JSON.parse(localStorage.getItem('sb_hist')) || [];
+        history.push({ 
+            name: userName, 
+            phone: userPhone, 
+            total: finalAmount, 
+            date: new Date().toLocaleString(),
+            service: service 
+        });
+        localStorage.setItem('sb_hist', JSON.stringify(history));
 
-        let msg = `*ORDER ${service.toUpperCase()}*\nNama: ${n}\nTotal: RM ${f}\n`;
-        cart.forEach((i,x) => msg += `${x+1}. ${i.n} (RM${i.p.toFixed(2)})\n`);
-        if(uLoc) msg += `📍 Lokasi: ${uLoc}`;
+        // 3. Prepare WhatsApp Message
+        let msg = `*ORDER ${service.toUpperCase()}*\nNama: ${userName}\nTotal: RM ${finalAmount}\n`;
+        cart.forEach((item, index) => {
+            msg += `${index+1}. ${item.n} (RM${item.p.toFixed(2)})\n`;
+            if(item.r) msg += `   - Nota: ${item.r}\n`;
+        });
+        if(uLoc) msg += `\n📍 Lokasi: ${uLoc}`;
 
-        if(type === 'online') { window.location.href = `https://toyyibpay.com/Slurp-Bite-Order?billAmount=${Math.round(f*100)}`; }
-        else { window.open(`https://wa.me/${PHONE}?text=${encodeURIComponent(msg)}`, '_blank'); localStorage.removeItem('sb_cart'); window.location.reload(); }
+        if(type === 'online') { 
+            window.location.href = `https://toyyibpay.com/Slurp-Bite-Order?billAmount=${Math.round(finalAmount*100)}`; 
+        } else { 
+            window.open(`https://wa.me/${PHONE}?text=${encodeURIComponent(msg)}`, '_blank'); 
+            localStorage.removeItem('sb_cart'); 
+            window.location.reload(); 
+        }
     }
 
     function handleAdminAccess() { adminClicks++; if(adminClicks>=5){ adminClicks=0; if(prompt("Pass:")===ADMIN_PASS) showAdmin(); } }
+    
     function showAdmin() {
-        const h = JSON.parse(localStorage.getItem('sb_hist')) || []; const db = JSON.parse(localStorage.getItem('loyalty_db')) || {};
-        let html = `<b>10 Order Terakhir:</b><table class="admin-table"><tr><th>Nama</th><th>RM</th></tr>`;
-        h.slice(-10).forEach(i => html += `<tr><td>${i.n}</td><td>${i.t}</td></tr>`);
-        html += `</table><br><b>Loyalty List:</b><table class="admin-table"><tr><th>Nama</th><th>Pts</th></tr>`;
-        for(let x in db) html += `<tr><td>${db[x].name}</td><td>${db[x].points}</td></tr>`;
+        const history = JSON.parse(localStorage.getItem('sb_hist')) || []; 
+        const db = JSON.parse(localStorage.getItem('loyalty_db')) || {};
+        
+        let html = `<b>10 Order Terakhir:</b><br><table class="admin-table"><tr><th>Nama</th><th>Tarikh</th><th>RM</th></tr>`;
+        if(history.length === 0) {
+            html += `<tr><td colspan="3" style="text-align:center">Tiada sejarah order</td></tr>`;
+        } else {
+            // Papar order terbaru di atas
+            history.slice(-10).reverse().forEach(item => {
+                html += `<tr><td>${item.name}</td><td>${item.date.split(',')[0]}</td><td>RM${item.total}</td></tr>`;
+            });
+        }
+        html += `</table><br><b>Loyalty List:</b><table class="admin-table"><tr><th>Nama</th><th>Telefon</th><th>Pts</th></tr>`;
+        for(let key in db) {
+            html += `<tr><td>${db[key].name}</td><td>${key}</td><td>${db[key].points}</td></tr>`;
+        }
         html += `</table>`;
-        document.getElementById('admin-content').innerHTML = html; document.getElementById('adminModal').style.display='flex';
+        
+        document.getElementById('admin-content').innerHTML = html; 
+        document.getElementById('adminModal').style.display='flex';
     }
 
     function filterMenu(c, b) { currentCat = c; document.querySelectorAll('.cat-btn').forEach(x=>x.classList.remove('active')); b.classList.add('active'); renderMenu(); }
     function closePay() { document.getElementById('paymentModal').style.display='none'; }
 
-    window.onload = () => { renderMenu(); renderCart(); if(sessionStorage.getItem('sb_n')) { document.getElementById('welcomeModal').style.display='none'; loadLoyalty(); } };
+    window.onload = () => { 
+        renderMenu(); 
+        renderCart(); 
+        if(sessionStorage.getItem('sb_n')) { 
+            document.getElementById('welcomeModal').style.display='none'; 
+            loadLoyalty(); 
+        } 
+    };
 </script>
 </body>
 </html>
