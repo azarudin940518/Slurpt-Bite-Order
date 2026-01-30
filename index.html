@@ -7,17 +7,16 @@
     <style>
         :root { --primary: #2d5a27; --whatsapp: #25D366; --danger: #e74c3c; --bg: #f4f7f4; --accent: #d35400; --online: #0061ff; --gold: #f1c40f; }
         
-        /* Smooth Scrolling & Performance */
         * { 
             box-sizing: border-box; 
             -webkit-tap-highlight-color: transparent; 
             margin: 0; 
             padding: 0;
-            scroll-behavior: smooth; /* Smooth scroll global */
+            scroll-behavior: smooth;
         }
         
         html, body {
-            overscroll-behavior-y: none; /* Halang bounce effect pada Android */
+            overscroll-behavior-y: none;
             height: 100%;
             overflow: hidden;
         }
@@ -39,7 +38,7 @@
             position: relative; 
             box-shadow: 0 0 20px rgba(0,0,0,0.1); 
             overflow: hidden;
-            will-change: transform; /* Boost performance */
+            will-change: transform;
         }
         
         nav { background: var(--primary); color: white; text-align: center; padding: 12px; font-weight: bold; flex-shrink: 0; cursor: pointer; z-index: 1001; }
@@ -59,7 +58,7 @@
         .menu-area { 
             flex: 1; 
             overflow-y: auto; 
-            -webkit-overflow-scrolling: touch; /* Momentum scrolling iOS */
+            -webkit-overflow-scrolling: touch;
             padding-bottom: 20px; 
         }
         
@@ -75,13 +74,22 @@
         .product-card:active { background: #f9f9f9; }
         .product-card img { width: 100%; height: 90px; object-fit: cover; border-radius: 8px; margin-bottom: 5px; }
 
-        .cart-section { background: white; border-top: 2px solid var(--primary); flex-shrink: 0; z-index: 1000; box-shadow: 0 -5px 15px rgba(0,0,0,0.05); }
-        .cart-toggle-btn { background: #eee; text-align: center; padding: 6px; font-size: 10px; font-weight: bold; cursor: pointer; }
+        /* Penambahbaikan untuk iOS Safe Area */
+        .cart-section { 
+            background: white; 
+            border-top: 2px solid var(--primary); 
+            flex-shrink: 0; 
+            z-index: 1000; 
+            box-shadow: 0 -5px 15px rgba(0,0,0,0.05);
+            padding-bottom: calc(10px + env(safe-area-inset-bottom)); /* Naikkan sedikit untuk iOS */
+        }
+        
+        .cart-toggle-btn { background: #eee; text-align: center; padding: 8px; font-size: 10px; font-weight: bold; cursor: pointer; }
         .cart-content { max-height: 0; overflow: hidden; transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
         .cart-content.open { max-height: 300px; overflow-y: auto; padding: 10px; -webkit-overflow-scrolling: touch; }
         .cart-item { border-bottom: 1px solid #eee; padding: 8px 0; font-size: 13px; display: flex; justify-content: space-between; align-items: center; }
 
-        .cart-summary { padding: 12px; display: flex; justify-content: space-between; align-items: center; background: white; }
+        .cart-summary { padding: 12px 15px; display: flex; justify-content: space-between; align-items: center; background: white; }
         .total-price { font-size: 1.1rem; font-weight: bold; color: var(--primary); }
 
         .modal-overlay { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index: 3000; align-items:center; justify-content:center; backdrop-filter: blur(3px); }
