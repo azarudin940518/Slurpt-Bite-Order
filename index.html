@@ -168,6 +168,10 @@
 <div class="modal-overlay" id="adminModal">
     <div class="modal-box" style="max-width:500px">
         <h3>Admin Panel (Cloud)</h3>
+        <div style="background:#fff3e0; padding:10px; border-radius:8px; margin:10px 0; text-align:center; border:1px solid #ffcc80;">
+            <b style="font-size:12px">PELAWAT HARI INI:</b><br>
+            <span id="visitor-count" style="font-size:24px; font-weight:bold; color:var(--accent)">0</span>
+        </div>
         <div style="display:flex; justify-content:space-between; margin:15px 0; background:#f0f0f0; padding:10px; border-radius:10px; align-items:center;">
             <b>Status Kedai:</b>
             <button id="toggle-shop-btn" class="btn-edit" onclick="toggleShopStatus()" style="padding:10px 20px">MEMUAT...</button>
@@ -248,8 +252,16 @@
         db.ref().get().then((snap) => {
             const data = snap.val() || {};
             const users = data.users || {};
-            let html = `<b>Mata Ganjaran:</b><table class="admin-table"><tr><th>Nama</th><th>Pts</th><th>Aksi</th></tr>`;
-            for(let p in users) html += `<tr><td>${users[p].name}</td><td>${users[p].points}</td><td><button class="btn-edit" onclick="editPts('${p}')">Edit</button></td></tr>`;
+            const today = new Date().toISOString().slice(0, 10);
+            const visitors = data.stats && data.stats[today] ? Object.keys(data.stats[today]).length : 0;
+            
+            document.getElementById('visitor-count').innerText = visitors;
+
+            let html = `<b>Rekod Pelanggan & Points:</b><table class="admin-table"><tr><th>Nama</th><th>Telefon</th><th>Pts</th><th>Aksi</th></tr>`;
+            for(let p in users) {
+                html += `<tr><td>${users[p].name}</td><td>${p}</td><td>${users[p].points}</td><td><button onclick="editPts('${p}')">Edit</button></td></tr>`;
+            }
+            html += `</table>`;
             document.getElementById('admin-content').innerHTML = html;
             document.getElementById('adminModal').style.display = 'flex';
         });
@@ -262,7 +274,14 @@
         if(!isShopOpen) return;
         const n = document.getElementById('v-name').value; const p = document.getElementById('v-phone').value;
         if(!n || !p) return alert("Sila isi maklumat!");
+        
         sessionStorage.setItem('sb_n', n); sessionStorage.setItem('sb_p', p);
+        
+        // Log Visitor & Daily Stats (Auto-reset by Date key)
+        const today = new Date().toISOString().slice(0, 10);
+        db.ref('stats/' + today + '/' + p).set(true);
+        db.ref('users/' + p + '/name').set(n);
+
         document.getElementById('welcomeModal').style.display = 'none';
         loadLoyalty();
     }
@@ -370,7 +389,7 @@
             let u = s.val() || {name:n, points:0}; 
             if(discount>0) u.points -= 100; 
             u.points += Math.floor(fAmount); 
-            db.ref('users/'+p).set(u);
+            db.ref('users/'+p).update({points: u.points, name: n});
         });
 
         db.ref('orders').push({ name:n, phone:p, total:fAmount, date:new Date().toLocaleString(), type });
