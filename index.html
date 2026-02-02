@@ -272,7 +272,8 @@
     function confirmToCart() {
         let n = currentSet.length > 1 ? currentSet[0].name + " Set" : currentSet[0].name;
         let p = currentSet.reduce((a,b)=>a+b.price, 0);
-        cart.push({ n, p, r: document.getElementById('set-note').value });
+        let itemsStr = currentSet.map(i => i.name).join(', '); // Senarai add-on
+        cart.push({ n, p, r: document.getElementById('set-note').value, details: itemsStr });
         localStorage.setItem('sb_cart', JSON.stringify(cart));
         resetSet(); renderCart();
     }
@@ -302,7 +303,7 @@
     function getLoc() {
         navigator.geolocation.getCurrentPosition(pos => {
             const lat = pos.coords.latitude; const lon = pos.coords.longitude;
-            uLoc = `http://www.google.com/maps/place/${lat},${lon}`;
+            uLoc = `http://maps.google.com/?q=${lat},${lon}`;
             document.getElementById('m-frame').src = `https://maps.google.com/maps?q=${lat},${lon}&t=&z=15&ie=UTF8&iwloc=&output=embed`;
             document.getElementById('m-container').style.display = 'block';
             const R = 6371; const dLat = (lat-SHOP_LAT)*Math.PI/180; const dLon = (lon-SHOP_LON)*Math.PI/180;
@@ -339,19 +340,21 @@
 
         db.ref('orders').push({ name:n, phone:p, total:fAmount, date:new Date().toLocaleString(), type });
 
+        // RESIT WHATSAPP LENGKAP DENGAN ADD-ONS & DELIVERY FEE
         let msg = `*ORDER ${service.toUpperCase()}*\n`;
         msg += `Nama: ${n}\n`;
         msg += `--------------------------\n`;
         cart.forEach((i,x) => {
-            msg += `${x+1}. ${i.n} - RM${i.p.toFixed(2)}\n`;
+            msg += `${x+1}. *${i.n}* - RM${i.p.toFixed(2)}\n`;
+            msg += `   Item: ${i.details}\n`; // Memaparkan Add-on yang dipilih
             if(i.r) msg += `   _Nota: ${i.r}_\n`;
         });
         msg += `--------------------------\n`;
         msg += `Makanan: RM ${document.getElementById('p-order').innerText}\n`;
-        if(service==='delivery') msg += `Delivery: RM ${fee.toFixed(2)}\n`;
-        if(discount>0) msg += `Diskaun: -RM 5.00\n`;
-        msg += `*TOTAL: RM ${fAmount}*\n`;
-        msg += `Kaedah: ${type.toUpperCase()}\n`;
+        if(service==='delivery') msg += `Delivery Fee: RM ${fee.toFixed(2)}\n`; // Kos delivery dicatatkan di sini
+        if(discount>0) msg += `Diskaun Pts: -RM 5.00\n`;
+        msg += `*TOTAL BAYAR: RM ${fAmount}*\n`;
+        msg += `Cara Bayar: ${type.toUpperCase()}\n`;
         if(uLoc) msg += `📍 Lokasi: ${uLoc}`;
 
         if(type==='online') window.location.href = `https://toyyibpay.com/Slurp-Bite-Order?billAmount=${Math.round(fAmount*100)}`;
