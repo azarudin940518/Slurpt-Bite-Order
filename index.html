@@ -120,19 +120,19 @@
     <div class="modal-box">
         <h3 style="text-align:center">Info Ganjaran Points</h3>
         <ul style="margin:15px 0; font-size:14px; line-height:1.6">
-            <li>Setiap <b>RM1.00</b> perbelanjaan = <b>1 Point</b>.</li>
-            <li>Kumpul sehingga <b>100 Points</b> untuk tebus diskaun.</li>
+            <li>Setiap <b>RM1.00</b> dibelanjakan = <b>1 Point</b>.</li>
+            <li>Kumpul <b>100 Points</b> untuk tebus diskaun.</li>
             <li>Penebusan <b>100 Points = RM5.00</b> potongan harga.</li>
-            <li>Butang tebus akan muncul secara automatik semasa checkout jika point cukup.</li>
+            <li>Tebus semasa Checkout jika point mencukupi.</li>
         </ul>
-        <button class="btn-add-set" onclick="document.getElementById('ptsInfoModal').style.display='none'">Faham!</button>
+        <button class="btn-add-set" onclick="document.getElementById('ptsInfoModal').style.display='none'">Tutup</button>
     </div>
 </div>
 
 <div class="modal-overlay" id="paymentModal">
     <div class="modal-box" style="text-align:center">
         <h3>Checkout</h3>
-        <div id="redeem-btn" style="background:var(--gold); padding:12px; border-radius:8px; margin-bottom:10px; display:none; cursor:pointer; font-weight:bold; border:2px dashed black" onclick="redeemPoints()">🎁 KLIK UNTUK TEBUS DISKAUN RM5 (Guna 100 Pts)</div>
+        <div id="redeem-btn" style="background:var(--gold); padding:12px; border-radius:8px; margin-bottom:10px; display:none; cursor:pointer; font-weight:bold; border:2px dashed black" onclick="redeemPoints()">🎁 TEBUS DISKAUN RM5 (Guna 100 Pts)</div>
         <div style="display:flex; gap:10px; margin-bottom:10px;">
             <button id="b-pick" class="payment-btn" style="background:var(--primary); color:white; flex:1" onclick="setSvc('pick')">Self-Pick</button>
             <button id="b-delv" class="payment-btn" style="background:#eee; flex:1" onclick="setSvc('delivery')">Delivery</button>
@@ -278,7 +278,6 @@
     }
 
     function showPtsInfo() { document.getElementById('ptsInfoModal').style.display = 'flex'; }
-
     function renderMenu() {
         document.getElementById('menu-grid').innerHTML = products.filter(p => currentCat === 'Semua' || p.cat === currentCat).map(p => `
             <div class="product-card" onclick="addToSet(${p.id})"><img src="${p.img}"><p style="font-weight:bold; font-size:12px">${p.name}</p><p style="color:var(--primary); font-size:11px">RM ${p.price.toFixed(2)}</p></div>
