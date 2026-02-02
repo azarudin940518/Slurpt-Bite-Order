@@ -68,6 +68,8 @@
             <input type="number" id="v-phone" class="input-box" placeholder="No. Telefon (013...)">
             <button class="btn-add-set" id="btn-start" onclick="saveVisitor()">MULA PESANAN</button>
             <p id="closed-msg" style="color:red; font-size:12px; margin-top:10px; display:none;">Kedai ditutup buat masa ini.</p>
+            <hr style="margin:20px 0; border:0; border-top:1px solid #eee;">
+            <button onclick="promptAdminPass()" style="background:none; border:none; color:#999; font-size:12px; cursor:pointer;">⚙️ Masuk Sebagai Admin</button>
         </div>
     </div>
 
@@ -300,7 +302,7 @@
     function getLoc() {
         navigator.geolocation.getCurrentPosition(pos => {
             const lat = pos.coords.latitude; const lon = pos.coords.longitude;
-            uLoc = `https://www.google.com/maps?q=${lat},${lon}`;
+            uLoc = `http://www.google.com/maps/place/${lat},${lon}`;
             document.getElementById('m-frame').src = `https://maps.google.com/maps?q=${lat},${lon}&t=&z=15&ie=UTF8&iwloc=&output=embed`;
             document.getElementById('m-container').style.display = 'block';
             const R = 6371; const dLat = (lat-SHOP_LAT)*Math.PI/180; const dLon = (lon-SHOP_LON)*Math.PI/180;
@@ -309,7 +311,7 @@
             fee = dist <= 1 ? 1.00 : Math.ceil(dist);
             document.getElementById('dist-txt').innerText = `Kos: RM ${fee.toFixed(2)} (${dist.toFixed(2)}km)`;
             updateFinal();
-        });
+        }, (err) => alert("Sila benarkan akses lokasi."));
     }
 
     function redeemPoints() { discount = 5; document.getElementById('p-disc-row').style.display='block'; updateFinal(); }
@@ -331,15 +333,12 @@
         if(!isShopOpen) return;
         const fAmount = document.getElementById('p-final').innerText; const n = sessionStorage.getItem('sb_n'); const p = sessionStorage.getItem('sb_p');
         
-        // Update Points
         db.ref('users/'+p).get().then(s => {
             let u = s.val() || {name:n, points:0}; if(discount>0) u.points-=100; u.points+=Math.floor(fAmount); db.ref('users/'+p).set(u);
         });
 
-        // Simpan Order
         db.ref('orders').push({ name:n, phone:p, total:fAmount, date:new Date().toLocaleString(), type });
 
-        // RESIT WHATSAPP LENGKAP
         let msg = `*ORDER ${service.toUpperCase()}*\n`;
         msg += `Nama: ${n}\n`;
         msg += `--------------------------\n`;
