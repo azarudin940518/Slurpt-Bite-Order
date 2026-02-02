@@ -15,18 +15,36 @@
         body { font-family: -apple-system, system-ui, sans-serif; display: flex; justify-content: center; }
         .main-container { width: 100%; max-width: 500px; height: 100dvh; background: white; display: flex; flex-direction: column; position: relative; overflow: hidden; }
         
-        nav { background: var(--primary); color: white; text-align: center; padding: 12px; font-weight: bold; flex-shrink: 0; z-index: 1001; }
+        /* Navbar dengan Butang Admin */
+        nav { 
+            background: var(--primary); 
+            color: white; 
+            padding: 12px 15px; 
+            font-weight: bold; 
+            flex-shrink: 0; 
+            z-index: 5001; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+        }
+        .admin-btn-top {
+            background: rgba(255,255,255,0.2);
+            border: 1px solid rgba(255,255,255,0.4);
+            color: white;
+            padding: 4px 10px;
+            border-radius: 5px;
+            font-size: 11px;
+            cursor: pointer;
+        }
+
         .loyalty-info { background: var(--gold); color: #000; padding: 5px; font-size: 12px; font-weight: bold; text-align: center; flex-shrink: 0; }
         .shop-status-banner { background: var(--danger); color: white; text-align: center; padding: 8px; font-size: 14px; font-weight: bold; display: none; }
-        
         .set-builder { background: #fff3e0; padding: 10px; border-bottom: 2px solid var(--accent); flex-shrink: 0; }
         .current-set-items { font-size: 13px; font-weight: 600; min-height: 20px; margin-bottom: 8px; }
         .set-item-tag { background: white; padding: 2px 8px; border-radius: 4px; border: 1px solid #ddd; margin: 2px; display: inline-block; font-size: 12px; }
         .remark-box { width: 100%; padding: 8px; border: 1px solid #fab1a0; border-radius: 8px; font-size: 14px; margin-bottom: 8px; outline: none; }
-        
         .btn-add-set { width: 100%; background: var(--accent); color: white; border: none; padding: 12px; border-radius: 8px; font-weight: bold; cursor: pointer; }
         .btn-add-set:disabled { background: #ccc; cursor: not-allowed; }
-        
         .menu-area { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; padding-bottom: 20px; }
         .header-tools { background: white; position: sticky; top: 0; z-index: 100; padding: 10px; border-bottom: 1px solid #eee; }
         .category-bar { display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; padding-bottom: 5px; }
@@ -35,7 +53,6 @@
         .menu-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 10px; }
         .product-card { background: white; border-radius: 12px; padding: 8px; text-align: center; border: 1px solid #eee; }
         .product-card img { width: 100%; height: 90px; object-fit: cover; border-radius: 8px; margin-bottom: 5px; }
-        
         .cart-section { background: white; border-top: 2px solid var(--primary); flex-shrink: 0; z-index: 1000; }
         .cart-toggle-btn { background: #eee; text-align: center; padding: 8px; font-size: 10px; font-weight: bold; cursor: pointer; }
         .cart-content { max-height: 0; overflow: hidden; transition: max-height 0.3s; }
@@ -43,25 +60,24 @@
         .cart-item { border-bottom: 1px solid #eee; padding: 6px 0; font-size: 13px; display: flex; justify-content: space-between; }
         .cart-summary { padding: 10px 15px; display: flex; justify-content: space-between; align-items: center; }
         .total-price { font-size: 1.1rem; font-weight: bold; color: var(--primary); }
-        
-        /* Modal - Diubah suai supaya Admin Button sentiasa di depan */
-        .modal-overlay { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index: 3000; align-items:center; justify-content:center; backdrop-filter: blur(3px); }
-        .modal-box { background:white; width: 92%; max-width: 400px; border-radius: 15px; padding: 20px; position: relative; }
+        .modal-overlay { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index: 6000; align-items:center; justify-content:center; backdrop-filter: blur(3px); }
+        .modal-box { background:white; width: 92%; max-width: 400px; border-radius: 15px; padding: 20px; max-height: 85vh; overflow-y: auto; }
         .input-box { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; margin-bottom: 10px; font-size: 16px; }
         .payment-btn { width: 100%; padding: 15px; border: none; border-radius: 10px; margin: 5px 0; font-weight: bold; cursor: pointer; }
-        
         .admin-table { width: 100%; border-collapse: collapse; font-size: 10px; margin-top: 10px; }
         .admin-table th, .admin-table td { border: 1px solid #ddd; padding: 5px; text-align: left; }
         .btn-edit { background: var(--online); color: white; border: none; padding: 4px 8px; border-radius: 4px; font-size: 10px; cursor: pointer; }
         .btn-del { background: var(--danger); color: white; border: none; padding: 4px 8px; border-radius: 4px; font-size: 10px; cursor: pointer; }
-        
-        /* Butang Admin Terapung (Floating) supaya tidak disekat modal tutup kedai */
-        .admin-trigger-fixed { position: fixed; bottom: 10px; right: 10px; z-index: 4000; background: rgba(0,0,0,0.1); padding: 5px 10px; border-radius: 20px; color: #666; font-size: 10px; cursor: pointer; border: none; }
     </style>
 </head>
 <body>
 
 <div class="main-container">
+    <nav>
+        <span>SLURP & BITE Taman Rosa</span>
+        <button class="admin-btn-top" onclick="promptAdminPass()">⚙️ ADMIN</button>
+    </nav>
+
     <div id="shop-closed-banner" class="shop-status-banner">⚠️ MAAF, KEDAI KAMI SEDANG TUTUP SEKARANG</div>
     
     <div class="modal-overlay" id="welcomeModal" style="display: flex;">
@@ -75,14 +91,13 @@
         </div>
     </div>
 
-    <nav>SLURP & BITE Taman Rosa</nav>
     <div class="loyalty-info">✨ <span id="u-name">Pelanggan</span> | Mata: <span id="u-pts">0</span> Points</div>
 
     <div class="set-builder">
         <div style="font-size:11px; font-weight:bold; color:var(--accent); display:flex; justify-content:space-between;">
             <span>BINA PESANAN</span> <span onclick="resetSet()" style="color:var(--danger); cursor:pointer">Padam</span>
         </div>
-        <div class="current-set-items" id="set-display">Sila pilih menu...</div>
+        <div class="current-set-items" id="set-display">Pilih menu...</div>
         <input type="text" id="set-note" class="remark-box" placeholder="Nota: Taknak pedas, nak kuah lebih...">
         <button class="btn-add-set" id="btn-add-cart" onclick="confirmToCart()" disabled>+ MASUK TROLI</button>
     </div>
@@ -111,21 +126,18 @@
     </div>
 </div>
 
-<button class="admin-trigger-fixed" onclick="promptAdminPass()">⚙️ Admin</button>
-
 <div class="modal-overlay" id="paymentModal">
     <div class="modal-box" style="text-align:center">
         <h3>Checkout</h3>
-        <div id="redeem-btn" style="background:var(--gold); padding:10px; border-radius:8px; margin-bottom:10px; display:none; cursor:pointer" onclick="redeemPoints()">
-            🎁 TEBUS DISKAUN RM5 (100 Pts)
-        </div>
+        <div id="redeem-btn" style="background:var(--gold); padding:10px; border-radius:8px; margin-bottom:10px; display:none; cursor:pointer" onclick="redeemPoints()">🎁 TEBUS DISKAUN RM5 (100 Pts)</div>
         <div style="display:flex; gap:10px; margin-bottom:10px;">
             <button id="b-pick" class="payment-btn" style="background:var(--primary); color:white; flex:1" onclick="setSvc('pick')">Self-Pick</button>
             <button id="b-delv" class="payment-btn" style="background:#eee; flex:1" onclick="setSvc('delivery')">Delivery</button>
         </div>
         <div style="text-align:left; margin:10px 0; font-size:14px">
             <p>Makanan: <span style="float:right">RM <span id="p-order">0.00</span></span></p>
-            <p>Total: <span style="float:right; font-weight:bold; color:var(--danger)">RM <span id="p-final">0.00</span></span></p>
+            <p id="p-disc-row" style="display:none; color:red">Diskaun: <span style="float:right">-RM 5.00</span></p>
+            <p style="font-weight:bold; font-size:18px; color:var(--danger); border-top:1px solid #eee; margin-top:5px; padding-top:5px">Total: <span style="float:right">RM <span id="p-final">0.00</span></span></p>
         </div>
         <div id="cash-box" style="display:none; background:#f9f9f9; padding:10px; border-radius:8px; margin-bottom:10px">
             <input type="number" id="cash-in" class="input-box" placeholder="Duit Tunai RM" oninput="calcChange()">
@@ -141,11 +153,11 @@
 <div class="modal-overlay" id="adminModal">
     <div class="modal-box" style="max-width:500px">
         <h3>Admin Panel (Cloud)</h3>
-        <div style="display:flex; justify-content:space-between; margin:15px 0; background:#f0f0f0; padding:10px; border-radius:10px;">
+        <div style="display:flex; justify-content:space-between; margin:15px 0; background:#f0f0f0; padding:10px; border-radius:10px; align-items:center;">
             <b>Status Kedai:</b>
-            <button id="toggle-shop-btn" class="btn-edit" onclick="toggleShopStatus()">MEMUAT...</button>
+            <button id="toggle-shop-btn" class="btn-edit" onclick="toggleShopStatus()" style="padding:10px 20px">MEMUAT...</button>
         </div>
-        <div id="admin-content" style="font-size:12px; margin-top:10px"></div>
+        <div id="admin-content"></div>
         <button class="payment-btn" style="background:#eee; margin-top:10px" onclick="document.getElementById('adminModal').style.display='none'">Tutup</button>
     </div>
 </div>
@@ -164,75 +176,75 @@
     
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
-
     const PHONE = "60133002678";
     const ADMIN_PASS = "180594";
 
     let cart = JSON.parse(localStorage.getItem('sb_cart')) || [];
     let currentSet = [];
+    let discount = 0; let currentCat = 'Semua';
     let isShopOpen = true;
+
+    const products = [
+        { id: 1, cat: 'Makanan', name: 'Oden Original', price: 0.00, img: 'https://i.postimg.cc/KcLWHG11/oden.jpg' },
+        { id: 2, cat: 'Makanan', name: 'Dry Pan Mee', price: 4.00, img: 'https://i.postimg.cc/Qx3zL27t/pan_mee.jpg' },
+        { id: 3, cat: 'Makanan', name: 'Indo Mee', price: 3.00, img: 'https://i.postimg.cc/dkBBWWFr/indo-mee.jpg' },
+        { id: 4, cat: 'Makanan', name: 'Mee Sedap Korean Cheese', price: 4.00, img: 'https://i.postimg.cc/5Q2mDwNJ/mee-sedap-cheese.jpg' },
+        { id: 5, cat: 'Makanan', name: 'Mee Sedap Korean Spicy', price: 4.00, img: 'https://i.postimg.cc/RJZT2cV4/mee-sedap-spicy.jpg' },
+        { id: 6, cat: 'Makanan', name: 'Nissin Korean Mee', price: 5.00, img: 'https://i.postimg.cc/xqfgkSyS/nissin.jpg' },
+        { id: 7, cat: 'Makanan', name: 'Wow Spageti', price: 3.00, img: 'https://i.postimg.cc/gnrDDqTQ/wow.jpg' },
+        { id: 8, cat: 'Minuman', name: 'Chocolate Ice', price: 3.00, img: 'https://i.postimg.cc/jSsPqdxQ/coklat.png' },
+        { id: 9, cat: 'Minuman', name: 'Green Tea Ice', price: 3.00, img: 'https://i.postimg.cc/mZyrL3Pg/greentea.png' },
+        { id: 10, cat: 'Minuman', name: 'Thai Tea Ice', price: 3.00, img: 'https://i.postimg.cc/mZyrL3Pr/thaitea.png' },
+        { id: 11, cat: 'Minuman', name: 'White Coffee Caramel', price: 5.00, img: 'https://i.postimg.cc/nVGLFKXc/whitecoffee.png' },
+        { id: 12, cat: 'Minuman', name: 'Aiskrim Float', price: 2.50, img: 'https://i.postimg.cc/f3Y5dzry/float.jpg' },
+        { id: 13, cat: 'Minuman', name: 'Air Seringgit', price: 1.00, img: 'https://i.postimg.cc/t7BkWm24/singgit.jpg' },
+        { id: 14, cat: 'Add On', name: 'Enoki', price: 0.50, img: 'https://i.postimg.cc/DW15GvMw/enoki.webp' },
+        { id: 15, cat: 'Add On', name: 'Filament Stick', price: 0.50, img: 'https://i.postimg.cc/XZ9x5jzv/filament.jpg' },
+        { id: 16, cat: 'Add On', name: 'Fucuk Ikan', price: 1.00, img: 'https://i.postimg.cc/S2qd7BBY/fucuk-ikan.jpg' },
+        { id: 17, cat: 'Add On', name: 'Ikan', price: 0.50, img: 'https://i.postimg.cc/LYRDBccJ/ikan.jpg' },
+        { id: 18, cat: 'Add On', name: 'Ketam', price: 1.00, img: 'https://i.postimg.cc/YG33XX7Q/ketam.jpg' },
+        { id: 19, cat: 'Add On', name: 'Lobster', price: 1.00, img: 'https://i.postimg.cc/vgzzPPyX/lobster.jpg' },
+        { id: 20, cat: 'Add On', name: 'Maggi', price: 1.00, img: 'https://i.postimg.cc/gXDDMMpM/maggi.jpg' },
+        { id: 21, cat: 'Add On', name: 'Salmon', price: 1.00, img: 'https://i.postimg.cc/vD0hfS3s/salmon.jpg' },
+        { id: 22, cat: 'Add On', name: 'Sosej', price: 0.50, img: 'https://i.postimg.cc/BtmpHwMJ/sosej.jpg' },
+        { id: 23, cat: 'Add On', name: 'Sotong', price: 1.00, img: 'https://i.postimg.cc/yWLjcrv3/sotong.jpg' },
+        { id: 24, cat: 'Add On', name: 'Telur', price: 1.00, img: 'https://i.postimg.cc/9zLbZNJD/telur.jpg' },
+        { id: 25, cat: 'Add On', name: 'Udang', price: 1.00, img: 'https://i.postimg.cc/9rzpptn4/udang.jpg' }
+    ];
 
     db.ref('shop_status').on('value', (snap) => {
         isShopOpen = snap.val() !== false;
-        const banner = document.getElementById('shop-closed-banner');
-        const startBtn = document.getElementById('btn-start');
-        const closedMsg = document.getElementById('closed-msg');
-        const toggleBtn = document.getElementById('toggle-shop-btn');
-
-        if(isShopOpen) {
-            banner.style.display = 'none';
-            if(startBtn) startBtn.disabled = false;
-            if(closedMsg) closedMsg.style.display = 'none';
-            toggleBtn.innerText = "🟢 BUKA (KLIK TUTUP)";
-            toggleBtn.style.background = "var(--primary)";
-        } else {
-            banner.style.display = 'block';
-            if(startBtn) startBtn.disabled = true;
-            if(closedMsg) closedMsg.style.display = 'block';
-            toggleBtn.innerText = "🔴 TUTUP (KLIK BUKA)";
-            toggleBtn.style.background = "var(--danger)";
-        }
+        document.getElementById('shop-closed-banner').style.display = isShopOpen ? 'none' : 'block';
+        document.getElementById('btn-start').disabled = !isShopOpen;
+        document.getElementById('closed-msg').style.display = isShopOpen ? 'none' : 'block';
+        const tb = document.getElementById('toggle-shop-btn');
+        tb.innerText = isShopOpen ? "🟢 BUKA (KLIK TUTUP)" : "🔴 TUTUP (KLIK BUKA)";
+        tb.style.background = isShopOpen ? "var(--primary)" : "var(--danger)";
     });
 
-    const products = [
-        { id: 1, cat: 'Makanan', name: 'Sotong', price: 1.00, img: 'https://i.postimg.cc/KcLWHG11/oden.jpg' },
-        { id: 2, cat: 'Makanan', name: 'Telur', price: 1.00, img: 'https://i.postimg.cc/Qx3zL27t/pan_mee.jpg' },
-        { id: 3, cat: 'Makanan', name: 'Udang', price: 1.00, img: 'https://i.postimg.cc/dkBBWWFr/indo-mee.jpg' },
-        { id: 4, cat: 'Makanan', name: 'Oden Original', price: 0.00, img: 'https://i.postimg.cc/KcLWHG11/oden.jpg' }
-    ];
-
-    function toggleShopStatus() {
-        db.ref('shop_status').set(!isShopOpen);
-    }
-
     function promptAdminPass() {
-        let p = prompt("Masukkan Password Admin:");
+        let p = prompt("Password Admin:");
         if(p === ADMIN_PASS) showAdmin();
-        else if(p) alert("Password Salah!");
+        else if(p) alert("Salah!");
     }
 
     function showAdmin() {
         db.ref().get().then((snap) => {
-            const users = snap.val().users || {};
+            const data = snap.val() || {};
+            const users = data.users || {};
             let html = `<b>Mata Ganjaran Pelanggan:</b><table class="admin-table"><tr><th>Nama</th><th>Pts</th><th>Aksi</th></tr>`;
-            for(let p in users) {
-                html += `<tr><td>${users[p].name}</td><td>${users[p].points}</td><td><button class="btn-edit" onclick="editPts('${p}')">Edit</button></td></tr>`;
-            }
-            html += `</table>`;
+            for(let p in users) html += `<tr><td>${users[p].name}</td><td>${users[p].points}</td><td><button class="btn-edit" onclick="editPts('${p}')">Edit</button></td></tr>`;
             document.getElementById('admin-content').innerHTML = html;
             document.getElementById('adminModal').style.display = 'flex';
         });
     }
 
-    function editPts(p) {
-        let n = prompt("Masukkan jumlah point baru:");
-        if(n) db.ref('users/' + p + '/points').set(parseInt(n)).then(showAdmin);
-    }
+    function editPts(p) { let n = prompt("Point:"); if(n) db.ref('users/'+p+'/points').set(parseInt(n)).then(showAdmin); }
+    function toggleShopStatus() { db.ref('shop_status').set(!isShopOpen); }
 
     function saveVisitor() {
         if(!isShopOpen) return;
-        const n = document.getElementById('v-name').value;
-        const p = document.getElementById('v-phone').value;
+        const n = document.getElementById('v-name').value; const p = document.getElementById('v-phone').value;
         if(!n || !p) return alert("Sila isi maklumat!");
         sessionStorage.setItem('sb_n', n); sessionStorage.setItem('sb_p', p);
         document.getElementById('welcomeModal').style.display = 'none';
@@ -240,72 +252,79 @@
     }
 
     function loadLoyalty() {
-        const p = sessionStorage.getItem('sb_p');
-        if(!p) return;
-        db.ref('users/' + p).on('value', (snap) => {
+        const p = sessionStorage.getItem('sb_p'); if(!p) return;
+        db.ref('users/'+p).on('value', (snap) => {
             const u = snap.val() || { name: sessionStorage.getItem('sb_n'), points: 0 };
             document.getElementById('u-name').innerText = u.name;
             document.getElementById('u-pts').innerText = u.points;
+            document.getElementById('redeem-btn').style.display = u.points >= 100 ? 'block' : 'none';
         });
     }
 
     function renderMenu() {
-        document.getElementById('menu-grid').innerHTML = products.map(p => `
-            <div class="product-card" onclick="addToSet(${p.id})">
-                <img src="${p.img}">
-                <p style="font-weight:bold; font-size:12px">${p.name}</p>
-                <p style="color:var(--primary)">RM ${p.price.toFixed(2)}</p>
-            </div>
+        document.getElementById('menu-grid').innerHTML = products.filter(p => currentCat === 'Semua' || p.cat === currentCat).map(p => `
+            <div class="product-card" onclick="addToSet(${p.id})"><img src="${p.img}"><p style="font-weight:bold; font-size:12px">${p.name}</p><p style="color:var(--primary); font-size:11px">RM ${p.price.toFixed(2)}</p></div>
         `).join('');
     }
 
-    function addToSet(id) {
-        const p = products.find(x => x.id === id);
-        currentSet.push({...p, uid: Date.now()});
-        updateSetUI();
-    }
-
+    function addToSet(id) { const p = products.find(x => x.id === id); currentSet.push({...p, uid: Date.now()}); updateSetUI(); }
     function updateSetUI() {
-        document.getElementById('set-display').innerHTML = currentSet.length ? currentSet.map(i => `<span class="set-item-tag">${i.name}</span>`).join('') : "Sila pilih menu...";
+        document.getElementById('set-display').innerHTML = currentSet.length ? currentSet.map(i => `<span class="set-item-tag">${i.name} <b onclick="event.stopPropagation(); removeFromSet(${i.uid})" style="color:red">×</b></span>`).join('') : "Pilih menu...";
         document.getElementById('btn-add-cart').disabled = !currentSet.length;
     }
-
-    function resetSet() { currentSet = []; updateSetUI(); }
+    function removeFromSet(u) { currentSet = currentSet.filter(i => i.uid !== u); updateSetUI(); }
+    function resetSet() { currentSet = []; document.getElementById('set-note').value = ""; updateSetUI(); }
 
     function confirmToCart() {
+        let n = currentSet.length > 1 ? currentSet[0].name + " Set" : currentSet[0].name;
         let p = currentSet.reduce((a,b)=>a+b.price, 0);
-        cart.push({ n: currentSet[0].name + (currentSet.length > 1 ? " Set" : ""), p: p });
+        cart.push({ n, p, r: document.getElementById('set-note').value });
         localStorage.setItem('sb_cart', JSON.stringify(cart));
         resetSet(); renderCart();
     }
 
     function renderCart() {
         let t = cart.reduce((a,b)=>a+b.p, 0);
+        document.getElementById('cart-list').innerHTML = cart.map((i, idx) => `<div class="cart-item"><span>${i.n}</span> <span>RM ${i.p.toFixed(2)} <b onclick="delCart(${idx})" style="color:red; margin-left:10px">×</b></span></div>`).join('');
         document.getElementById('grand-total').innerText = t.toFixed(2);
-        document.getElementById('cart-list').innerHTML = cart.map((i,idx) => `<div class="cart-item">${i.n} <span>RM ${i.p.toFixed(2)}</span></div>`).join('');
     }
-
-    function openPayment() { 
-        if(!isShopOpen) return;
-        document.getElementById('p-order').innerText = document.getElementById('grand-total').innerText;
-        document.getElementById('p-final').innerText = document.getElementById('grand-total').innerText;
-        document.getElementById('paymentModal').style.display = 'flex'; 
-    }
-
-    function showCash() { 
-        document.getElementById('cash-box').style.display = 'block'; 
-        document.getElementById('btn-cash-trigger').style.display = 'none';
-    }
-
-    function calcChange() {
-        const total = parseFloat(document.getElementById('p-final').innerText);
-        const cash = parseFloat(document.getElementById('cash-in').value) || 0;
-        document.getElementById('change-txt').innerText = Math.max(0, cash - total).toFixed(2);
-    }
-
-    function closePay() { document.getElementById('paymentModal').style.display = 'none'; }
+    function delCart(i) { cart.splice(i, 1); localStorage.setItem('sb_cart', JSON.stringify(cart)); renderCart(); }
     function toggleCart() { document.getElementById('cart-content').classList.toggle('open'); }
 
+    function openPayment() { 
+        if(!isShopOpen || !cart.length) return;
+        document.getElementById('p-order').innerText = cart.reduce((a,b)=>a+b.p, 0).toFixed(2); 
+        updateFinal(); document.getElementById('paymentModal').style.display = 'flex'; 
+    }
+
+    function redeemPoints() { discount = 5; document.getElementById('p-disc-row').style.display='block'; updateFinal(); }
+    function updateFinal() { 
+        let o = parseFloat(document.getElementById('p-order').innerText); 
+        document.getElementById('p-final').innerText = (o - discount).toFixed(2); 
+        calcChange();
+    }
+
+    function showCash() { document.getElementById('cash-box').style.display = 'block'; document.getElementById('btn-cash-trigger').style.display = 'none'; }
+    function calcChange() { 
+        const f = parseFloat(document.getElementById('p-final').innerText); 
+        const c = parseFloat(document.getElementById('cash-in').value) || 0; 
+        document.getElementById('change-txt').innerText = Math.max(0, c-f).toFixed(2); 
+    }
+
+    function doPay(type) {
+        if(!isShopOpen) return;
+        const fAmount = document.getElementById('p-final').innerText; const n = sessionStorage.getItem('sb_n'); const p = sessionStorage.getItem('sb_p');
+        db.ref('users/'+p).get().then(s => {
+            let u = s.val() || {name:n, points:0}; if(discount>0) u.points-=100; u.points+=Math.floor(fAmount); db.ref('users/'+p).set(u);
+        });
+        let msg = `*ORDER*\nNama: ${n}\nTotal: RM ${fAmount}\n`;
+        cart.forEach((i,x) => msg += `${x+1}. ${i.n} ${i.r?'('+i.r+')':''}\n`);
+        if(type==='online') window.location.href = `https://toyyibpay.com/Slurp-Bite-Order?billAmount=${Math.round(fAmount*100)}`;
+        else { window.open(`https://wa.me/${PHONE}?text=${encodeURIComponent(msg)}`,'_blank'); localStorage.removeItem('sb_cart'); window.location.reload(); }
+    }
+
+    function filterMenu(c, b) { currentCat = c; document.querySelectorAll('.cat-btn').forEach(x=>x.classList.remove('active')); b.classList.add('active'); renderMenu(); }
+    function closePay() { document.getElementById('paymentModal').style.display='none'; }
     window.onload = () => { renderMenu(); renderCart(); if(sessionStorage.getItem('sb_n')) { document.getElementById('welcomeModal').style.display='none'; loadLoyalty(); } };
 </script>
 </body>
