@@ -3,66 +3,69 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Slurp & Bite POS - Admin Control Version</title>
+    <title>Slurp & Bite - Cloud POS</title>
+    
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+
     <style>
         :root { --primary: #2d5a27; --whatsapp: #25D366; --danger: #e74c3c; --bg: #f4f7f4; --accent: #d35400; --online: #0061ff; --gold: #f1c40f; }
-        
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; margin: 0; padding: 0; }
         html, body { overscroll-behavior-y: none; height: 100%; overflow: hidden; background: #ccc; }
         body { font-family: -apple-system, system-ui, sans-serif; display: flex; justify-content: center; }
-
-        .main-container { 
-            width: 100%; max-width: 500px; height: 100dvh; background: white; 
-            display: flex; flex-direction: column; position: relative; overflow: hidden;
-        }
+        .main-container { width: 100%; max-width: 500px; height: 100dvh; background: white; display: flex; flex-direction: column; position: relative; overflow: hidden; }
         
-        nav { background: var(--primary); color: white; text-align: center; padding: 12px; font-weight: bold; flex-shrink: 0; z-index: 1001; cursor: pointer; }
+        /* Nav & Header */
+        nav { background: var(--primary); color: white; text-align: center; padding: 12px; font-weight: bold; flex-shrink: 0; z-index: 1001; }
         .loyalty-info { background: var(--gold); color: #000; padding: 5px; font-size: 12px; font-weight: bold; text-align: center; flex-shrink: 0; }
-        
         .shop-status-banner { background: var(--danger); color: white; text-align: center; padding: 8px; font-size: 14px; font-weight: bold; display: none; }
-
+        
+        /* Set Builder */
         .set-builder { background: #fff3e0; padding: 10px; border-bottom: 2px solid var(--accent); flex-shrink: 0; }
         .current-set-items { font-size: 13px; font-weight: 600; min-height: 20px; margin-bottom: 8px; }
         .set-item-tag { background: white; padding: 2px 8px; border-radius: 4px; border: 1px solid #ddd; margin: 2px; display: inline-block; font-size: 12px; }
         .remark-box { width: 100%; padding: 8px; border: 1px solid #fab1a0; border-radius: 8px; font-size: 14px; margin-bottom: 8px; outline: none; }
         
+        /* Buttons */
         .btn-add-set { width: 100%; background: var(--accent); color: white; border: none; padding: 12px; border-radius: 8px; font-weight: bold; cursor: pointer; }
         .btn-add-set:disabled { background: #ccc; cursor: not-allowed; }
-
-        .menu-area { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; padding-bottom: 120px; }
+        
+        /* Menu Area */
+        .menu-area { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; padding-bottom: 20px; }
         .header-tools { background: white; position: sticky; top: 0; z-index: 100; padding: 10px; border-bottom: 1px solid #eee; }
         .category-bar { display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; padding-bottom: 5px; }
         .cat-btn { padding: 8px 15px; border-radius: 20px; border: 1px solid #ddd; background: white; font-size: 12px; white-space: nowrap; font-weight: bold; }
         .cat-btn.active { background: var(--primary); color: white; }
-
         .menu-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 10px; }
         .product-card { background: white; border-radius: 12px; padding: 8px; text-align: center; border: 1px solid #eee; }
         .product-card img { width: 100%; height: 90px; object-fit: cover; border-radius: 8px; margin-bottom: 5px; }
-
-        .cart-section { 
-            background: white; border-top: 2px solid var(--primary); flex-shrink: 0; z-index: 1000; 
-            padding-bottom: calc(10px + env(safe-area-inset-bottom));
-        }
+        
+        /* Cart Section */
+        .cart-section { background: white; border-top: 2px solid var(--primary); flex-shrink: 0; z-index: 1000; }
         .cart-toggle-btn { background: #eee; text-align: center; padding: 8px; font-size: 10px; font-weight: bold; cursor: pointer; }
         .cart-content { max-height: 0; overflow: hidden; transition: max-height 0.3s; }
         .cart-content.open { max-height: 200px; overflow-y: auto; padding: 10px; }
         .cart-item { border-bottom: 1px solid #eee; padding: 6px 0; font-size: 13px; display: flex; justify-content: space-between; }
-
         .cart-summary { padding: 10px 15px; display: flex; justify-content: space-between; align-items: center; }
         .total-price { font-size: 1.1rem; font-weight: bold; color: var(--primary); }
-
+        
+        /* Modals */
         .modal-overlay { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index: 3000; align-items:center; justify-content:center; backdrop-filter: blur(3px); }
         .modal-box { background:white; width: 92%; max-width: 400px; border-radius: 15px; padding: 20px; max-height: 85vh; overflow-y: auto; }
         .input-box { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; margin-bottom: 10px; font-size: 16px; }
         .payment-btn { width: 100%; padding: 15px; border: none; border-radius: 10px; margin: 5px 0; font-weight: bold; cursor: pointer; }
         
+        /* Map & Admin */
         .map-container { width: 100%; height: 180px; border-radius: 10px; margin-top: 10px; display: none; border: 2px solid #2196f3; overflow: hidden; }
         .admin-table { width: 100%; border-collapse: collapse; font-size: 10px; margin-top: 10px; }
         .admin-table th, .admin-table td { border: 1px solid #ddd; padding: 5px; text-align: left; }
         .btn-edit { background: var(--online); color: white; border: none; padding: 4px 8px; border-radius: 4px; font-size: 10px; cursor: pointer; }
         .btn-del { background: var(--danger); color: white; border: none; padding: 4px 8px; border-radius: 4px; font-size: 10px; cursor: pointer; }
-        
         .status-toggle { display: flex; gap: 10px; margin: 15px 0; background: #f0f0f0; padding: 10px; border-radius: 10px; align-items: center; justify-content: space-between; }
+        
+        /* Footer Admin Button */
+        .admin-footer { background: #f9f9f9; text-align: center; padding: 5px; border-top: 1px solid #eee; }
+        .admin-link { font-size: 10px; color: #999; text-decoration: none; cursor: pointer; padding: 5px 15px; display: inline-block; }
     </style>
 </head>
 <body>
@@ -77,17 +80,18 @@
             <input type="text" id="v-name" class="input-box" placeholder="Nama Penuh">
             <input type="number" id="v-phone" class="input-box" placeholder="No. Telefon (013...)">
             <button class="btn-add-set" id="btn-start" onclick="saveVisitor()">MULA PESANAN</button>
+            <p id="closed-msg" style="color:red; font-size:12px; margin-top:10px; display:none;">Kedai ditutup buat masa ini.</p>
         </div>
     </div>
 
-    <nav onclick="handleAdminAccess()">SLURP & BITE Taman Rosa</nav>
+    <nav>SLURP & BITE Taman Rosa</nav>
     <div class="loyalty-info">✨ <span id="u-name">Pelanggan</span> | Mata: <span id="u-pts">0</span> Points</div>
 
     <div class="set-builder">
         <div style="font-size:11px; font-weight:bold; color:var(--accent); display:flex; justify-content:space-between;">
             <span>BINA PESANAN</span> <span onclick="resetSet()" style="color:var(--danger); cursor:pointer">Padam</span>
         </div>
-        <div class="current-set-items" id="set-display">Pilih menu...</div>
+        <div class="current-set-items" id="set-display">Sila pilih menu...</div>
         <input type="text" id="set-note" class="remark-box" placeholder="Nota: Taknak pedas, nak kuah lebih...">
         <button class="btn-add-set" id="btn-add-cart" onclick="confirmToCart()" disabled>+ MASUK TROLI</button>
     </div>
@@ -112,6 +116,9 @@
         <div class="cart-summary">
             <div class="total-price">Total: RM <span id="grand-total">0.00</span></div>
             <button class="btn-add-set" id="btn-checkout" style="width:auto; padding:10px 25px" onclick="openPayment()">CHECKOUT</button>
+        </div>
+        <div class="admin-footer">
+            <span class="admin-link" onclick="promptAdminPass()">⚙️ Access Admin</span>
         </div>
     </div>
 </div>
@@ -149,17 +156,17 @@
         </div>
 
         <button class="payment-btn" style="background:var(--online); color:white" onclick="doPay('online')">🌐 BAYAR ONLINE</button>
-        <button class="payment-btn" style="background:#eee" onclick="showCash()">💵 BAYAR TUNAI</button>
+        <button class="payment-btn" style="background:#eee" id="btn-cash-trigger" onclick="showCash()">💵 BAYAR TUNAI</button>
         <p onclick="closePay()" style="color:red; cursor:pointer; margin-top:15px; font-size:14px">Batal</p>
     </div>
 </div>
 
 <div class="modal-overlay" id="adminModal">
     <div class="modal-box" style="max-width:500px">
-        <h3>Admin Panel</h3>
+        <h3>Admin Panel (Cloud)</h3>
         <div class="status-toggle">
             <b>Status Kedai:</b>
-            <button id="toggle-shop-btn" class="btn-edit" onclick="toggleShopStatus()" style="padding:10px 20px; font-size:12px">TUKAR STATUS</button>
+            <button id="toggle-shop-btn" class="btn-edit" onclick="toggleShopStatus()" style="padding:10px 20px; font-size:12px">MEMUAT...</button>
         </div>
         <div id="admin-content" style="font-size:12px; margin-top:10px"></div>
         <button class="payment-btn" style="background:#eee; margin-top:10px" onclick="document.getElementById('adminModal').style.display='none'">Tutup</button>
@@ -167,6 +174,21 @@
 </div>
 
 <script>
+    // Konfigurasi Firebase
+    const firebaseConfig = {
+        apiKey: "AIzaSyD9ZzK3lD_oRksYz7-AUeHZ0WsGdBG8IKs",
+        authDomain: "slurpbite-a0859.firebaseapp.com",
+        databaseURL: "https://slurpbite-a0859-default-rtdb.asia-southeast1.firebasedatabase.app",
+        projectId: "slurpbite-a0859",
+        storageBucket: "slurpbite-a0859.firebasestorage.app",
+        messagingSenderId: "40941854159",
+        appId: "1:40941854159:web:340f5b8d013ddb103d86ba",
+        measurementId: "G-0C31B97FPE"
+    };
+    
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+
     const PHONE = "60133002678";
     const ADMIN_PASS = "180594";
     const SHOP_LAT = 3.5037985; const SHOP_LON = 103.4555344;
@@ -174,62 +196,50 @@
     let cart = JSON.parse(localStorage.getItem('sb_cart')) || [];
     let currentSet = [];
     let service = 'pick';
-    let fee = 0; let discount = 0; let uLoc = ""; let adminClicks = 0; let currentCat = 'Semua';
-    let isShopOpen = localStorage.getItem('sb_open') !== 'false';
+    let fee = 0; let discount = 0; let uLoc = ""; let currentCat = 'Semua';
+    let isShopOpen = true;
+
+    // Listen Status Kedai Real-time
+    db.ref('shop_status').on('value', (snap) => {
+        isShopOpen = snap.val() !== false;
+        updateShopStatusUI();
+    });
 
     const products = [
-        { id: 1, cat: 'Makanan', name: 'Oden Original', price: 0.00, img: 'https://i.postimg.cc/KcLWHG11/oden.jpg' },
-        { id: 2, cat: 'Makanan', name: 'Dry Pan Mee', price: 4.00, img: 'https://i.postimg.cc/Qx3zL27t/pan_mee.jpg' },
-        { id: 3, cat: 'Makanan', name: 'Indo Mee', price: 3.00, img: 'https://i.postimg.cc/dkBBWWFr/indo-mee.jpg' },
-        { id: 4, cat: 'Makanan', name: 'Mee Sedap Korean Cheese', price: 4.00, img: 'https://i.postimg.cc/5Q2mDwNJ/mee-sedap-cheese.jpg' },
-        { id: 5, cat: 'Makanan', name: 'Mee Sedap Korean Spicy', price: 4.00, img: 'https://i.postimg.cc/RJZT2cV4/mee-sedap-spicy.jpg' },
-        { id: 6, cat: 'Makanan', name: 'Nissin Korean Mee', price: 5.00, img: 'https://i.postimg.cc/xqfgkSyS/nissin.jpg' },
-        { id: 7, cat: 'Makanan', name: 'Wow Spageti', price: 3.00, img: 'https://i.postimg.cc/gnrDDqTQ/wow.jpg' },
-        { id: 8, cat: 'Minuman', name: 'Chocolate Ice', price: 3.00, img: 'https://i.postimg.cc/jSsPqdxQ/coklat.png' },
-        { id: 9, cat: 'Minuman', name: 'Green Tea Ice', price: 3.00, img: 'https://i.postimg.cc/mZyrL3Pg/greentea.png' },
-        { id: 10, cat: 'Minuman', name: 'Thai Tea Ice', price: 3.00, img: 'https://i.postimg.cc/mZyrL3Pr/thaitea.png' },
-        { id: 11, cat: 'Minuman', name: 'White Coffee Caramel', price: 5.00, img: 'https://i.postimg.cc/nVGLFKXc/whitecoffee.png' },
-        { id: 12, cat: 'Minuman', name: 'Aiskrim Float', price: 2.50, img: 'https://i.postimg.cc/f3Y5dzry/float.jpg' },
-        { id: 13, cat: 'Minuman', name: 'Air Seringgit', price: 1.00, img: 'https://i.postimg.cc/t7BkWm24/singgit.jpg' },
-        { id: 14, cat: 'Add On', name: 'Enoki', price: 0.50, img: 'https://i.postimg.cc/DW15GvMw/enoki.webp' },
-        { id: 15, cat: 'Add On', name: 'Filament Stick', price: 0.50, img: 'https://i.postimg.cc/XZ9x5jzv/filament.jpg' },
-        { id: 16, cat: 'Add On', name: 'Fucuk Ikan', price: 1.00, img: 'https://i.postimg.cc/S2qd7BBY/fucuk-ikan.jpg' },
-        { id: 17, cat: 'Add On', name: 'Ikan', price: 0.50, img: 'https://i.postimg.cc/LYRDBccJ/ikan.jpg' },
-        { id: 18, cat: 'Add On', name: 'Ketam', price: 1.00, img: 'https://i.postimg.cc/YG33XX7Q/ketam.jpg' },
-        { id: 19, cat: 'Add On', name: 'Lobster', price: 1.00, img: 'https://i.postimg.cc/vgzzPPyX/lobster.jpg' },
-        { id: 20, cat: 'Add On', name: 'Maggi', price: 1.00, img: 'https://i.postimg.cc/gXDDMMpM/maggi.jpg' },
-        { id: 21, cat: 'Add On', name: 'Salmon', price: 1.00, img: 'https://i.postimg.cc/vD0hfS3s/salmon.jpg' },
-        { id: 22, cat: 'Add On', name: 'Sosej', price: 0.50, img: 'https://i.postimg.cc/BtmpHwMJ/sosej.jpg' },
-        { id: 23, cat: 'Add On', name: 'Sotong', price: 1.00, img: 'https://i.postimg.cc/yWLjcrv3/sotong.jpg' },
-        { id: 24, cat: 'Add On', name: 'Telur', price: 1.00, img: 'https://i.postimg.cc/9zLbZNJD/telur.jpg' },
-        { id: 25, cat: 'Add On', name: 'Udang', price: 1.00, img: 'https://i.postimg.cc/9rzpptn4/udang.jpg' }
+        { id: 1, cat: 'Makanan', name: 'Sotong', price: 1.00, img: 'https://i.postimg.cc/KcLWHG11/oden.jpg' },
+        { id: 2, cat: 'Makanan', name: 'Telur', price: 1.00, img: 'https://i.postimg.cc/Qx3zL27t/pan_mee.jpg' },
+        { id: 3, cat: 'Makanan', name: 'Udang', price: 1.00, img: 'https://i.postimg.cc/dkBBWWFr/indo-mee.jpg' },
+        { id: 4, cat: 'Makanan', name: 'Oden Original', price: 0.00, img: 'https://i.postimg.cc/KcLWHG11/oden.jpg' },
+        { id: 8, cat: 'Minuman', name: 'Chocolate Ice', price: 3.00, img: 'https://i.postimg.cc/jSsPqdxQ/coklat.png' }
     ];
 
     function updateShopStatusUI() {
         const banner = document.getElementById('shop-closed-banner');
         const startBtn = document.getElementById('btn-start');
-        const checkoutBtn = document.getElementById('btn-checkout');
+        const closedMsg = document.getElementById('closed-msg');
         const toggleBtn = document.getElementById('toggle-shop-btn');
+        const checkoutBtn = document.getElementById('btn-checkout');
 
         if(isShopOpen) {
             banner.style.display = 'none';
             if(startBtn) startBtn.disabled = false;
-            checkoutBtn.disabled = false;
-            toggleBtn.innerText = "🟢 ONLINE (KLIK TUTUP)";
+            if(closedMsg) closedMsg.style.display = 'none';
+            if(checkoutBtn) checkoutBtn.disabled = false;
+            toggleBtn.innerText = "🟢 ONLINE (BUKA)";
             toggleBtn.style.background = "var(--primary)";
         } else {
             banner.style.display = 'block';
             if(startBtn) startBtn.disabled = true;
-            checkoutBtn.disabled = true;
-            toggleBtn.innerText = "🔴 OFFLINE (KLIK BUKA)";
+            if(closedMsg) closedMsg.style.display = 'block';
+            if(checkoutBtn) checkoutBtn.disabled = true;
+            toggleBtn.innerText = "🔴 OFFLINE (TUTUP)";
             toggleBtn.style.background = "var(--danger)";
         }
     }
 
     function toggleShopStatus() {
         isShopOpen = !isShopOpen;
-        localStorage.setItem('sb_open', isShopOpen);
-        updateShopStatusUI();
+        db.ref('shop_status').set(isShopOpen);
     }
 
     function saveVisitor() {
@@ -242,11 +252,14 @@
     }
 
     function loadLoyalty() {
-        const p = sessionStorage.getItem('sb_p'); const db = JSON.parse(localStorage.getItem('loyalty_db')) || {};
-        const pts = db[p] ? db[p].points : 0;
-        document.getElementById('u-name').innerText = sessionStorage.getItem('sb_n');
-        document.getElementById('u-pts').innerText = pts;
-        document.getElementById('redeem-btn').style.display = pts >= 100 ? 'block' : 'none';
+        const p = sessionStorage.getItem('sb_p');
+        if(!p) return;
+        db.ref('users/' + p).on('value', (snap) => {
+            const u = snap.val() || { name: sessionStorage.getItem('sb_n'), points: 0 };
+            document.getElementById('u-name').innerText = u.name;
+            document.getElementById('u-pts').innerText = u.points;
+            document.getElementById('redeem-btn').style.display = u.points >= 100 ? 'block' : 'none';
+        });
     }
 
     function renderMenu() {
@@ -260,17 +273,17 @@
     }
 
     function addToSet(id) { 
-        if(!isShopOpen) return alert("Kedai tutup.");
         const p = products.find(x => x.id === id); 
         currentSet.push({...p, uid: Date.now()}); 
         updateSetUI(); 
     }
     
-    function removeFromSet(u) { currentSet = currentSet.filter(i => i.uid !== u); updateSetUI(); }
     function updateSetUI() {
-        document.getElementById('set-display').innerHTML = currentSet.length ? currentSet.map(i => `<span class="set-item-tag">${i.name} <b onclick="event.stopPropagation(); removeFromSet(${i.uid})" style="color:red">×</b></span>`).join('') : "Pilih menu...";
-        document.getElementById('btn-add-cart').disabled = !currentSet.length || !isShopOpen;
+        document.getElementById('set-display').innerHTML = currentSet.length ? currentSet.map(i => `<span class="set-item-tag">${i.name} <b onclick="event.stopPropagation(); removeFromSet(${i.uid})" style="color:red">×</b></span>`).join('') : "Sila pilih menu...";
+        document.getElementById('btn-add-cart').disabled = !currentSet.length;
     }
+
+    function removeFromSet(u) { currentSet = currentSet.filter(i => i.uid !== u); updateSetUI(); }
     function resetSet() { currentSet = []; document.getElementById('set-note').value = ""; updateSetUI(); }
 
     function confirmToCart() {
@@ -308,8 +321,8 @@
     function getLoc() {
         navigator.geolocation.getCurrentPosition(pos => {
             const lat = pos.coords.latitude; const lon = pos.coords.longitude;
-            uLoc = `https://www.google.com/maps?q=${lat},${lon}`;
-            document.getElementById('m-frame').src = `https://maps.google.com/maps?q=${lat},${lon}&z=15&output=embed`;
+            uLoc = `http://google.com/maps?q=${lat},${lon}`;
+            document.getElementById('m-frame').src = `https://maps.google.com/maps?q=${lat},${lon}&t=&z=15&ie=UTF8&iwloc=&output=embed`;
             document.getElementById('m-container').style.display = 'block';
             const R = 6371; const dLat = (lat-SHOP_LAT)*Math.PI/180; const dLon = (lon-SHOP_LON)*Math.PI/180;
             const a = Math.sin(dLat/2)*Math.sin(dLat/2) + Math.cos(SHOP_LAT*Math.PI/180)*Math.cos(lat*Math.PI/180)*Math.sin(dLon/2)*Math.sin(dLon/2);
@@ -328,7 +341,11 @@
         calcChange();
     }
 
-    function showCash() { document.getElementById('cash-box').style.display='block'; }
+    function showCash() { 
+        document.getElementById('cash-box').style.display = 'block'; 
+        document.getElementById('btn-cash-trigger').style.display = 'none'; 
+    }
+
     function calcChange() { 
         const f = parseFloat(document.getElementById('p-final').innerText); 
         const c = parseFloat(document.getElementById('cash-in').value) || 0; 
@@ -338,16 +355,17 @@
     function doPay(type) {
         if(!isShopOpen) return alert("Kedai tutup.");
         const fAmount = document.getElementById('p-final').innerText; const n = sessionStorage.getItem('sb_n'); const p = sessionStorage.getItem('sb_p');
-        const db = JSON.parse(localStorage.getItem('loyalty_db')) || {};
-        let u = db[p] || { name: n, points: 0 };
-        if(discount > 0) u.points -= 100; u.points += Math.floor(fAmount);
-        db[p] = u; localStorage.setItem('loyalty_db', JSON.stringify(db));
+        
+        db.ref('users/' + p).get().then((snap) => {
+            let u = snap.val() || { name: n, points: 0 };
+            if(discount > 0) u.points -= 100;
+            u.points += Math.floor(fAmount);
+            db.ref('users/' + p).set(u);
+        });
 
-        let h = JSON.parse(localStorage.getItem('sb_hist')) || [];
-        h.push({ id: Date.now(), name: n, phone: p, total: fAmount, date: new Date().toLocaleString() });
-        localStorage.setItem('sb_hist', JSON.stringify(h));
+        db.ref('orders').push({ id: Date.now(), name: n, phone: p, total: fAmount, date: new Date().toLocaleString(), type: type });
 
-        let msg = `*ORDER ${service.toUpperCase()}*\nNama: ${n}\nTotal: RM ${fAmount}\n`;
+        let msg = `*ORDER ${service.toUpperCase()}*\nNama: ${n}\nTotal: RM ${fAmount}\nType: ${type.toUpperCase()}\n`;
         cart.forEach((i,x) => msg += `${x+1}. ${i.n} (RM${i.p.toFixed(2)})\n`);
         if(uLoc) msg += `📍 Lokasi: ${uLoc}`;
 
@@ -355,31 +373,53 @@
         else { window.open(`https://wa.me/${PHONE}?text=${encodeURIComponent(msg)}`, '_blank'); localStorage.removeItem('sb_cart'); window.location.reload(); }
     }
 
-    function handleAdminAccess() { adminClicks++; if(adminClicks>=5){ adminClicks=0; if(prompt("Pass:")===ADMIN_PASS) showAdmin(); } }
-    
-    function deleteOrder(id) { if(!confirm("Padam?")) return; let h = JSON.parse(localStorage.getItem('sb_hist')); h = h.filter(o => o.id !== id); localStorage.setItem('sb_hist', JSON.stringify(h)); showAdmin(); }
-    function editPoints(p) { let db = JSON.parse(localStorage.getItem('loyalty_db')); let n = prompt("Point baru:", db[p].points); if(n!==null){ db[p].points=parseInt(n); localStorage.setItem('loyalty_db', JSON.stringify(db)); showAdmin(); loadLoyalty(); } }
-    function deleteUser(p) { if(!confirm("Padam pelanggan?")) return; let db = JSON.parse(localStorage.getItem('loyalty_db')); delete db[p]; localStorage.setItem('loyalty_db', JSON.stringify(db)); showAdmin(); }
-
-    function showAdmin() {
-        const h = JSON.parse(localStorage.getItem('sb_hist')) || []; const db = JSON.parse(localStorage.getItem('loyalty_db')) || {};
-        let html = `<b>10 Order Terakhir:</b><table class="admin-table"><tr><th>Nama</th><th>RM</th><th>Aksi</th></tr>`;
-        h.slice(-10).reverse().forEach(i => html += `<tr><td>${i.name}</td><td>${i.total}</td><td><button class="btn-del" onclick="deleteOrder(${i.id})">Del</button></td></tr>`);
-        html += `</table><br><b>Point Pelanggan:</b><table class="admin-table"><tr><th>Nama</th><th>Pts</th><th>Aksi</th></tr>`;
-        for(let x in db) html += `<tr><td>${db[x].name}</td><td>${db[x].points}</td><td><button class="btn-edit" onclick="editPoints('${x}')">Pts</button> <button class="btn-del" onclick="deleteUser('${x}')">Del</button></td></tr>`;
-        html += `</table>`;
-        document.getElementById('admin-content').innerHTML = html; document.getElementById('adminModal').style.display='flex';
-        updateShopStatusUI();
+    // NEW ADMIN ACCESS FUNCTION
+    function promptAdminPass() {
+        let pass = prompt("Sila Masukkan Password Admin:");
+        if(pass === ADMIN_PASS) {
+            showAdmin();
+        } else if(pass !== null) {
+            alert("Password Salah!");
+        }
     }
+    
+    function showAdmin() {
+        db.ref().get().then((snap) => {
+            const data = snap.val() || {};
+            const orders = data.orders || {};
+            const users = data.users || {};
+
+            let html = `<b>10 Order Terakhir:</b><table class="admin-table"><tr><th>Nama</th><th>RM</th><th>Aksi</th></tr>`;
+            const orderList = Object.keys(orders).map(key => ({...orders[key], fbKey: key}));
+            orderList.slice(-10).reverse().forEach(i => html += `<tr><td>${i.name}</td><td>${i.total}</td><td><button class="btn-del" onclick="deleteOrder('${i.fbKey}')">Del</button></td></tr>`);
+            
+            html += `</table><br><b>Point Pelanggan:</b><table class="admin-table"><tr><th>Nama</th><th>Pts</th><th>Aksi</th></tr>`;
+            for(let p in users) {
+                html += `<tr><td>${users[p].name}</td><td>${users[p].points}</td><td><button class="btn-edit" onclick="editPoints('${p}')">Pts</button> <button class="btn-del" onclick="deleteUser('${p}')">Del</button></td></tr>`;
+            }
+            html += `</table>`;
+            document.getElementById('admin-content').innerHTML = html; 
+            document.getElementById('adminModal').style.display='flex';
+        });
+    }
+
+    function deleteOrder(key) { if(confirm("Padam?")) db.ref('orders/' + key).remove().then(showAdmin); }
+    function editPoints(p) { 
+        let n = prompt("Point baru:"); 
+        if(n!==null) db.ref('users/' + p + '/points').set(parseInt(n)).then(showAdmin); 
+    }
+    function deleteUser(p) { if(confirm("Padam pelanggan?")) db.ref('users/' + p).remove().then(showAdmin); }
 
     function filterMenu(c, b) { currentCat = c; document.querySelectorAll('.cat-btn').forEach(x=>x.classList.remove('active')); b.classList.add('active'); renderMenu(); }
     function closePay() { document.getElementById('paymentModal').style.display='none'; }
 
     window.onload = () => { 
-        updateShopStatusUI();
         renderMenu(); 
         renderCart(); 
-        if(sessionStorage.getItem('sb_n')) { document.getElementById('welcomeModal').style.display='none'; loadLoyalty(); } 
+        if(sessionStorage.getItem('sb_n')) { 
+            document.getElementById('welcomeModal').style.display='none'; 
+            loadLoyalty(); 
+        } 
     };
 </script>
 </body>
