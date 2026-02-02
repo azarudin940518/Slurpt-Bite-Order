@@ -18,7 +18,11 @@
         nav { background: var(--primary); color: white; padding: 12px 15px; font-weight: bold; flex-shrink: 0; z-index: 5001; display: flex; justify-content: space-between; align-items: center; }
         .admin-btn-top { background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.4); color: white; padding: 4px 10px; border-radius: 5px; font-size: 11px; cursor: pointer; }
 
-        .loyalty-info { background: var(--gold); color: #000; padding: 5px; font-size: 12px; font-weight: bold; text-align: center; flex-shrink: 0; }
+        .loyalty-header { background: var(--gold); padding: 10px; flex-shrink: 0; text-align: center; border-bottom: 1px solid #e1b100; }
+        .loyalty-info { font-size: 13px; font-weight: bold; margin-bottom: 5px; }
+        .btn-redeem-main { background: black; color: white; border: none; padding: 6px 12px; border-radius: 20px; font-size: 11px; font-weight: bold; cursor: pointer; }
+        .btn-info-pts { background: white; border: 1px solid #000; padding: 2px 8px; border-radius: 50%; font-size: 10px; margin-left: 5px; cursor: pointer; }
+
         .shop-status-banner { background: var(--danger); color: white; text-align: center; padding: 8px; font-size: 14px; font-weight: bold; display: none; }
         .set-builder { background: #fff3e0; padding: 10px; border-bottom: 2px solid var(--accent); flex-shrink: 0; }
         .current-set-items { font-size: 13px; font-weight: 600; min-height: 20px; margin-bottom: 8px; }
@@ -26,6 +30,7 @@
         .remark-box { width: 100%; padding: 8px; border: 1px solid #fab1a0; border-radius: 8px; font-size: 14px; margin-bottom: 8px; outline: none; }
         .btn-add-set { width: 100%; background: var(--accent); color: white; border: none; padding: 12px; border-radius: 8px; font-weight: bold; cursor: pointer; }
         .btn-add-set:disabled { background: #ccc; cursor: not-allowed; }
+        
         .menu-area { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; padding-bottom: 20px; }
         .header-tools { background: white; position: sticky; top: 0; z-index: 100; padding: 10px; border-bottom: 1px solid #eee; }
         .category-bar { display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; padding-bottom: 5px; }
@@ -34,6 +39,7 @@
         .menu-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 10px; }
         .product-card { background: white; border-radius: 12px; padding: 8px; text-align: center; border: 1px solid #eee; }
         .product-card img { width: 100%; height: 90px; object-fit: cover; border-radius: 8px; margin-bottom: 5px; }
+
         .cart-section { background: white; border-top: 2px solid var(--primary); flex-shrink: 0; z-index: 1000; }
         .cart-toggle-btn { background: #eee; text-align: center; padding: 8px; font-size: 10px; font-weight: bold; cursor: pointer; }
         .cart-content { max-height: 0; overflow: hidden; transition: max-height 0.3s; }
@@ -41,6 +47,7 @@
         .cart-item { border-bottom: 1px solid #eee; padding: 6px 0; font-size: 13px; display: flex; justify-content: space-between; }
         .cart-summary { padding: 10px 15px; display: flex; justify-content: space-between; align-items: center; }
         .total-price { font-size: 1.1rem; font-weight: bold; color: var(--primary); }
+
         .modal-overlay { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index: 6000; align-items:center; justify-content:center; backdrop-filter: blur(3px); }
         .modal-box { background:white; width: 92%; max-width: 400px; border-radius: 15px; padding: 20px; max-height: 85vh; overflow-y: auto; }
         .input-box { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; margin-bottom: 10px; font-size: 16px; }
@@ -68,12 +75,13 @@
             <input type="number" id="v-phone" class="input-box" placeholder="No. Telefon (013...)">
             <button class="btn-add-set" id="btn-start" onclick="saveVisitor()">MULA PESANAN</button>
             <p id="closed-msg" style="color:red; font-size:12px; margin-top:10px; display:none;">Kedai ditutup buat masa ini.</p>
-            <hr style="margin:20px 0; border:0; border-top:1px solid #eee;">
-            <button onclick="promptAdminPass()" style="background:none; border:none; color:#999; font-size:12px; cursor:pointer;">⚙️ Masuk Sebagai Admin</button>
         </div>
     </div>
 
-    <div class="loyalty-info">✨ <span id="u-name">Pelanggan</span> | Mata: <span id="u-pts">0</span> Points</div>
+    <div class="loyalty-header">
+        <div class="loyalty-info">✨ <span id="u-name">Pelanggan</span> | Mata: <span id="u-pts">0</span> <button class="btn-info-pts" onclick="showPtsInfo()">?</button></div>
+        <button id="main-redeem-btn" class="btn-redeem-main" onclick="openPayment()" style="display:none">TEBUS 100 PTS (RM5 OFF)</button>
+    </div>
 
     <div class="set-builder">
         <div style="font-size:11px; font-weight:bold; color:var(--accent); display:flex; justify-content:space-between;">
@@ -108,10 +116,23 @@
     </div>
 </div>
 
+<div class="modal-overlay" id="ptsInfoModal">
+    <div class="modal-box">
+        <h3 style="text-align:center">Info Ganjaran Points</h3>
+        <ul style="margin:15px 0; font-size:14px; line-height:1.6">
+            <li>Setiap <b>RM1.00</b> perbelanjaan = <b>1 Point</b>.</li>
+            <li>Kumpul sehingga <b>100 Points</b> untuk tebus diskaun.</li>
+            <li>Penebusan <b>100 Points = RM5.00</b> potongan harga.</li>
+            <li>Butang tebus akan muncul secara automatik semasa checkout jika point cukup.</li>
+        </ul>
+        <button class="btn-add-set" onclick="document.getElementById('ptsInfoModal').style.display='none'">Faham!</button>
+    </div>
+</div>
+
 <div class="modal-overlay" id="paymentModal">
     <div class="modal-box" style="text-align:center">
         <h3>Checkout</h3>
-        <div id="redeem-btn" style="background:var(--gold); padding:10px; border-radius:8px; margin-bottom:10px; display:none; cursor:pointer" onclick="redeemPoints()">🎁 TEBUS DISKAUN RM5 (Guna 100 Pts)</div>
+        <div id="redeem-btn" style="background:var(--gold); padding:12px; border-radius:8px; margin-bottom:10px; display:none; cursor:pointer; font-weight:bold; border:2px dashed black" onclick="redeemPoints()">🎁 KLIK UNTUK TEBUS DISKAUN RM5 (Guna 100 Pts)</div>
         <div style="display:flex; gap:10px; margin-bottom:10px;">
             <button id="b-pick" class="payment-btn" style="background:var(--primary); color:white; flex:1" onclick="setSvc('pick')">Self-Pick</button>
             <button id="b-delv" class="payment-btn" style="background:#eee; flex:1" onclick="setSvc('delivery')">Delivery</button>
@@ -210,7 +231,6 @@
         isShopOpen = snap.val() !== false;
         document.getElementById('shop-closed-banner').style.display = isShopOpen ? 'none' : 'block';
         document.getElementById('btn-start').disabled = !isShopOpen;
-        document.getElementById('closed-msg').style.display = isShopOpen ? 'none' : 'block';
         const tb = document.getElementById('toggle-shop-btn');
         tb.innerText = isShopOpen ? "🟢 BUKA (KLIK TUTUP)" : "🔴 TUTUP (KLIK BUKA)";
         tb.style.background = isShopOpen ? "var(--primary)" : "var(--danger)";
@@ -251,10 +271,13 @@
             const u = snap.val() || { name: sessionStorage.getItem('sb_n'), points: 0 };
             document.getElementById('u-name').innerText = u.name;
             document.getElementById('u-pts').innerText = u.points;
-            // KEMASKINI: Tebus balik 100 point = RM5
-            document.getElementById('redeem-btn').style.display = u.points >= 100 ? 'block' : 'none';
+            const canRedeem = u.points >= 100;
+            document.getElementById('redeem-btn').style.display = canRedeem ? 'block' : 'none';
+            document.getElementById('main-redeem-btn').style.display = canRedeem ? 'inline-block' : 'none';
         });
     }
+
+    function showPtsInfo() { document.getElementById('ptsInfoModal').style.display = 'flex'; }
 
     function renderMenu() {
         document.getElementById('menu-grid').innerHTML = products.filter(p => currentCat === 'Semua' || p.cat === currentCat).map(p => `
@@ -310,15 +333,19 @@
             const R = 6371; const dLat = (lat-SHOP_LAT)*Math.PI/180; const dLon = (lon-SHOP_LON)*Math.PI/180;
             const a = Math.sin(dLat/2)**2 + Math.cos(SHOP_LAT*Math.PI/180)*Math.cos(lat*Math.PI/180)*Math.sin(dLon/2)**2;
             const dist = R * (2*Math.atan2(Math.sqrt(a), Math.sqrt(1-a)));
-            // RM1 untuk setiap 2KM
             fee = dist <= 2 ? 1.00 : Math.ceil(dist / 2);
             document.getElementById('dist-txt').innerText = `Kos: RM ${fee.toFixed(2)} (${dist.toFixed(2)}km)`;
             updateFinal();
         }, (err) => alert("Sila benarkan akses lokasi."));
     }
 
-    // TEBUS: 100 point = RM5
-    function redeemPoints() { discount = 5; document.getElementById('p-disc-row').style.display='block'; updateFinal(); }
+    function redeemPoints() { 
+        discount = 5; 
+        document.getElementById('p-disc-row').style.display='block'; 
+        document.getElementById('redeem-btn').style.opacity = '0.5';
+        document.getElementById('redeem-btn').onclick = null;
+        updateFinal(); 
+    }
     
     function updateFinal() { 
         let o = parseFloat(document.getElementById('p-order').innerText); 
@@ -340,7 +367,6 @@
         
         db.ref('users/'+p).get().then(s => {
             let u = s.val() || {name:n, points:0}; 
-            // Tolak 100 jika tebus
             if(discount>0) u.points -= 100; 
             u.points += Math.floor(fAmount); 
             db.ref('users/'+p).set(u);
@@ -372,7 +398,7 @@
     }
 
     function filterMenu(c, b) { currentCat = c; document.querySelectorAll('.cat-btn').forEach(x=>x.classList.remove('active')); b.classList.add('active'); renderMenu(); }
-    function closePay() { document.getElementById('paymentModal').style.display='none'; }
+    function closePay() { document.getElementById('paymentModal').style.display='none'; discount = 0; document.getElementById('p-disc-row').style.display='none'; }
     window.onload = () => { renderMenu(); renderCart(); if(sessionStorage.getItem('sb_n')) { document.getElementById('welcomeModal').style.display='none'; loadLoyalty(); } };
 </script>
 </body>
