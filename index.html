@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Slurp & Bite POS - Full Version</title>
+    <title>Slurp & Bite POS - Admin Edit Version</title>
     <style>
         :root { --primary: #2d5a27; --whatsapp: #25D366; --danger: #e74c3c; --bg: #f4f7f4; --accent: #d35400; --online: #0061ff; --gold: #f1c40f; }
         
@@ -55,8 +55,10 @@
         .payment-btn { width: 100%; padding: 15px; border: none; border-radius: 10px; margin: 5px 0; font-weight: bold; cursor: pointer; }
         
         .map-container { width: 100%; height: 180px; border-radius: 10px; margin-top: 10px; display: none; border: 2px solid #2196f3; overflow: hidden; }
-        .admin-table { width: 100%; border-collapse: collapse; font-size: 11px; margin-top: 10px; }
-        .admin-table th, .admin-table td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        .admin-table { width: 100%; border-collapse: collapse; font-size: 10px; margin-top: 10px; }
+        .admin-table th, .admin-table td { border: 1px solid #ddd; padding: 5px; text-align: left; }
+        .btn-edit { background: var(--online); color: white; border: none; padding: 2px 5px; border-radius: 3px; font-size: 10px; cursor: pointer; }
+        .btn-del { background: var(--danger); color: white; border: none; padding: 2px 5px; border-radius: 3px; font-size: 10px; cursor: pointer; }
     </style>
 </head>
 <body>
@@ -295,16 +297,15 @@
         const userName = sessionStorage.getItem('sb_n'); 
         const userPhone = sessionStorage.getItem('sb_p');
         
-        // 1. Update Loyalty
         const db = JSON.parse(localStorage.getItem('loyalty_db')) || {};
         let u = db[userPhone] || { name: userName, points: 0 };
         if(discount > 0) u.points -= 100; u.points += Math.floor(finalAmount);
         db[userPhone] = u; 
         localStorage.setItem('loyalty_db', JSON.stringify(db));
 
-        // 2. Simpan Sejarah Order (sb_hist)
         let history = JSON.parse(localStorage.getItem('sb_hist')) || [];
         history.push({ 
+            id: Date.now(),
             name: userName, 
             phone: userPhone, 
             total: finalAmount, 
@@ -313,7 +314,6 @@
         });
         localStorage.setItem('sb_hist', JSON.stringify(history));
 
-        // 3. Prepare WhatsApp Message
         let msg = `*ORDER ${service.toUpperCase()}*\nNama: ${userName}\nTotal: RM ${finalAmount}\n`;
         cart.forEach((item, index) => {
             msg += `${index+1}. ${item.n} (RM${item.p.toFixed(2)})\n`;
@@ -332,22 +332,49 @@
 
     function handleAdminAccess() { adminClicks++; if(adminClicks>=5){ adminClicks=0; if(prompt("Pass:")===ADMIN_PASS) showAdmin(); } }
     
+    // --- ADMIN FUNCTIONS ---
+    function deleteOrder(orderId) {
+        if(!confirm("Padam sejarah order ini?")) return;
+        let history = JSON.parse(localStorage.getItem('sb_hist')) || [];
+        history = history.filter(o => o.id !== orderId);
+        localStorage.setItem('sb_hist', JSON.stringify(history));
+        showAdmin();
+    }
+
+    function editPoints(phone) {
+        let db = JSON.parse(localStorage.getItem('loyalty_db')) || {};
+        let newPts = prompt(`Masukkan Point baru untuk ${db[phone].name}:`, db[phone].points);
+        if(newPts !== null) {
+            db[phone].points = parseInt(newPts);
+            localStorage.setItem('loyalty_db', JSON.stringify(db));
+            showAdmin();
+            loadLoyalty();
+        }
+    }
+
+    function deleteUser(phone) {
+        if(!confirm("Padam pelanggan ini & semua point mereka?")) return;
+        let db = JSON.parse(localStorage.getItem('loyalty_db')) || {};
+        delete db[phone];
+        localStorage.setItem('loyalty_db', JSON.stringify(db));
+        showAdmin();
+    }
+
     function showAdmin() {
         const history = JSON.parse(localStorage.getItem('sb_hist')) || []; 
         const db = JSON.parse(localStorage.getItem('loyalty_db')) || {};
         
-        let html = `<b>10 Order Terakhir:</b><br><table class="admin-table"><tr><th>Nama</th><th>Tarikh</th><th>RM</th></tr>`;
+        let html = `<b>10 Order Terakhir:</b><br><table class="admin-table"><tr><th>Nama</th><th>RM</th><th>Tindakan</th></tr>`;
         if(history.length === 0) {
-            html += `<tr><td colspan="3" style="text-align:center">Tiada sejarah order</td></tr>`;
+            html += `<tr><td colspan="3">Tiada sejarah</td></tr>`;
         } else {
-            // Papar order terbaru di atas
             history.slice(-10).reverse().forEach(item => {
-                html += `<tr><td>${item.name}</td><td>${item.date.split(',')[0]}</td><td>RM${item.total}</td></tr>`;
+                html += `<tr><td>${item.name}</td><td>${item.total}</td><td><button class="btn-del" onclick="deleteOrder(${item.id})">Del</button></td></tr>`;
             });
         }
-        html += `</table><br><b>Loyalty List:</b><table class="admin-table"><tr><th>Nama</th><th>Telefon</th><th>Pts</th></tr>`;
+        html += `</table><br><b>Pelanggan & Point:</b><table class="admin-table"><tr><th>Nama</th><th>Pts</th><th>Tindakan</th></tr>`;
         for(let key in db) {
-            html += `<tr><td>${db[key].name}</td><td>${key}</td><td>${db[key].points}</td></tr>`;
+            html += `<tr><td>${db[key].name}</td><td>${db[key].points}</td><td><button class="btn-edit" onclick="editPoints('${key}')">Edit</button> <button class="btn-del" onclick="deleteUser('${key}')">Del</button></td></tr>`;
         }
         html += `</table>`;
         
