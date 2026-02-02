@@ -111,7 +111,7 @@
 <div class="modal-overlay" id="paymentModal">
     <div class="modal-box" style="text-align:center">
         <h3>Checkout</h3>
-        <div id="redeem-btn" style="background:var(--gold); padding:10px; border-radius:8px; margin-bottom:10px; display:none; cursor:pointer" onclick="redeemPoints()">🎁 TEBUS DISKAUN RM5</div>
+        <div id="redeem-btn" style="background:var(--gold); padding:10px; border-radius:8px; margin-bottom:10px; display:none; cursor:pointer" onclick="redeemPoints()">🎁 TEBUS DISKAUN RM5 (Guna 100 Pts)</div>
         <div style="display:flex; gap:10px; margin-bottom:10px;">
             <button id="b-pick" class="payment-btn" style="background:var(--primary); color:white; flex:1" onclick="setSvc('pick')">Self-Pick</button>
             <button id="b-delv" class="payment-btn" style="background:#eee; flex:1" onclick="setSvc('delivery')">Delivery</button>
@@ -133,7 +133,7 @@
         <div id="cash-box" style="display:none; background:#f9f9f9; padding:10px; border-radius:8px; margin-bottom:10px">
             <input type="number" id="cash-in" class="input-box" placeholder="Duit Tunai RM" oninput="calcChange()">
             <p style="color:var(--danger); font-weight:bold">Baki: RM <span id="change-txt">0.00</span></p>
-            <button class="payment-btn" style="background:var(--primary); color:white" onclick="doPay('cash')">SAHKAN & WHATSAPP</button>
+            <button class="payment-btn" style="background:var(--primary); color:white" onclick="doPay('cash')">CASH & WHATSAPP</button>
         </div>
 
         <button class="payment-btn" style="background:var(--online); color:white" onclick="doPay('online')">🌐 BAYAR ONLINE</button>
@@ -155,7 +155,6 @@
 </div>
 
 <script>
-    // Firebase Config dari imej yang anda kongsikan
     const firebaseConfig = {
         apiKey: "AIzaSyD9ZzK3lD_oRksYz7-AUeHZ0WsGdBG8IKs",
         authDomain: "slurpbite-a0859.firebaseapp.com",
@@ -179,7 +178,6 @@
     let fee = 0; let discount = 0; let uLoc = ""; let currentCat = 'Semua';
     let isShopOpen = true;
 
-    // Senarai Produk (Kekal 25 item)
     const products = [
         { id: 1, cat: 'Makanan', name: 'Oden Original', price: 0.00, img: 'https://i.postimg.cc/KcLWHG11/oden.jpg' },
         { id: 2, cat: 'Makanan', name: 'Dry Pan Mee', price: 4.00, img: 'https://i.postimg.cc/Qx3zL27t/pan_mee.jpg' },
@@ -253,6 +251,7 @@
             const u = snap.val() || { name: sessionStorage.getItem('sb_n'), points: 0 };
             document.getElementById('u-name').innerText = u.name;
             document.getElementById('u-pts').innerText = u.points;
+            // KEMASKINI: Tebus balik 100 point = RM5
             document.getElementById('redeem-btn').style.display = u.points >= 100 ? 'block' : 'none';
         });
     }
@@ -272,10 +271,9 @@
     function resetSet() { currentSet = []; document.getElementById('set-note').value = ""; updateSetUI(); }
 
     function confirmToCart() {
-        // PERBAIKAN: Menyimpan senarai item untuk dipaparkan di resit
         let n = currentSet.length > 1 ? currentSet[0].name + " Set" : currentSet[0].name;
         let p = currentSet.reduce((a,b)=>a+b.price, 0);
-        let d = currentSet.map(i => i.name).join(", "); // Details add-on
+        let d = currentSet.map(i => i.name).join(", "); 
         cart.push({ n, p, r: document.getElementById('set-note').value, details: d });
         localStorage.setItem('sb_cart', JSON.stringify(cart));
         resetSet(); renderCart();
@@ -306,19 +304,22 @@
     function getLoc() {
         navigator.geolocation.getCurrentPosition(pos => {
             const lat = pos.coords.latitude; const lon = pos.coords.longitude;
-            uLoc = `https://www.google.com/maps/place/${lat},${lon}`;
+            uLoc = `https://www.google.com/maps?q=${lat},${lon}`;
             document.getElementById('m-frame').src = `https://maps.google.com/maps?q=${lat},${lon}&t=&z=15&ie=UTF8&iwloc=&output=embed`;
             document.getElementById('m-container').style.display = 'block';
             const R = 6371; const dLat = (lat-SHOP_LAT)*Math.PI/180; const dLon = (lon-SHOP_LON)*Math.PI/180;
             const a = Math.sin(dLat/2)**2 + Math.cos(SHOP_LAT*Math.PI/180)*Math.cos(lat*Math.PI/180)*Math.sin(dLon/2)**2;
             const dist = R * (2*Math.atan2(Math.sqrt(a), Math.sqrt(1-a)));
-            fee = dist <= 1 ? 1.00 : Math.ceil(dist);
+            // RM1 untuk setiap 2KM
+            fee = dist <= 2 ? 1.00 : Math.ceil(dist / 2);
             document.getElementById('dist-txt').innerText = `Kos: RM ${fee.toFixed(2)} (${dist.toFixed(2)}km)`;
             updateFinal();
         }, (err) => alert("Sila benarkan akses lokasi."));
     }
 
+    // TEBUS: 100 point = RM5
     function redeemPoints() { discount = 5; document.getElementById('p-disc-row').style.display='block'; updateFinal(); }
+    
     function updateFinal() { 
         let o = parseFloat(document.getElementById('p-order').innerText); 
         document.getElementById('p-fee').innerText = fee.toFixed(2);
@@ -338,25 +339,28 @@
         const fAmount = document.getElementById('p-final').innerText; const n = sessionStorage.getItem('sb_n'); const p = sessionStorage.getItem('sb_p');
         
         db.ref('users/'+p).get().then(s => {
-            let u = s.val() || {name:n, points:0}; if(discount>0) u.points-=100; u.points+=Math.floor(fAmount); db.ref('users/'+p).set(u);
+            let u = s.val() || {name:n, points:0}; 
+            // Tolak 100 jika tebus
+            if(discount>0) u.points -= 100; 
+            u.points += Math.floor(fAmount); 
+            db.ref('users/'+p).set(u);
         });
 
         db.ref('orders').push({ name:n, phone:p, total:fAmount, date:new Date().toLocaleString(), type });
 
-        // PERBAIKAN: Resit WhatsApp dengan Butiran Add-On & Kos Delivery
         let msg = `*ORDER ${service.toUpperCase()}*\n`;
         msg += `Nama: ${n}\n`;
         msg += `--------------------------\n`;
         cart.forEach((i,x) => {
             msg += `${x+1}. *${i.n}* - RM${i.p.toFixed(2)}\n`;
-            msg += `   Item: ${i.details}\n`; // Memaparkan Add-on
+            msg += `   Item: ${i.details}\n`; 
             if(i.r) msg += `   _Nota: ${i.r}_\n`;
         });
         msg += `--------------------------\n`;
         msg += `Makanan: RM ${document.getElementById('p-order').innerText}\n`;
-        if(service==='delivery') msg += `Delivery: RM ${fee.toFixed(2)}\n`; // Kos delivery tertulis di sini
-        if(discount>0) msg += `Diskaun: -RM 5.00\n`;
-        msg += `*TOTAL: RM ${fAmount}*\n`;
+        if(service==='delivery') msg += `Delivery Fee: RM ${fee.toFixed(2)}\n`; 
+        if(discount>0) msg += `Diskaun (100 Pts): -RM 5.00\n`;
+        msg += `*TOTAL BAYAR: RM ${fAmount}*\n`;
         msg += `Kaedah: ${type.toUpperCase()}\n`;
         if(uLoc) msg += `📍 Lokasi: ${uLoc}`;
 
