@@ -37,8 +37,11 @@
         .cat-btn { padding: 8px 15px; border-radius: 20px; border: 1px solid #ddd; background: white; font-size: 12px; white-space: nowrap; font-weight: bold; }
         .cat-btn.active { background: var(--primary); color: white; }
         .menu-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 10px; }
-        .product-card { background: white; border-radius: 12px; padding: 8px; text-align: center; border: 1px solid #eee; }
+        
+        .product-card { background: white; border-radius: 12px; padding: 8px; text-align: center; border: 1px solid #eee; position: relative; }
         .product-card img { width: 100%; height: 90px; object-fit: cover; border-radius: 8px; margin-bottom: 5px; }
+        .product-card.sold-out { opacity: 0.5; filter: grayscale(1); pointer-events: none; }
+        .sold-out-tag { position: absolute; top: 40%; left: 0; width: 100%; background: rgba(231, 76, 60, 0.9); color: white; font-size: 10px; font-weight: bold; padding: 4px 0; transform: rotate(-15deg); }
 
         .cart-section { background: white; border-top: 2px solid var(--primary); flex-shrink: 0; z-index: 1000; }
         .cart-toggle-btn { background: #eee; text-align: center; padding: 8px; font-size: 10px; font-weight: bold; cursor: pointer; }
@@ -55,6 +58,7 @@
         .map-container { width: 100%; height: 180px; border-radius: 10px; margin-top: 10px; display: none; border: 2px solid #2196f3; overflow: hidden; }
         .admin-table { width: 100%; border-collapse: collapse; font-size: 10px; margin-top: 10px; }
         .admin-table th, .admin-table td { border: 1px solid #ddd; padding: 5px; text-align: left; }
+        .btn-status { padding: 4px 8px; border-radius: 4px; border: none; font-size: 9px; cursor: pointer; font-weight: bold; }
     </style>
 </head>
 <body>
@@ -204,6 +208,7 @@
     let service = 'pick';
     let fee = 0; let discount = 0; let uLoc = ""; let currentCat = 'Semua';
     let isShopOpen = true;
+    let inventory = {};
 
     const products = [
         { id: 1, cat: 'Makanan', name: 'Oden Original', price: 0.00, img: 'https://i.postimg.cc/KcLWHG11/oden.jpg' },
@@ -233,6 +238,11 @@
         { id: 25, cat: 'Add On', name: 'Udang', price: 1.00, img: 'https://i.postimg.cc/9rzpptn4/udang.jpg' }
     ];
 
+    db.ref('inventory').on('value', (snap) => {
+        inventory = snap.val() || {};
+        renderMenu();
+    });
+
     db.ref('shop_status').on('value', (snap) => {
         isShopOpen = snap.val() !== false;
         document.getElementById('shop-closed-banner').style.display = isShopOpen ? 'none' : 'block';
@@ -252,12 +262,23 @@
         db.ref().get().then((snap) => {
             const data = snap.val() || {};
             const users = data.users || {};
+            const inv = data.inventory || {};
             const today = new Date().toISOString().slice(0, 10);
             const visitors = data.stats && data.stats[today] ? Object.keys(data.stats[today]).length : 0;
             
             document.getElementById('visitor-count').innerText = visitors;
 
-            let html = `<b>Rekod Pelanggan & Points:</b><table class="admin-table"><tr><th>Nama</th><th>Telefon</th><th>Pts</th><th>Aksi</th></tr>`;
+            let html = `<b>Kawal Stok Menu:</b><div style="max-height:150px; overflow-y:auto; margin-bottom:15px; border:1px solid #eee; padding:5px;">`;
+            products.forEach(p => {
+                let isOut = inv[p.id] === false;
+                html += `<div style="display:flex; justify-content:space-between; margin-bottom:5px; font-size:11px; align-items:center;">
+                    <span>${p.name}</span>
+                    <button class="btn-status" style="background:${isOut?'#e74c3c':'#2ecc71'}; color:white;" onclick="toggleStock(${p.id}, ${!isOut})">${isOut?'Habis':'Tersedia'}</button>
+                </div>`;
+            });
+            html += `</div>`;
+
+            html += `<b>Rekod Pelanggan & Points:</b><table class="admin-table"><tr><th>Nama</th><th>Telefon</th><th>Pts</th><th>Aksi</th></tr>`;
             for(let p in users) {
                 html += `<tr><td>${users[p].name}</td><td>${p}</td><td>${users[p].points}</td><td><button onclick="editPts('${p}')">Edit</button></td></tr>`;
             }
@@ -267,6 +288,7 @@
         });
     }
 
+    function toggleStock(id, status) { db.ref('inventory/'+id).set(status).then(showAdmin); }
     function editPts(p) { let n = prompt("Point:"); if(n) db.ref('users/'+p+'/points').set(parseInt(n)).then(showAdmin); }
     function toggleShopStatus() { db.ref('shop_status').set(!isShopOpen); }
 
@@ -274,14 +296,10 @@
         if(!isShopOpen) return;
         const n = document.getElementById('v-name').value; const p = document.getElementById('v-phone').value;
         if(!n || !p) return alert("Sila isi maklumat!");
-        
         sessionStorage.setItem('sb_n', n); sessionStorage.setItem('sb_p', p);
-        
-        // Log Visitor & Daily Stats (Auto-reset by Date key)
         const today = new Date().toISOString().slice(0, 10);
         db.ref('stats/' + today + '/' + p).set(true);
         db.ref('users/' + p + '/name').set(n);
-
         document.getElementById('welcomeModal').style.display = 'none';
         loadLoyalty();
     }
@@ -299,13 +317,27 @@
     }
 
     function showPtsInfo() { document.getElementById('ptsInfoModal').style.display = 'flex'; }
+    
     function renderMenu() {
-        document.getElementById('menu-grid').innerHTML = products.filter(p => currentCat === 'Semua' || p.cat === currentCat).map(p => `
-            <div class="product-card" onclick="addToSet(${p.id})"><img src="${p.img}"><p style="font-weight:bold; font-size:12px">${p.name}</p><p style="color:var(--primary); font-size:11px">RM ${p.price.toFixed(2)}</p></div>
-        `).join('');
+        document.getElementById('menu-grid').innerHTML = products.filter(p => currentCat === 'Semua' || p.cat === currentCat).map(p => {
+            const isOut = inventory[p.id] === false;
+            return `
+            <div class="product-card ${isOut ? 'sold-out' : ''}" onclick="addToSet(${p.id})">
+                <img src="${p.img}">
+                ${isOut ? '<div class="sold-out-tag">NOT AVAILABLE</div>' : ''}
+                <p style="font-weight:bold; font-size:12px">${p.name}</p>
+                <p style="color:var(--primary); font-size:11px">RM ${p.price.toFixed(2)}</p>
+            </div>`;
+        }).join('');
     }
 
-    function addToSet(id) { const p = products.find(x => x.id === id); currentSet.push({...p, uid: Date.now()}); updateSetUI(); }
+    function addToSet(id) { 
+        if(inventory[id] === false) return;
+        const p = products.find(x => x.id === id); 
+        currentSet.push({...p, uid: Date.now()}); 
+        updateSetUI(); 
+    }
+
     function updateSetUI() {
         document.getElementById('set-display').innerHTML = currentSet.length ? currentSet.map(i => `<span class="set-item-tag">${i.name} <b onclick="event.stopPropagation(); removeFromSet(${i.uid})" style="color:red">×</b></span>`).join('') : "Pilih menu...";
         document.getElementById('btn-add-cart').disabled = !currentSet.length;
