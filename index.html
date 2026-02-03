@@ -41,7 +41,7 @@
         .product-card { background: white; border-radius: 12px; padding: 8px; text-align: center; border: 1px solid #eee; position: relative; }
         .product-card img { width: 100%; height: 90px; object-fit: cover; border-radius: 8px; margin-bottom: 5px; }
         .product-card.sold-out { opacity: 0.5; filter: grayscale(1); pointer-events: none; }
-        .sold-out-tag { position: absolute; top: 40%; left: 0; width: 100%; background: rgba(231, 76, 60, 0.9); color: white; font-size: 10px; font-weight: bold; padding: 4px 0; transform: rotate(-15deg); }
+        .sold-out-tag { position: absolute; top: 40%; left: 0; width: 100%; background: rgba(231, 76, 60, 0.9); color: white; font-size: 10px; font-weight: bold; padding: 4px 0; transform: rotate(-15deg); z-index: 10; }
 
         .cart-section { background: white; border-top: 2px solid var(--primary); flex-shrink: 0; z-index: 1000; }
         .cart-toggle-btn { background: #eee; text-align: center; padding: 8px; font-size: 10px; font-weight: bold; cursor: pointer; }
@@ -58,7 +58,7 @@
         .map-container { width: 100%; height: 180px; border-radius: 10px; margin-top: 10px; display: none; border: 2px solid #2196f3; overflow: hidden; }
         .admin-table { width: 100%; border-collapse: collapse; font-size: 10px; margin-top: 10px; }
         .admin-table th, .admin-table td { border: 1px solid #ddd; padding: 5px; text-align: left; }
-        .btn-status { padding: 4px 8px; border-radius: 4px; border: none; font-size: 9px; cursor: pointer; font-weight: bold; }
+        .btn-status { padding: 6px 10px; border-radius: 5px; border: none; font-size: 10px; cursor: pointer; font-weight: bold; color: white; }
     </style>
 </head>
 <body>
@@ -238,9 +238,11 @@
         { id: 25, cat: 'Add On', name: 'Udang', price: 1.00, img: 'https://i.postimg.cc/9rzpptn4/udang.jpg' }
     ];
 
+    // Real-time Inventory Listener
     db.ref('inventory').on('value', (snap) => {
         inventory = snap.val() || {};
         renderMenu();
+        if(document.getElementById('adminModal').style.display === 'flex') refreshAdminUI();
     });
 
     db.ref('shop_status').on('value', (snap) => {
@@ -248,8 +250,10 @@
         document.getElementById('shop-closed-banner').style.display = isShopOpen ? 'none' : 'block';
         document.getElementById('btn-start').disabled = !isShopOpen;
         const tb = document.getElementById('toggle-shop-btn');
-        tb.innerText = isShopOpen ? "🟢 BUKA (KLIK TUTUP)" : "🔴 TUTUP (KLIK BUKA)";
-        tb.style.background = isShopOpen ? "var(--primary)" : "var(--danger)";
+        if(tb) {
+            tb.innerText = isShopOpen ? "🟢 BUKA (KLIK TUTUP)" : "🔴 TUTUP (KLIK BUKA)";
+            tb.style.background = isShopOpen ? "var(--primary)" : "var(--danger)";
+        }
     });
 
     function promptAdminPass() {
@@ -259,6 +263,11 @@
     }
 
     function showAdmin() {
+        refreshAdminUI();
+        document.getElementById('adminModal').style.display = 'flex';
+    }
+
+    function refreshAdminUI() {
         db.ref().get().then((snap) => {
             const data = snap.val() || {};
             const users = data.users || {};
@@ -268,12 +277,14 @@
             
             document.getElementById('visitor-count').innerText = visitors;
 
-            let html = `<b>Kawal Stok Menu:</b><div style="max-height:150px; overflow-y:auto; margin-bottom:15px; border:1px solid #eee; padding:5px;">`;
+            let html = `<b>Kawal Stok Menu:</b><div style="max-height:200px; overflow-y:auto; margin-bottom:15px; border:1px solid #eee; padding:10px; background:#fafafa; border-radius:8px;">`;
             products.forEach(p => {
                 let isOut = inv[p.id] === false;
-                html += `<div style="display:flex; justify-content:space-between; margin-bottom:5px; font-size:11px; align-items:center;">
+                html += `<div style="display:flex; justify-content:space-between; margin-bottom:8px; font-size:12px; align-items:center; border-bottom:1px solid #eee; padding-bottom:4px;">
                     <span>${p.name}</span>
-                    <button class="btn-status" style="background:${isOut?'#e74c3c':'#2ecc71'}; color:white;" onclick="toggleStock(${p.id}, ${!isOut})">${isOut?'Habis':'Tersedia'}</button>
+                    <button class="btn-status" style="background:${isOut?'var(--danger)':'#2ecc71'};" onclick="toggleStock(${p.id}, ${!isOut})">
+                        ${isOut?'HABIS':'TERSEDIA'}
+                    </button>
                 </div>`;
             });
             html += `</div>`;
@@ -284,12 +295,16 @@
             }
             html += `</table>`;
             document.getElementById('admin-content').innerHTML = html;
-            document.getElementById('adminModal').style.display = 'flex';
         });
     }
 
-    function toggleStock(id, status) { db.ref('inventory/'+id).set(status).then(showAdmin); }
-    function editPts(p) { let n = prompt("Point:"); if(n) db.ref('users/'+p+'/points').set(parseInt(n)).then(showAdmin); }
+    function toggleStock(id, status) { 
+        db.ref('inventory/'+id).set(status).then(() => {
+            refreshAdminUI(); // Force refresh UI inside admin
+        }); 
+    }
+
+    function editPts(p) { let n = prompt("Point:"); if(n) db.ref('users/'+p+'/points').set(parseInt(n)).then(refreshAdminUI); }
     function toggleShopStatus() { db.ref('shop_status').set(!isShopOpen); }
 
     function saveVisitor() {
